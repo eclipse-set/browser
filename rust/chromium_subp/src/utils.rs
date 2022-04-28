@@ -16,16 +16,9 @@ use std::ffi::CStr;
 #[cfg(windows)]
 extern crate winapi;
 
-pub fn subp_path(cwd: &::std::path::Path, version: &str) -> String {
-    let subp_path = if cfg!(target_os = "windows") { 
-        cwd.join(format!("chromium_subp-{}.exe", version))
-    } else if cfg!(target_os = "macos") {
-        cwd.join(format!("chromium_subp-{}.app/Contents/MacOS/chromium_subp", version))
-    } else { 
-        cwd.join(format!("chromium_subp-{}", version)) 
-    };
+pub fn subp_path(cwd: &::std::path::Path, _version: &str) -> String {
+    let subp_path = cwd.join("chromium_subp.exe");
     let subp = subp_path.to_str().unwrap();
-    //println!("subp: {:?}", subp);
     String::from(subp)
 }
 
@@ -70,9 +63,8 @@ pub fn prepare_args() -> cef::_cef_main_args_t {
     let h_instance = unsafe { winapi::um::libloaderapi::GetModuleHandleA(0 as winapi::um::winnt::LPCSTR) };
     let main_args = cef::_cef_main_args_t {
         instance: unsafe { ::std::mem::transmute(h_instance) }
-        //instance: unsafe { std::mem::transmute(0 as i64) }
+    //instance: unsafe { std::mem::transmute(0 as i64) }
     };
-    // println!("Hello CEF, hinstance: {:?}", main_args.instance);
     main_args
 }
 
