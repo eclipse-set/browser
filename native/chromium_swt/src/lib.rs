@@ -558,7 +558,7 @@ pub extern fn cefswt_eval(browser: *mut cef::cef_browser_t, text: *const c_char,
 }
 
 #[no_mangle]
-pub extern fn cefswt_function(browser: *mut cef::cef_browser_t, name: *mut c_char, id: i32) -> c_int {
+pub extern fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id: i32) -> c_int {
     let name_cef = utils::cef_string_from_c(name);
     let msg_name = utils::cef_string("function");
     unsafe {
