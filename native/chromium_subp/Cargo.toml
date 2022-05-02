@@ -1,5 +1,5 @@
 [package]
-name = "chromium"
+name = "chromium_subp"
 version = "59.0.0"
 authors = ["Equo <https://www.equoplatform.com/>", "Guillermo Zunino <guillez@gmail.com>"]
 
@@ -12,6 +12,7 @@ lto = true
 codegen-units = 1
 
 [dependencies]
+chromium = { path = "../chromium/" }
 
 [target.'cfg(windows)'.dependencies]
 winapi = { version = "0.3", features = ["winuser", "libloaderapi"] }
@@ -20,4 +21,5 @@ winapi = { version = "0.3", features = ["winuser", "libloaderapi"] }
 gen = ["bindgen"]
 
 [build-dependencies]
-bindgen = { version = "0.41.0", optional = true }
+bindgen = { version = "0.59.0", optional = true }
+chromium_jni_macro = { path = "../chromium_jni_macro/" }

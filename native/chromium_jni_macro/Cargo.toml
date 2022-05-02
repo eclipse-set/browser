@@ -1,0 +1,12 @@
+[package]
+name = "chromium_jni_macro"
+edition = "2021"
+version = "0.1.0"
+
+[lib]
+proc-macro = true
+
+[dependencies]
+syn = { version = "1.0", features = ["full", "extra-traits"] }
+quote = "1.0"
+proc-macro2 = "1.0"

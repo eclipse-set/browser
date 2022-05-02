@@ -11,7 +11,6 @@
  *   Guillermo Zunino, Equo - initial implementation
  ********************************************************************************/
 use cef;
-use utils;
 #[cfg(target_os = "linux")]
 use gtk;
 
@@ -28,17 +27,17 @@ pub fn create_browser(canvas_hwnd: *mut c_void, url: &str, jclient: &mut cef::_c
     let browser_settings = cef::_cef_browser_settings_t {
         size: size_of::<cef::_cef_browser_settings_t>(),
         windowless_frame_rate: 0,
-        standard_font_family: utils::cef_string_empty(),
-        fixed_font_family: utils::cef_string_empty(),
-        serif_font_family: utils::cef_string_empty(),
-        sans_serif_font_family: utils::cef_string_empty(),
-        cursive_font_family: utils::cef_string_empty(),
-        fantasy_font_family: utils::cef_string_empty(),
+        standard_font_family: chromium_subp::utils::cef_string_empty(),
+        fixed_font_family: chromium_subp::utils::cef_string_empty(),
+        serif_font_family: chromium_subp::utils::cef_string_empty(),
+        sans_serif_font_family: chromium_subp::utils::cef_string_empty(),
+        cursive_font_family: chromium_subp::utils::cef_string_empty(),
+        fantasy_font_family: chromium_subp::utils::cef_string_empty(),
         default_font_size: 0,
         default_fixed_font_size: 0,
         minimum_font_size: 0,
         minimum_logical_font_size: 0,
-        default_encoding: utils::cef_string_empty(),
+        default_encoding: chromium_subp::utils::cef_string_empty(),
         remote_fonts: cef::cef_state_t::STATE_DEFAULT,
         javascript: if js == 0 { cef::cef_state_t::STATE_DISABLED } else { cef::cef_state_t::STATE_DEFAULT },
         javascript_open_windows: cef::cef_state_t::STATE_DEFAULT,
@@ -58,10 +57,10 @@ pub fn create_browser(canvas_hwnd: *mut c_void, url: &str, jclient: &mut cef::_c
         application_cache: cef::cef_state_t::STATE_DEFAULT,
         webgl: cef::cef_state_t::STATE_DEFAULT,
         background_color: bg,
-        accept_language_list: utils::cef_string_empty()
+        accept_language_list: chromium_subp::utils::cef_string_empty()
     };
 
-    let url_cef = utils::cef_string(url);
+    let url_cef = chromium_subp::utils::cef_string(url);
 
     // Create browser.
     // println!("Calling cef_browser_host_create_browser");
@@ -182,7 +181,7 @@ fn cef_window_info(hwnd: *mut c_void, w: c_int, h: c_int) -> cef::_cef_window_in
         windowless_rendering_enabled: 0,
         window: 0 as cef::win::HWND,
         ex_style: 0,
-        window_name: cef::cef_string_t { str: null_mut(),  length: 0,  dtor: Option::None },
+        window_name: cef::cef_string_t { str_: null_mut(),  length: 0,  dtor: Option::None },
         style: winapi::um::winuser::WS_CHILDWINDOW | winapi::um::winuser::WS_CLIPCHILDREN
             | winapi::um::winuser::WS_CLIPSIBLINGS | winapi::um::winuser::WS_VISIBLE | winapi::um::winuser::WS_TABSTOP,
         menu: 0 as cef::win::HMENU
@@ -212,7 +211,7 @@ pub fn set_window_parent(window_info: *mut cef::_cef_window_info_t, hwnd: *mut c
         (*window_info).windowless_rendering_enabled = 0;
         (*window_info).window = 0 as cef::win::HWND;
         (*window_info).ex_style = 0;
-        (*window_info).window_name = cef::cef_string_t { str: null_mut(),  length: 0,  dtor: Option::None };
+        (*window_info).window_name = cef::cef_string_t { str_: null_mut(),  length: 0,  dtor: Option::None };
         if !hwnd.is_null() {
             (*window_info).style = winapi::um::winuser::WS_CHILDWINDOW | winapi::um::winuser::WS_CLIPCHILDREN
                 | winapi::um::winuser::WS_CLIPSIBLINGS | winapi::um::winuser::WS_VISIBLE | winapi::um::winuser::WS_TABSTOP;

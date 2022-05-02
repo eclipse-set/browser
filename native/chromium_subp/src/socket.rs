@@ -15,7 +15,6 @@ use std::io::{Read, Write};
 use std::ffi::{CString, CStr};
 use std::os::raw::{c_char, c_int};
 // use std::thread::{self, JoinHandle};
-use cef;
 
 #[derive(Debug, PartialEq, Eq)]
 #[repr(C)]
@@ -130,10 +129,10 @@ fn serialize_null() {
     assert_eq!(CString::new("").unwrap(), read_st.str_value);
 }
 
-pub fn wait_response(browser: *mut cef::cef_browser_t, 
-        msg: *mut cef::cef_process_message_t,
-        args: *mut cef::_cef_list_value_t,
-        target: cef::cef_process_id_t,
+pub fn wait_response(browser: *mut chromium::cef::cef_browser_t, 
+        msg: *mut chromium::cef::cef_process_message_t,
+        args: *mut chromium::cef::_cef_list_value_t,
+        target: chromium::cef::cef_process_id_t,
         callback: Option<unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)>
         ) -> Result<ReturnSt, String> {
     match TcpListener::bind(("127.0.0.1", 0)) {
@@ -179,7 +178,7 @@ pub fn wait_response(browser: *mut cef::cef_browser_t,
                                 call(1, ReturnType::Error as i32, ::std::ptr::null());
                             }
                         };
-                        unsafe { cef::cef_do_message_loop_work() };
+                        unsafe { chromium::cef::cef_do_message_loop_work() };
                     }
                 };
                 if res.is_some() {

@@ -21,8 +21,6 @@ extern crate nix;
 extern crate objc;
 
 use chromium::cef;
-use chromium::utils;
-use chromium::socket;
 
 mod app;
 #[cfg(target_os = "linux")]
@@ -51,17 +49,17 @@ pub extern fn cefswt_init(japp: *mut cef::cef_app_t, cefrust_path: *const c_char
     assert_eq!(unsafe{(*japp).base.size}, std::mem::size_of::<cef::_cef_app_t>());
     //println!("app {:?}", japp);
 
-    let cefrust_path = utils::str_from_c(cefrust_path);
-    let cef_path = utils::str_from_c(cef_path);
-    let version = utils::str_from_c(version);
+    let cefrust_path = chromium_subp::utils::str_from_c(cefrust_path);
+    let cef_path = chromium_subp::utils::str_from_c(cef_path);
+    let version = chromium_subp::utils::str_from_c(version);
 
-    let main_args = utils::prepare_args();
+    let main_args = chromium_subp::utils::prepare_args();
 
     let cefrust_dir = std::path::Path::new(&cefrust_path);
     let cef_dir = std::path::Path::new(&cef_path);
 
-    let subp = utils::subp_path(cefrust_dir, version);
-    let subp_cef = utils::cef_string(&subp);
+    let subp = chromium_subp::utils::subp_path(cefrust_dir, version);
+    let subp_cef = chromium_subp::utils::cef_string(&subp);
 
     if cef_path != cefrust_path {
         if cfg!(target_family = "windows") {
@@ -76,24 +74,24 @@ pub extern fn cefswt_init(japp: *mut cef::cef_app_t, cefrust_path: *const c_char
     }
 
     let resources_cef = if cfg!(target_os = "macos") {
-        utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").join("Resources").to_str().unwrap())
+        chromium_subp::utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").join("Resources").to_str().unwrap())
     } else {
-        utils::cef_string(cef_dir.to_str().unwrap())
+        chromium_subp::utils::cef_string(cef_dir.to_str().unwrap())
     };
     let locales_cef = if cfg!(target_os = "macos") {
-        utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").join("Resources").to_str().unwrap())
+        chromium_subp::utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").join("Resources").to_str().unwrap())
     } else {
-        utils::cef_string(cef_dir.join("locales").to_str().unwrap())
+        chromium_subp::utils::cef_string(cef_dir.join("locales").to_str().unwrap())
     };
     let framework_dir_cef = if cfg!(target_os = "macos") {
-        utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").to_str().unwrap())
+        chromium_subp::utils::cef_string(cef_dir.join("Chromium Embedded Framework.framework").to_str().unwrap())
     } else {
-        utils::cef_string_empty()
+        chromium_subp::utils::cef_string_empty()
     };
 
-    let cache_dir_cef = utils::cef_string(cef_dir.parent().unwrap().parent().unwrap().join("cef_cache").to_str().unwrap());
+    let cache_dir_cef = chromium_subp::utils::cef_string(cef_dir.parent().unwrap().parent().unwrap().join("cef_cache").to_str().unwrap());
 
-    let logfile_cef = utils::cef_string(cef_dir.join("lib.log").to_str().unwrap());
+    let logfile_cef = chromium_subp::utils::cef_string(cef_dir.join("lib.log").to_str().unwrap());
 
     let settings = cef::_cef_settings_t {
         size: std::mem::size_of::<cef::_cef_settings_t>(),
@@ -106,16 +104,16 @@ pub extern fn cefswt_init(japp: *mut cef::cef_app_t, cefrust_path: *const c_char
         windowless_rendering_enabled: 0,
         command_line_args_disabled: 0,
         cache_path: cache_dir_cef,
-        user_data_path: utils::cef_string_empty(),
+        user_data_path: chromium_subp::utils::cef_string_empty(),
         persist_session_cookies: 1,
         persist_user_preferences: 1,
-        user_agent: utils::cef_string_empty(),
-        product_version: utils::cef_string_empty(),
-        locale: utils::cef_string_empty(),
+        user_agent: chromium_subp::utils::cef_string_empty(),
+        product_version: chromium_subp::utils::cef_string_empty(),
+        locale: chromium_subp::utils::cef_string_empty(),
         log_file: logfile_cef,
         log_severity: cef::cef_log_severity_t::LOGSEVERITY_INFO,
         // log_severity: cef::cef_log_severity_t::LOGSEVERITY_VERBOSE,
-        javascript_flags: utils::cef_string_empty(),
+        javascript_flags: chromium_subp::utils::cef_string_empty(),
         resources_dir_path: resources_cef,
         locales_dir_path: locales_cef,
         pack_loading_disabled: 0,
@@ -124,7 +122,7 @@ pub extern fn cefswt_init(japp: *mut cef::cef_app_t, cefrust_path: *const c_char
         ignore_certificate_errors: 0,
         enable_net_security_expiration: 0,
         background_color: 0,
-        accept_language_list: utils::cef_string_empty()
+        accept_language_list: chromium_subp::utils::cef_string_empty()
     };
 
     //println!("Calling cef_initialize");
@@ -293,13 +291,13 @@ fn restore_signal_handlers(signal_handlers: HashMap<c_int, nix::sys::signal::Sig
 }
 
 #[no_mangle]
-pub extern fn cefswt_create_browser(hwnd: *mut c_void, url: *const c_char, client: &mut cef::_cef_client_t, w: c_int, h: c_int, js: c_int, bg: cef::cef_color_t) -> *const cef::cef_browser_t {
+pub extern fn cefswt_create_browser(hwnd: *mut c_void, url: *const c_char, client: &mut cef::_cef_client_t, w: c_int, h: c_int, js: c_int, cbg: c_int) -> *const cef::cef_browser_t {
+    let bg: cef::cef_color_t = cbg as cef::cef_color_t;
     assert_eq!((*client).base.size, std::mem::size_of::<cef::_cef_client_t>());
-
     // println!("hwnd: {:?}", hwnd);
     // (*client).on_process_message_received = Option::Some(on_process_message_received);
 
-    let url = utils::str_from_c(url);
+    let url = chromium_subp::utils::str_from_c(url);
     // println!("url: {:?}", url);
 
     let browser = app::create_browser(hwnd, url, client, w, h, js, bg);
@@ -313,7 +311,7 @@ pub extern fn cefswt_create_browser(hwnd: *mut c_void, url: *const c_char, clien
 }
 
 #[no_mangle]
-pub extern fn cefswt_set_window_info_parent(window_info: *mut cef::_cef_window_info_t, client: *mut *mut cef::_cef_client_t, jclient: &mut cef::_cef_client_t, hwnd: *mut c_void, x: c_int, y: c_int, w: c_int, h: c_int) {
+pub extern fn cefswt_set_window_info_parent(window_info: *mut cef::_cef_window_info_t, client: *mut *mut cef::_cef_client_t, jclient: *mut cef::_cef_client_t, hwnd: *mut c_void, x: c_int, y: c_int, w: c_int, h: c_int) {
     unsafe {
         //println!("cefswt_set_window_info_parent {:?} {}", *window_info, hwnd);
         (*client) = jclient;
@@ -409,8 +407,8 @@ pub extern fn cefswt_close_browser(browser: *mut cef::cef_browser_t, force: c_in
 
 #[no_mangle]
 pub extern fn cefswt_load_url(browser: *mut cef::cef_browser_t, url: *const c_char, post_bytes: *const c_void, post_size: usize, headers: *const c_char, headers_size: usize) {
-    let url = utils::str_from_c(url);
-    let url_cef = utils::cef_string(url);
+    let url = chromium_subp::utils::str_from_c(url);
+    let url_cef = chromium_subp::utils::cef_string(url);
     //println!("url: {:?}", url);
     unsafe {
         let get_frame = (*browser).get_main_frame.expect("null get_main_frame");
@@ -432,19 +430,19 @@ pub extern fn cefswt_load_url(browser: *mut cef::cef_browser_t, url: *const c_ch
             if !headers.is_null() {
                 let map = cef::cef_string_multimap_alloc();
 
-                let headers = utils::str_from_c(headers);
+                let headers = chromium_subp::utils::str_from_c(headers);
                 let headers: Vec<&str> = headers.splitn(headers_size, "::").collect();
                 for i in 0..headers_size {
                     // let header = headers.wrapping_add(i);
                     // let ptr = header.read();
 
-                    // let header_str = utils::str_from_c(ptr);
+                    // let header_str = chromium_subp::utils::str_from_c(ptr);
                     let header_str = headers[i];
                     let header: Vec<&str> = header_str.splitn(2, ':').collect();
                     let key = header[0].trim();
                     let value = header[1].trim();
-                    let key = utils::cef_string(key);
-                    let value = utils::cef_string(value);
+                    let key = chromium_subp::utils::cef_string(key);
+                    let value = chromium_subp::utils::cef_string(value);
 
                     cef::cef_string_multimap_append(map, &key, &value);
                 }
@@ -463,19 +461,19 @@ pub extern fn cefswt_get_url(browser: *mut cef::cef_browser_t) -> *mut c_char {
     assert!(!main_frame.is_null());
     let get_url = unsafe { (*main_frame).get_url.expect("null get_url") };
     let url = unsafe { get_url(main_frame) };
-    utils::cstr_from_cef(url)
+    chromium_subp::utils::cstr_from_cef(url)
 }
 
 #[no_mangle]
 pub extern fn cefswt_cefstring_to_java(cefstring: *mut cef::cef_string_t) -> *const c_char {
-    let r = utils::cstr_from_cef(cefstring);
+    let r = chromium_subp::utils::cstr_from_cef(cefstring);
     r
 }
 
 #[no_mangle]
 pub extern fn cefswt_request_to_java(request: *mut cef::cef_request_t) -> *mut c_char {
     let url = unsafe { (*request).get_url.expect("null get_url")(request) };
-    let cstr = utils::cstr_from_cef(url);
+    let cstr = chromium_subp::utils::cstr_from_cef(url);
     unsafe { cef::cef_string_userfree_utf16_free(url) };
     cstr
 }
@@ -483,15 +481,15 @@ pub extern fn cefswt_request_to_java(request: *mut cef::cef_request_t) -> *mut c
 #[no_mangle]
 pub extern fn cefswt_cookie_to_java(cookie: *mut cef::_cef_cookie_t) -> *mut c_char {
     let name = unsafe { (*cookie).name };
-    let cstr = utils::cstr_from_cef(&name);
+    let cstr = chromium_subp::utils::cstr_from_cef(&name);
     cstr
 }
 
 #[no_mangle]
 pub extern fn cefswt_load_text(browser: *mut cef::cef_browser_t, text: *const c_char) {
-    let text = utils::str_from_c(text);
-    let text_cef = utils::cef_string(text);
-    let url_cef = utils::cef_string("http://text/");
+    let text = chromium_subp::utils::str_from_c(text);
+    let text_cef = chromium_subp::utils::cef_string(text);
+    let url_cef = chromium_subp::utils::cef_string("http://text/");
     // println!("text: {:?}", text);
     let get_frame = unsafe { (*browser).get_main_frame.expect("null get_main_frame") };
     let main_frame = unsafe { get_frame(browser) };
@@ -523,9 +521,9 @@ pub extern fn cefswt_get_text(browser: *mut cef::cef_browser_t, visitor: *mut ce
 
 #[no_mangle]
 pub extern fn cefswt_execute(browser: *mut cef::cef_browser_t, text: *const c_char) {
-    let text = utils::str_from_c(text);
-    let text_cef = utils::cef_string(text);
-    let url_cef = utils::cef_string_empty();
+    let text = chromium_subp::utils::str_from_c(text);
+    let text_cef = chromium_subp::utils::cef_string(text);
+    let url_cef = chromium_subp::utils::cef_string_empty();
     let get_frame = unsafe { (*browser).get_main_frame.expect("null get_main_frame") };
     let main_frame = unsafe { get_frame(browser) };
     let execute = unsafe { (*main_frame).execute_java_script.expect("null execute_java_script") };
@@ -535,8 +533,8 @@ pub extern fn cefswt_execute(browser: *mut cef::cef_browser_t, text: *const c_ch
 #[no_mangle]
 pub extern fn cefswt_eval(browser: *mut cef::cef_browser_t, text: *const c_char, id: i32,
         callback: unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)) -> c_int {
-    let text_cef = utils::cef_string_from_c(text);
-    let name = utils::cef_string("eval");
+    let text_cef = chromium_subp::utils::cef_string_from_c(text);
+    let name = chromium_subp::utils::cef_string("eval");
     unsafe {
         let msg = cef::cef_process_message_create(&name);
         let args = (*msg).get_argument_list.unwrap()(msg);
@@ -544,7 +542,7 @@ pub extern fn cefswt_eval(browser: *mut cef::cef_browser_t, text: *const c_char,
         assert_eq!(s, 1);
         let s = (*args).set_string.unwrap()(args, 2, &text_cef);
         assert_eq!(s, 1);
-        match socket::wait_response(browser, msg, args, cef::cef_process_id_t::PID_RENDERER, Some(callback)) {
+        match chromium_subp::socket::wait_response(browser, msg, args, cef::cef_process_id_t::PID_RENDERER, Some(callback)) {
             Ok(r) => {
                 callback(0, r.kind as i32, r.str_value.as_ptr());
                 1
@@ -559,8 +557,8 @@ pub extern fn cefswt_eval(browser: *mut cef::cef_browser_t, text: *const c_char,
 
 #[no_mangle]
 pub extern fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id: i32) -> c_int {
-    let name_cef = utils::cef_string_from_c(name);
-    let msg_name = utils::cef_string("function");
+    let name_cef = chromium_subp::utils::cef_string_from_c(name);
+    let msg_name = chromium_subp::utils::cef_string("function");
     unsafe {
         let msg = cef::cef_process_message_create(&msg_name);
         let args = (*msg).get_argument_list.unwrap()(msg);
@@ -590,7 +588,7 @@ pub unsafe extern fn cefswt_function_id(message: *mut cef::cef_process_message_t
     (*st).id = -1;
     (*st).args = 0;
     (*st).port = 0;
-    if valid == 1 && cef::cef_string_utf16_cmp(&utils::cef_string("function_call"), name) == 0 {
+    if valid == 1 && cef::cef_string_utf16_cmp(&chromium_subp::utils::cef_string("function_call"), name) == 0 {
         let args = (*message).get_argument_list.unwrap()(message);
         let args_len = (*args).get_size.unwrap()(args);
         let port = (*args).get_int.unwrap()(args, 0);
@@ -609,20 +607,39 @@ pub unsafe extern fn cefswt_function_id(message: *mut cef::cef_process_message_t
 }
 
 #[no_mangle]
-pub unsafe extern fn cefswt_function_arg(message: *mut cef::cef_process_message_t, index: i32, callback: unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)) -> c_int {
-    let args = (*message).get_argument_list.unwrap()(message);
-    let kind = (*args).get_int.unwrap()(args, (1+index*2+1) as usize);
-    let arg = (*args).get_string.unwrap()(args, (1+index*2+2) as usize);
-    let cstr = utils::cstr_from_cef(arg);
-    let kind = socket::ReturnType::from(kind);
-    callback(0, kind as i32, cstr);
-    1
+pub extern fn cefswt_function_arg(message: *mut cef::cef_process_message_t, index: i32, callback: unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)) -> c_int {
+    unsafe {
+        let args = (*message).get_argument_list.unwrap()(message);
+        let kind = (*args).get_int.unwrap()(args, (1+index*2+1) as usize);
+        let arg = (*args).get_string.unwrap()(args, (1+index*2+2) as usize);
+        let cstr = chromium_subp::utils::cstr_from_cef(arg);
+        let kind = chromium_subp::socket::ReturnType::from(kind);
+        callback(0, kind as i32, cstr);
+        1
+    }
 }
 
+/*
+
 #[no_mangle]
-pub extern fn cefswt_function_return(_browser: *mut cef::cef_browser_t, _id: i32, port: i32, kind: socket::ReturnType, ret: *const c_char) -> c_int {
+pub extern fn cefswt_function_arg(message: *mut cef::cef_process_message_t, index: i32, callback: unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)) -> c_int {
+    unsafe {
+        let args = (*message).get_argument_list.unwrap()(message);
+        let kind = (*args).get_int.unwrap()(args, (1+index*2+1) as usize);
+        let arg = (*args).get_string.unwrap()(args, (1+index*2+2) as usize);
+        let cstr = chromium_subp::utils::cstr_from_cef(arg);
+        let kind = socket::ReturnType::from(kind);
+        callback(0, kind as i32, cstr);
+        1
+    }
+}
+
+*/
+
+#[no_mangle]
+pub extern fn cefswt_function_return(_browser: *mut cef::cef_browser_t, _id: i32, port: i32, kind: i32, ret: *const c_char) -> c_int {
     let cstr = unsafe { std::ffi::CStr::from_ptr(ret) };
-    let s = socket::socket_client(port as u16, cstr.to_owned(), kind);
+    let s = chromium_subp::socket::socket_client(port as u16, cstr.to_owned(), unsafe { std::mem::transmute(kind) });
     s
 }
 
@@ -679,8 +696,8 @@ pub extern fn cefswt_context_menu_cancel(callback: *mut cef::_cef_run_context_me
 pub extern fn cefswt_auth_callback(callback: *mut cef::_cef_auth_callback_t, juser: *const c_char, jpass: *const c_char, cont: c_int) {
     unsafe {
         if cont == 1 {
-            let user = utils::cef_string_from_c(juser);
-            let pass = utils::cef_string_from_c(jpass);
+            let user = chromium_subp::utils::cef_string_from_c(juser);
+            let pass = chromium_subp::utils::cef_string_from_c(jpass);
             (*callback).cont.unwrap()(callback, &user, &pass)
         } else {
             (*callback).cancel.unwrap()(callback) 
@@ -691,11 +708,11 @@ pub extern fn cefswt_auth_callback(callback: *mut cef::_cef_auth_callback_t, jus
 #[no_mangle]
 pub extern fn cefswt_set_cookie(jurl: *const c_char, jname: *const c_char, jvalue: *const c_char, jdomain: *const c_char, jpath: *const c_char, secure: i32, httponly: i32, max_age: f64) -> c_int {
     let manager = unsafe { cef::cef_cookie_manager_get_global_manager(std::ptr::null_mut()) };
-    let url = utils::cef_string_from_c(jurl);
-    let domain = utils::cef_string_from_c(jdomain);
-    let path = utils::cef_string_from_c(jpath);
-    let name = utils::cef_string_from_c(jname);
-    let value = utils::cef_string_from_c(jvalue);
+    let url = chromium_subp::utils::cef_string_from_c(jurl);
+    let domain = chromium_subp::utils::cef_string_from_c(jdomain);
+    let path = chromium_subp::utils::cef_string_from_c(jpath);
+    let name = chromium_subp::utils::cef_string_from_c(jname);
+    let value = chromium_subp::utils::cef_string_from_c(jvalue);
     let has_expires = if max_age == -1.0 {
         0
     } else {
@@ -725,14 +742,14 @@ pub extern fn cefswt_set_cookie(jurl: *const c_char, jname: *const c_char, jvalu
 #[no_mangle]
 pub extern fn cefswt_get_cookie(jurl: *const c_char, jvisitor: *mut cef::_cef_cookie_visitor_t) -> c_int {
     let manager = unsafe { cef::cef_cookie_manager_get_global_manager(std::ptr::null_mut()) };
-    let url = utils::cef_string_from_c(jurl);
+    let url = chromium_subp::utils::cef_string_from_c(jurl);
 
     unsafe { (*manager).visit_url_cookies.expect("null visit_url_cookies")(manager, &url, 1, jvisitor) }
 }
 
 #[no_mangle]
 pub extern fn cefswt_cookie_value(cookie: *mut cef::_cef_cookie_t) -> *mut c_char {
-    unsafe { utils::cstr_from_cef(&mut (*cookie).value) }
+    unsafe { chromium_subp::utils::cstr_from_cef(&mut (*cookie).value) }
 }
 
 #[no_mangle]

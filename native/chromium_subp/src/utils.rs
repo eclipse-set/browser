@@ -10,7 +10,6 @@
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
  ********************************************************************************/
-use cef;
 use std::os::raw::c_char;
 use std::ffi::CStr;
 #[cfg(windows)]
@@ -23,7 +22,7 @@ pub fn subp_path(cwd: &::std::path::Path, _version: &str) -> String {
 }
 
 #[cfg(unix)]
-pub fn prepare_args() -> cef::_cef_main_args_t {
+pub fn prepare_args() -> chromium::cef::_cef_main_args_t {
     use std::ffi::CString;
     let mut args: Vec<*mut c_char> = ::std::env::args().map(|arg| {
         // println!("arg: {:?}", arg);
@@ -49,7 +48,7 @@ pub fn prepare_args() -> cef::_cef_main_args_t {
     let args_ptr = args.as_mut_ptr();
     ::std::mem::forget(args);
 
-    let main_args = cef::_cef_main_args_t {
+    let main_args = chromium::cef::_cef_main_args_t {
         argc : args_size,
         argv : args_ptr
     };
@@ -59,23 +58,23 @@ pub fn prepare_args() -> cef::_cef_main_args_t {
 }
 
 #[cfg(windows)]
-pub fn prepare_args() -> cef::_cef_main_args_t {
+pub fn prepare_args() -> chromium::cef::_cef_main_args_t {
     let h_instance = unsafe { winapi::um::libloaderapi::GetModuleHandleA(0 as winapi::um::winnt::LPCSTR) };
-    let main_args = cef::_cef_main_args_t {
+    let main_args = chromium::cef::_cef_main_args_t {
         instance: unsafe { ::std::mem::transmute(h_instance) }
     //instance: unsafe { std::mem::transmute(0 as i64) }
     };
     main_args
 }
 
-pub fn cef_string(value: &str) -> cef::cef_string_t {
-    let mut str_cef = cef::cef_string_t {str: ::std::ptr::null_mut(), length: 0, dtor: Option::Some(dtr)};
-    //unsafe { cef::cef_string_utf16_set(value.as_ptr() as *mut cef::char16, value.len(), &mut str_cef, 1) };
-    unsafe {cef::cef_string_utf8_to_utf16(value.as_ptr() as *mut c_char, value.len(), &mut str_cef);}
+pub fn cef_string(value: &str) -> chromium::cef::cef_string_t {
+    let mut str_cef = chromium::cef::cef_string_t {str_: ::std::ptr::null_mut(), length: 0, dtor: Option::Some(dtr)};
+    //unsafe { chromium::cef::cef_string_utf16_set(value.as_ptr() as *mut chromium::cef::char16, value.len(), &mut str_cef, 1) };
+    unsafe {chromium::cef::cef_string_utf8_to_utf16(value.as_ptr() as *mut c_char, value.len(), &mut str_cef);}
     str_cef
 }
 
-pub fn cef_string_from_c(cstr: *const c_char) -> cef::cef_string_t {
+pub fn cef_string_from_c(cstr: *const c_char) -> chromium::cef::cef_string_t {
     if cstr.is_null() {
         cef_string_empty()
     } else {
@@ -83,21 +82,21 @@ pub fn cef_string_from_c(cstr: *const c_char) -> cef::cef_string_t {
     }
 }
 
-pub fn cef_string_empty() -> cef::cef_string_t {
-    let mut empty_str = cef::cef_string_t {
-        str: ::std::ptr::null_mut(), 
+pub fn cef_string_empty() -> chromium::cef::cef_string_t {
+    let mut empty_str = chromium::cef::cef_string_t {
+        str_: ::std::ptr::null_mut(), 
         length: 0, 
         dtor: Option::Some(dtr)
     };
     
     let emp = "";
-    //unsafe { cef::cef_string_utf16_set(emp.as_ptr() as *mut cef::char16, 0, &mut empty_str, 1) };
-    unsafe { cef::cef_string_utf8_to_utf16(emp.as_ptr() as *mut c_char, 0, &mut empty_str);}
+    //unsafe { chromium::cef::cef_string_utf16_set(emp.as_ptr() as *mut chromium::cef::char16, 0, &mut empty_str, 1) };
+    unsafe { chromium::cef::cef_string_utf8_to_utf16(emp.as_ptr() as *mut c_char, 0, &mut empty_str);}
 
     empty_str
 }
 
-unsafe extern "C" fn dtr(_: *mut cef::char16) {
+unsafe extern "C" fn dtr(_: *mut chromium::cef::char16) {
     // println!("DESTROY CEF_STRING");
 }
 
@@ -110,11 +109,11 @@ pub fn str_from_c(cstr: *const c_char) -> &'static str {
     }
 }
 
-pub fn cstr_from_cef(cefstring: *const cef::cef_string_t) -> *mut c_char {
+pub fn cstr_from_cef(cefstring: *const chromium::cef::cef_string_t) -> *mut c_char {
     if cefstring.is_null() {
         return ::std::ptr::null_mut();
     }
-    let utf8 = unsafe { cef::cef_string_userfree_utf8_alloc() };
-    unsafe { cef::cef_string_utf16_to_utf8((*cefstring).str, (*cefstring).length, utf8) };
-    unsafe {(*utf8).str}
+    let utf8 = unsafe { chromium::cef::cef_string_userfree_utf8_alloc() };
+    unsafe { chromium::cef::cef_string_utf16_to_utf8((*cefstring).str_, (*cefstring).length, utf8) };
+    unsafe {(*utf8).str_}
 }

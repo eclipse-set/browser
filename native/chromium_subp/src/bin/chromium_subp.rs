@@ -1,8 +1,9 @@
+extern crate chromium_subp;
 extern crate chromium;
 
-use chromium::utils;
+use chromium_subp::utils;
 use chromium::cef;
-use chromium::app;
+use chromium_subp::app;
 
 use std::os::raw::c_int;
 use std::ptr::null_mut;
