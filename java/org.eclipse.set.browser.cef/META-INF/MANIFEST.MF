@@ -1,8 +1,0 @@
-Manifest-Version: 1.0
-Bundle-ManifestVersion: 2
-Bundle-Name: Cef
-Bundle-SymbolicName: org.eclipse.set.browser.cef
-Bundle-Version: 1.0.0.qualifier
-Automatic-Module-Name: org.eclipse.set.browser.cef
-Bundle-RequiredExecutionEnvironment: JavaSE-17
-Export-Package: org.eclipse.set.browser.cef

@@ -1,9 +1,17 @@
+# Output dirs
 target/
 bin/
+
+# Caches
 cef_cache/
-cef/
+
+# Binary artifacts
 *.exe
 *.dll
+
+# Logs from crashing JVMs
 hs_err_pid*.log
+
 # Do not commit CEF binaries
-java/org.eclipse.set.browser.cef/chromium-*
+/java-cef/org.eclipse.set.browser.cef/cef
+/cef
