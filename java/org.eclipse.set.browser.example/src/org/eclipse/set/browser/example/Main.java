@@ -14,8 +14,8 @@
 package org.eclipse.set.browser.example;
 
 import org.eclipse.set.browser.Browser;
-import org.eclipse.set.browser.bin.CEFLibrary;
 import org.eclipse.set.browser.cef.CEFResourceProvider;
+import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.browser.LocationListener;

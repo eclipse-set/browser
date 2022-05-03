@@ -6,5 +6,5 @@ Bundle-Version: 1.0.0.qualifier
 Automatic-Module-Name: org.eclipse.set.browser
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.swt,
- org.eclipse.set.browser.bin
+ org.eclipse.set.browser.lib
 Bundle-ClassPath: .

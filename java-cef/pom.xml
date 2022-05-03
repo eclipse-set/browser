@@ -1,11 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.1.xsd"
-	xmlns="http://maven.apache.org/POM/4.0.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.1.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.set</groupId>
 	<artifactId>org.eclipse.set.browser.cef.releng.parent</artifactId>
-	<version>1.0.0</version>
+	<version>59.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
@@ -128,6 +125,7 @@
 	<scm>
 		<connection>scm:git:http://ki-vl-git.ki.lan/PlanPro/browser.git</connection>
 		<developerConnection>scm:git:http://ki-vl-git.ki.lan/PlanPro/browser.git</developerConnection>
+<tag>HEAD</tag>
 	</scm>
 
 </project>

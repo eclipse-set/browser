@@ -12,19 +12,19 @@
  ********************************************************************************/
 package org.eclipse.set.browser.cef;
 
-import org.eclipse.set.browser.bin.lib.cef_app_t;
-import org.eclipse.set.browser.bin.lib.cef_base_ref_counted_t;
-import org.eclipse.set.browser.bin.lib.cef_browser_process_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_client_t;
-import org.eclipse.set.browser.bin.lib.cef_context_menu_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_cookie_visitor_t;
-import org.eclipse.set.browser.bin.lib.cef_display_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_focus_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_jsdialog_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_life_span_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_load_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_request_handler_t;
-import org.eclipse.set.browser.bin.lib.cef_string_visitor_t;
+import org.eclipse.set.browser.lib.cef_app_t;
+import org.eclipse.set.browser.lib.cef_base_ref_counted_t;
+import org.eclipse.set.browser.lib.cef_browser_process_handler_t;
+import org.eclipse.set.browser.lib.cef_client_t;
+import org.eclipse.set.browser.lib.cef_context_menu_handler_t;
+import org.eclipse.set.browser.lib.cef_cookie_visitor_t;
+import org.eclipse.set.browser.lib.cef_display_handler_t;
+import org.eclipse.set.browser.lib.cef_focus_handler_t;
+import org.eclipse.set.browser.lib.cef_jsdialog_handler_t;
+import org.eclipse.set.browser.lib.cef_life_span_handler_t;
+import org.eclipse.set.browser.lib.cef_load_handler_t;
+import org.eclipse.set.browser.lib.cef_request_handler_t;
+import org.eclipse.set.browser.lib.cef_string_visitor_t;
 
 public class CEFFactory {
 

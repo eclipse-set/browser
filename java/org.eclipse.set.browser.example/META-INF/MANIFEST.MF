@@ -7,5 +7,5 @@ Automatic-Module-Name: org.eclipse.set.browser.example
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.swt;bundle-version="3.119.0",
  org.eclipse.set.browser;bundle-version="1.0.0",
- org.eclipse.set.browser.cef;bundle-version="1.0.0"
-Import-Package: org.eclipse.set.browser.bin
+ org.eclipse.set.browser.lib
+Import-Package: org.eclipse.set.browser.cef

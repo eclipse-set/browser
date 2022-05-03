@@ -2,7 +2,7 @@
 <feature
       id="org.eclipse.set.browser.cef.feature"
       label="CEF Binary Feature 59.0.3071.109"
-      version="59.0.0.qualifier"
+      version="59.0.1.qualifier"
       provider-name="Eclipse SET Project">
 
    <description url="http://www.example.com/description">
