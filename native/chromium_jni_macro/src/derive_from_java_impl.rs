@@ -17,7 +17,7 @@ use syn::{
 
 /// Implementation for derive(FromJava)
 ///
-/// Creates an implementation which constructs the type by invoking 
+/// Creates an implementation which constructs the type by invoking
 /// `FromJavaMember::from_java_member` on each struct field
 pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
     let input = parse_macro_input!(tokens as DeriveInput);
@@ -34,7 +34,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
     };
 
     // For each field, build the initialization call
-    let query_parts = build_initlilization(&fields);
+    let query_parts = build_initilization(&fields);
 
     let modified = quote! {
         impl FromJava for #name {
@@ -49,7 +49,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
 }
 
 /// For a field `x` construct `x: FromJavaMember::from_java_member(env, object, "x")`
-fn build_initlilization(
+fn build_initilization(
     fields: &Punctuated<Field, Comma>,
 ) -> impl Iterator<Item = proc_macro2::TokenStream> + '_ {
     let fields = fields.iter().enumerate().map(move |(_i, field)| {

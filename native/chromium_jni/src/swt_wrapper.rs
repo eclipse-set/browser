@@ -1,13 +1,18 @@
-
-
+/**
+ * Copyright (c) 2022 DB Netz AG and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ */
 use chromium_jni_macro::jni_wrap;
-#[allow(unused)]
 use chromium_swt::{
     cefswt_close_browser, cefswt_context_menu_cancel, cefswt_delete_cookies, cefswt_dialog_close,
     cefswt_do_message_loop_work, cefswt_free, cefswt_get_id, cefswt_get_text, cefswt_get_url,
     cefswt_go_back, cefswt_go_forward, cefswt_is_main_frame, cefswt_reload, cefswt_resized,
     cefswt_set_focus, cefswt_set_window_info_parent, cefswt_shutdown, cefswt_stop,cefswt_execute, cefswt_set_cookie, cefswt_get_cookie, cefswt_init, cefswt_function_arg, cefswt_function, cefswt_eval, 
-    cefswt_create_browser, cefswt_auth_callback, cefswt_is_same, cefswt_load_url, cefswt_function_return, cefswt_cookie_value
+    cefswt_create_browser, cefswt_auth_callback, cefswt_is_same, cefswt_load_url, cefswt_function_return
 };
 use jni::objects::{JClass, JObject, JString, JValue, ReleaseMode};
 use jni::sys::jboolean;
@@ -94,6 +99,7 @@ pub extern "C" fn Java_org_eclipse_set_browser_cef_lib_ChromiumLib_cefswt_1funct
     _env.set_field(arg1, "port", "I", JValue::Int(func_st.port.try_into().unwrap())).unwrap();
 }
 
+// Auto generated wrappers for various chormium_swt functions
 jni_wrap!("org.eclipse.set.browser.cef.lib.ChromiumLib", cefswt_function_arg, return jboolean, *mut chromium::cef::_cef_process_message_t, jint, unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char));
 jni_wrap!("org.eclipse.set.browser.cef.lib.ChromiumLib", cefswt_function_return, *mut chromium::cef::_cef_browser_t, jint, jint, jint, JString);
 jni_wrap!("org.eclipse.set.browser.cef.lib.ChromiumLib", cefswt_load_url, *mut chromium::cef::_cef_browser_t, JString, jbyteArray, jint, JString, jint);

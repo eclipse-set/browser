@@ -8,7 +8,7 @@
  */
 pub mod cef;
 
-use jni::objects::{JObject};
+use jni::objects::JObject;
 use jni::JNIEnv;
 use chromium_jni_utils::FromJava;
 use chromium_jni_utils::FromJavaMember;

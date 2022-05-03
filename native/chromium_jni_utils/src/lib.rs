@@ -1,21 +1,36 @@
-use jni::objects::{JClass, JObject, JString, JValue, ReleaseMode};
-use jni::sys::jboolean;
-use jni::sys::jbyteArray;
-use jni::sys::jdouble;
-use jni::sys::jint;
-use jni::sys::jlong;
-use std::os::raw::c_void;
+/**
+ * Copyright (c) 2022 DB Netz AG and others.
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v2.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v20.html
+ */
+use jni::objects::{JObject};
 use jni::JNIEnv;
 
+/// Allows extracting an object from a Java field
 pub trait FromJavaMember {
+    /// Constructs `Self` from the field `name` in the JNI object `object`
     fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> Self;
 }
 
+/// Allows constructing an object from a Java object
 pub trait FromJava {
+    /// Constructs `Self` from the JNI object `object`
     fn from_java(env: JNIEnv, object: JObject) -> Self;
 }
 
+impl FromJavaMember for usize
+{
+    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> usize {
+        // Read an integer field
+        return env.get_field(object, name, "I").and_then(|v| v.i()).unwrap() as usize;
+    }   
+}
 
+// A list of implementations for function pointers for functions of various arity follows
+// IMPROVE: Is there a better way to generalize across an arbitrary number of function args
 impl<T, U> FromJavaMember for Option<unsafe extern "C" fn(T) -> U>
 {
     fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> Option<unsafe extern "C" fn(T) -> U> {
@@ -169,9 +184,3 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F> FromJavaMember for Option<unsafe ext
     }
 }
 
-impl FromJavaMember for usize
-{
-    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> usize {
-        return env.get_field(object, name, "I").and_then(|v| v.i()).unwrap() as usize;
-    }   
-}
