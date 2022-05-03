@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Bin
+Bundle-SymbolicName: org.eclipse.set.browser.bin
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.set.browser.bin
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Import-Package: org.eclipse.swt.internal
+Export-Package: org.eclipse.set.browser.bin,
+ org.eclipse.set.browser.bin.lib

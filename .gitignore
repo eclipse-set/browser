@@ -1,4 +1,9 @@
 target/
-cef/
+bin/
 cef_cache/
-org.eclipse.set.browser.bin
+cef/
+*.exe
+*.dll
+hs_err_pid*.log
+# Do not commit CEF binaries
+java/org.eclipse.set.browser.cef/chromium-*

@@ -1,0 +1,10 @@
+Manifest-Version: 1.0
+Bundle-ManifestVersion: 2
+Bundle-Name: Browser
+Bundle-SymbolicName: org.eclipse.set.browser
+Bundle-Version: 1.0.0.qualifier
+Automatic-Module-Name: org.eclipse.set.browser
+Bundle-RequiredExecutionEnvironment: JavaSE-17
+Require-Bundle: org.eclipse.swt,
+ org.eclipse.set.browser.bin
+Bundle-ClassPath: .

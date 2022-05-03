@@ -16,7 +16,7 @@ use chromium_jni_utils::FromJavaMember;
 impl FromJavaMember for cef::cef_base_ref_counted_t {
     fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> cef::cef_base_ref_counted_t
     {
-        let obj = env.get_field(object, name, "Lorg/eclipse/set/browser/cef/lib/cef_base_ref_counted_t;").unwrap().l().unwrap();
+        let obj = env.get_field(object, name, "Lorg/eclipse/set/browser/bin/lib/cef_base_ref_counted_t;").unwrap().l().unwrap();
         return FromJava::from_java(env, obj);
     }
 }
