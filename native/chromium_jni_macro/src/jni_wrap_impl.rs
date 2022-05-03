@@ -7,7 +7,6 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 extern crate proc_macro;
-
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
@@ -42,10 +41,10 @@ impl Parse for JNIWrapInput {
             Lit::Str(c) => c.value(),
             _ => unreachable!(),
         };
-        // Read a function name
-        let func: Ident = input.parse()?;
-        input.parse::<Token![,]>()?;
 
+        // Read a function name
+        input.parse::<Token![,]>()?;
+        let func: Ident = input.parse()?;
         // Optionally read `return [type]`
         let mut retn: Option<Ident> = None;
         if input.peek(Token![,]) && input.peek2(Token![return]) {
@@ -84,7 +83,12 @@ pub fn jni_wrap_impl(tokens: TokenStream) -> TokenStream {
     } = parse_macro_input!(tokens as JNIWrapInput);
 
     // Construct a set of per-argument expressions
-    let (func_args, param_prepare, call_args, param_cleanup) = args
+    let (func_args, param_prepare, call_args, param_cleanup): (
+        Vec<proc_macro2::TokenStream>,
+        Vec<proc_macro2::TokenStream>,
+        Vec<proc_macro2::TokenStream>,
+        Vec<proc_macro2::TokenStream>,
+    ) = args
         .iter()
         .enumerate()
         .map(|(i, ty)| {
@@ -130,7 +134,15 @@ pub fn jni_wrap_impl(tokens: TokenStream) -> TokenStream {
 }
 
 /// Create per-argument statements
-fn setup_argument(index: usize, ty: &Type) -> (TokenStream, TokenStream, TokenStream, TokenStream) {
+fn setup_argument(
+    index: usize,
+    ty: &Type,
+) -> (
+    proc_macro2::TokenStream,
+    proc_macro2::TokenStream,
+    proc_macro2::TokenStream,
+    proc_macro2::TokenStream,
+) {
     let arg = Ident::new(&format!("arg{}", index), Span::call_site());
     let param = Ident::new(&format!("param{}", index), Span::call_site());
     return (
@@ -141,13 +153,13 @@ fn setup_argument(index: usize, ty: &Type) -> (TokenStream, TokenStream, TokenSt
         // Call expression
         quote! { #param },
         // Cleanup statement as required by the preparation statement
-        param_prepare(index, ty, &arg, &param),
+        param_cleanup(index, ty, &arg, &param),
     );
 }
 
 /// Generates a statement to prepare a parameter by performing
 /// necessary conversions
-fn param_prepare(index: usize, ty: &Type, arg: &Ident, param: &Ident) -> TokenStream {
+fn param_prepare(_index: usize, ty: &Type, arg: &Ident, param: &Ident) -> proc_macro2::TokenStream {
     match ty {
         Type::Path(tp) => {
             match get_path_type(&tp.path).to_string().as_str() {
@@ -170,7 +182,7 @@ fn param_prepare(index: usize, ty: &Type, arg: &Ident, param: &Ident) -> TokenSt
 }
 
 /// Generates a statement to clean up as required by `param_prepare`
-fn param_cleanup(index: usize, ty: &Type, arg: &Ident, param: &Ident) -> TokenStream {
+fn param_cleanup(_index: usize, ty: &Type, arg: &Ident, param: &Ident) -> proc_macro2::TokenStream {
     match ty {
         Type::Path(tp) => {
             match get_path_type(&tp.path).to_string().as_str() {

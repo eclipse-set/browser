@@ -13,11 +13,6 @@
 #[cfg(feature = "gen")]
 extern crate bindgen;
 
-#[cfg(debug_assertions)]
-const CEF_TARGET: &'static str = "Debug";
-#[cfg(not(debug_assertions))]
-const CEF_TARGET: &'static str = "Release";
-
 #[cfg(feature = "gen")]
 fn main() {
     let cef_path = get_cef_path();
@@ -28,6 +23,7 @@ fn main() {
 #[cfg(not(any(feature = "gen")))]
 fn main() {}
 
+#[cfg(feature = "gen")]
 fn get_cef_path() -> std::path::PathBuf {
     let cwd = std::env::current_dir().unwrap();
     let mut cef_path = cwd.clone();
@@ -176,6 +172,7 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .raw_line("#![allow(non_snake_case)]")
         .raw_line("#![allow(non_camel_case_types)]")
         .raw_line("#![allow(non_upper_case_globals)]")
+        .raw_line("#![allow(unused_imports)]")
         .raw_line("use chromium_jni_macro::FromJava;")
         .raw_line("use chromium_jni_utils::FromJava;")
         .raw_line("use chromium_jni_utils::FromJavaMember;")
