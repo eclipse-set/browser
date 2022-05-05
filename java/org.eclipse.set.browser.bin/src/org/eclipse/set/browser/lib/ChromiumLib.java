@@ -273,141 +273,112 @@ public class ChromiumLib extends C {
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
-	public static final native void memmove(cef_popup_features_t dest, long src,
-			int size);
+	public static final native void memmove(cef_popup_features_t dest,
+			long src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
-	public static final native void memmove(long dest, cef_app_t src, int size);
+	public static final native void memmove(long dest, cef_app_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
 	public static final native void memmove(long dest,
-			cef_browser_process_handler_t src, int size);
+			cef_browser_process_handler_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
-	public static final native void memmove(long dest, cef_client_t src,
-			int size);
+	public static final native void memmove(long dest, cef_client_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
 	public static final native void memmove(long dest,
-			cef_context_menu_handler_t src, int size);
+			cef_context_menu_handler_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
-	 */
-	public static final native void memmove(long dest, cef_cookie_visitor_t src,
-			int size);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
 	public static final native void memmove(long dest,
-			cef_display_handler_t src, int size);
+			cef_cookie_visitor_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
-	 */
-	public static final native void memmove(long dest, cef_focus_handler_t src,
-			int size);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
 	public static final native void memmove(long dest,
-			cef_jsdialog_handler_t src, int size);
+			cef_display_handler_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
+	 */
+	public static final native void memmove(long dest, cef_focus_handler_t src);
+
+	/**
+	 * @param dest
+	 *            cast=(void *)
+	 * @param src
+	 *            cast=(const void *),flags=no_out
 	 */
 	public static final native void memmove(long dest,
-			cef_life_span_handler_t src, int size);
+			cef_jsdialog_handler_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
-	 */
-	public static final native void memmove(long dest, cef_load_handler_t src,
-			int size);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
 	public static final native void memmove(long dest,
-			cef_request_handler_t src, int size);
+			cef_life_span_handler_t src);
 
 	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
 	 *            cast=(const void *),flags=no_out
-	 * @param size
-	 *            cast=(size_t)
 	 */
-	public static final native void memmove(long dest, cef_string_visitor_t src,
-			int size);
+	public static final native void memmove(long dest, cef_load_handler_t src);
+
+	/**
+	 * @param dest
+	 *            cast=(void *)
+	 * @param src
+	 *            cast=(const void *),flags=no_out
+	 */
+	public static final native void memmove(long dest,
+			cef_request_handler_t src);
+
+	/**
+	 * @param dest
+	 *            cast=(void *)
+	 * @param src
+	 *            cast=(const void *),flags=no_out
+	 */
+	public static final native void memmove(long dest,
+			cef_string_visitor_t src);
 
 }

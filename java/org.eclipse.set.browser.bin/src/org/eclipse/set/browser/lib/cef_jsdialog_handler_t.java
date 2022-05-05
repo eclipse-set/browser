@@ -12,14 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to JavaScript dialogs. The
 /// functions of this structure will be called on the UI thread.
 ///
 @SuppressWarnings("javadoc")
-public class cef_jsdialog_handler_t {
+public class cef_jsdialog_handler_t extends CStruct {
 	public static final int JSDIALOGTYPE_ALERT = 0;
 	public static final int JSDIALOGTYPE_CONFIRM = 1;
 	public static final int JSDIALOGTYPE_PROMPT = 2;
@@ -43,15 +43,11 @@ public class cef_jsdialog_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_before_unload_dialog;
-	/** @field flags=no_gen */
-	public Callback on_before_unload_dialog_cb;
 	///
 	/// Called when the default implementation dialog is closed.
 	///
 	/** @field cast=(void*) */
 	public long on_dialog_closed;
-	/** @field flags=no_gen */
-	public Callback on_dialog_closed_cb;
 
 	///
 	/// Called to run a JavaScript dialog. If |origin_url| is non-NULL it can be
@@ -81,8 +77,6 @@ public class cef_jsdialog_handler_t {
 	/** @field cast=(void*) */
 	public long on_jsdialog;
 
-	/** @field flags=no_gen */
-	public Callback on_jsdialog_cb;
 	///
 	/// Called to cancel any pending dialogs and reset any saved dialog state.
 	/// Will
@@ -91,7 +85,14 @@ public class cef_jsdialog_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_reset_dialog_state;
-	/** @field flags=no_gen */
-	public long ptr;
 
+	public cef_jsdialog_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

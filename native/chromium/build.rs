@@ -34,7 +34,6 @@ fn get_cef_path() -> std::path::PathBuf {
 }
 
 #[cfg(feature = "gen")]
-#[cfg(target_os = "windows")]
 fn gen_os(cef_path: std::path::Display) {
     let _ = generator(cef_path)
         .header("cef_win.h")
@@ -52,12 +51,7 @@ fn gen_os(cef_path: std::path::Display) {
 #[cfg(feature = "gen")]
 fn gen_cef(cef_path: std::path::Display) {
     use std::io::Write;
-    #[cfg(target_os = "windows")]
     let gen = generator(cef_path).header("include/internal/cef_types_win.h");
-    #[cfg(target_os = "linux")]
-    let gen = generator(cef_path).header("include/internal/cef_types_linux.h");
-    #[cfg(target_os = "macos")]
-    let gen = generator(cef_path).header("include/internal/cef_types_mac.h");
     let generated = gen
         .header("cef.h")
         .allowlist_type("cef_string_t")
@@ -96,14 +90,14 @@ fn gen_cef(cef_path: std::path::Display) {
         .blocklist_type(".*XDisplay")
         .blocklist_type("VisualID")
         .blocklist_type(".*XEvent")
-        .raw_line("#[cfg(windows)] pub mod win;")
-        .raw_line("#[cfg(windows)] pub use self::win::_cef_window_info_t;")
-        .raw_line("#[cfg(windows)] pub use self::win::_cef_main_args_t;")
-        .raw_line("#[cfg(windows)] pub type wchar_t = u16;")
-        .raw_line("#[cfg(windows)] pub type char16 = u16;")
-        .raw_line("#[cfg(windows)] pub type time_t = i64;")
-        .raw_line("#[cfg(windows)] pub type int64 = ::std::os::raw::c_longlong;")
-        .raw_line("#[cfg(windows)] pub type uint64 = ::std::os::raw::c_ulonglong;")
+        .raw_line("pub mod win;")
+        .raw_line("pub use self::win::_cef_window_info_t;")
+        .raw_line("pub use self::win::_cef_main_args_t;")
+        .raw_line("pub type wchar_t = u16;")
+        .raw_line("pub type char16 = u16;")
+        .raw_line("pub type time_t = i64;")
+        .raw_line("pub type int64 = ::std::os::raw::c_longlong;")
+        .raw_line("pub type uint64 = ::std::os::raw::c_ulonglong;")
         .generate()
         .expect("Failed to gencef")
         .to_string();

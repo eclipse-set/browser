@@ -12,14 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to focus. The functions of
 /// this structure will be called on the UI thread.
 ///
 @SuppressWarnings("javadoc")
-public class cef_focus_handler_t {
+public class cef_focus_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_focus_handler_t_sizeof();
 	///
 	/// Base structure.
@@ -30,8 +30,6 @@ public class cef_focus_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_got_focus;
-	/** @field flags=no_gen */
-	public Callback on_got_focus_cb;
 
 	///
 	/// Called when the browser component is requesting focus. |source|
@@ -42,8 +40,6 @@ public class cef_focus_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_set_focus;
-	/** @field flags=no_gen */
-	public Callback on_set_focus_cb;
 	///
 	/// Called when the browser component is about to loose focus. For instance,
 	/// if
@@ -55,10 +51,14 @@ public class cef_focus_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_take_focus;
-	/** @field flags=no_gen */
-	public Callback on_take_focus_cb;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_focus_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
 
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

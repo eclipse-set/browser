@@ -12,14 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to browser requests. The
 /// functions of this structure will be called on the thread indicated.
 ///
 @SuppressWarnings("javadoc")
-public class cef_request_handler_t {
+public class cef_request_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_request_handler_t_sizeof();
 	///
 	/// Base structure.
@@ -45,8 +45,6 @@ public class cef_request_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long get_auth_credentials;
-	/** @field flags=no_gen */
-	public Callback get_auth_credentials_cb;
 	///
 	/// Called on the IO thread before a resource is loaded. To allow the
 	/// resource
@@ -80,8 +78,6 @@ public class cef_request_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_before_browse;
-	/** @field flags=no_gen */
-	public Callback on_before_browse_cb;
 	///
 	/// Called on the IO thread before a resource request is loaded. The
 	/// |request|
@@ -228,4 +224,14 @@ public class cef_request_handler_t {
 
 	/** @field flags=no_gen */
 	public long ptr;
+
+	public cef_request_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

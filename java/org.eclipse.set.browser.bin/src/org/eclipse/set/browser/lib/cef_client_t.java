@@ -12,13 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
+import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.Callback;
 
 ///
 /// Implement this structure to provide handler implementations.
 ///
 @SuppressWarnings("javadoc")
-public class cef_client_t {
+public class cef_client_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_client_t_sizeof();
 	///
 	/// Base structure.
@@ -128,7 +129,14 @@ public class cef_client_t {
 	/** @field flags=no_gen */
 	public Callback on_process_message_received_cb;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_client_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 
 }

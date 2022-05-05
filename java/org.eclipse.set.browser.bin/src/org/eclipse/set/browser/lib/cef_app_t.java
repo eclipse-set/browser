@@ -12,15 +12,16 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to provide handler implementations. Methods will be
 /// called by the process and/or thread indicated.
 ///
 @SuppressWarnings("javadoc")
-public class cef_app_t {
+public class cef_app_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_app_t_sizeof();
+
 	///
 	/// Base structure.
 	///
@@ -32,8 +33,6 @@ public class cef_app_t {
 	///
 	/** @field cast=(void*) */
 	public long get_browser_process_handler;
-	/** @field flags=no_gen */
-	public Callback get_browser_process_handler_cb;
 	///
 	/// Return the handler for functionality specific to the render process.
 	/// This
@@ -51,7 +50,6 @@ public class cef_app_t {
 	///
 	/** @field cast=(void*) */
 	public long get_resource_bundle_handler;
-
 	///
 	/// Provides an opportunity to view and/or modify command-line arguments
 	/// before
@@ -70,6 +68,7 @@ public class cef_app_t {
 	///
 	/** @field cast=(void*) */
 	public long on_before_command_line_processing;
+
 	///
 	/// Provides an opportunity to register custom schemes. Do not keep a
 	/// reference
@@ -81,6 +80,13 @@ public class cef_app_t {
 	/** @field cast=(void*) */
 	public long on_register_custom_schemes;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_app_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

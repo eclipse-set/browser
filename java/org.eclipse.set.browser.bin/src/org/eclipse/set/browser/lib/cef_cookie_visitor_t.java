@@ -12,22 +12,20 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Structure to implement for visiting cookie values. The functions of this
 /// structure will always be called on the IO thread.
 ///
 @SuppressWarnings("javadoc")
-public class cef_cookie_visitor_t {
+public class cef_cookie_visitor_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_cookie_visitor_t_sizeof();
 	///
 	/// Base structure.
 	///
 	public cef_base_ref_counted_t base;
 
-	/** @field flags=no_gen */
-	public long ptr;
 	///
 	/// Method that will be called once for each cookie. |count| is the 0-based
 	/// index for the current cookie. |total| is the total number of cookies.
@@ -39,6 +37,13 @@ public class cef_cookie_visitor_t {
 	/** @field cast=(void*) */
 	public long visit;
 
-	/** @field flags=no_gen */
-	public Callback visit_cb;
+	public cef_cookie_visitor_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

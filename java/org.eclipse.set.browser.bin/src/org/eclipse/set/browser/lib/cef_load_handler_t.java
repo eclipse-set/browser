@@ -12,7 +12,7 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to browser load status. The
@@ -20,7 +20,7 @@ import org.eclipse.swt.internal.Callback;
 /// or render process main thread (TID_RENDERER).
 ///
 @SuppressWarnings("javadoc")
-public class cef_load_handler_t {
+public class cef_load_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_load_handler_t_sizeof();
 	///
 	/// Base structure.
@@ -84,9 +84,16 @@ public class cef_load_handler_t {
 	/** @field cast=(void*) */
 	public long on_loading_state_change;
 	/** @field flags=no_gen */
-	public Callback on_loading_state_change_cb;
-
-	/** @field flags=no_gen */
 	public long ptr;
+
+	public cef_load_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 
 }

@@ -12,14 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to browser display state.
 /// The functions of this structure will be called on the UI thread.
 ///
 @SuppressWarnings("javadoc")
-public class cef_display_handler_t {
+public class cef_display_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib.cef_display_handler_t_sizeof();
 	///
 	/// Base structure.
@@ -30,9 +30,7 @@ public class cef_display_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_address_change;
-	/** @field flags=no_gen */
-	public Callback on_address_change_cb;
-	///
+
 	/// Called to display a console message. Return true (1) to stop the message
 	/// from being output to the console.
 	///
@@ -58,16 +56,11 @@ public class cef_display_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_status_message;
-
-	/** @field flags=no_gen */
-	public Callback on_status_message_cb;
 	///
 	/// Called when the page title changes.
 	///
 	/** @field cast=(void*) */
 	public long on_title_change;
-	/** @field flags=no_gen */
-	public Callback on_title_change_cb;
 	///
 	/// Called when the browser is about to display a tooltip. |text| contains
 	/// the
@@ -81,6 +74,13 @@ public class cef_display_handler_t {
 	/** @field cast=(void*) */
 	public long on_tooltip;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_display_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

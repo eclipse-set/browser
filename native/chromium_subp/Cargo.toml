@@ -7,19 +7,6 @@ authors = ["Equo <https://www.equoplatform.com/>", "Guillermo Zunino <guillez@gm
 name = "chromium_subp"
 path = "src/bin/chromium_subp.rs"
 
-[profile.release]
-lto = true
-codegen-units = 1
-
 [dependencies]
 chromium = { path = "../chromium/" }
-
-[target.'cfg(windows)'.dependencies]
-winapi = { version = "0.3", features = ["winuser", "libloaderapi"] }
-
-[features]
-gen = ["bindgen"]
-
-[build-dependencies]
-bindgen = { version = "0.59.0", optional = true }
-chromium_jni_macro = { path = "../chromium_jni_macro/" }
+winapi = { version = "0.3.9", features = ["winuser", "libloaderapi"] }

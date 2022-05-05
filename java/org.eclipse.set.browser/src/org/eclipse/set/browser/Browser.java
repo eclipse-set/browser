@@ -166,87 +166,6 @@ public class Browser extends Composite {
 		return parent;
 	}
 
-	static int checkStyle(int style) {
-		final String platform = SWT.getPlatform();
-		if (DefaultType == SWT.DEFAULT) {
-			/*
-			 * Some Browser clients that explicitly specify the native renderer
-			 * to use (by creating a Browser with SWT.WEBKIT) may also need to
-			 * specify that all "default" Browser instances (those created with
-			 * style SWT.NONE) should use this renderer as well. This may be
-			 * needed in order to avoid incompatibilities that can arise from
-			 * having multiple native renderers loaded within the same process.
-			 * A client can do this by setting the
-			 * "org.eclipse.swt.browser.DefaultType" java system property to a
-			 * value like "ie" or "webkit".
-			 */
-
-			/*
-			 * Plug-ins need an opportunity to set the
-			 * org.eclipse.swt.browser.DefaultType system property before the
-			 * first Browser is created. To facilitate this, reflection is used
-			 * to reference non-existent class
-			 * org.eclipse.swt.browser.BrowserInitializer the first time a
-			 * Browser is created. A client wishing to use this hook can do so
-			 * by creating a fragment of org.eclipse.swt that implements this
-			 * class and sets the system property in its static initializer.
-			 */
-			try {
-				Class.forName("org.eclipse.swt.browser.BrowserInitializer"); //$NON-NLS-1$
-			} catch (final ClassNotFoundException e) {
-				/*
-				 * no fragment is providing this class, which is the typical
-				 * case
-				 */
-			}
-
-			final String value = System.getProperty(PROPERTY_DEFAULTTYPE);
-			if (value != null) {
-				int index = 0;
-				final int length = value.length();
-				do {
-					int newIndex = value.indexOf(',', index);
-					if (newIndex == -1) {
-						newIndex = length;
-					}
-					final String current = value.substring(index, newIndex)
-							.trim();
-					if (current.equalsIgnoreCase("webkit")) { //$NON-NLS-1$
-						DefaultType = SWT.WEBKIT;
-						break;
-					}
-					if (current.equalsIgnoreCase("chromium")) { //$NON-NLS-1$
-						DefaultType = SWT.CHROMIUM;
-						break;
-					} else if (current.equalsIgnoreCase("edge") //$NON-NLS-1$
-							&& "win32".equals(platform)) { //$NON-NLS-1$
-						DefaultType = SWT.EDGE;
-					} else if (current.equalsIgnoreCase("ie") //$NON-NLS-1$
-							&& "win32".equals(platform)) { //$NON-NLS-1$
-						DefaultType = SWT.NONE;
-						break;
-					}
-					index = newIndex + 1;
-				} while (index < length);
-			}
-			if (DefaultType == SWT.DEFAULT) {
-				DefaultType = SWT.NONE;
-			}
-		}
-		/*
-		 * If particular backend isn't specified, use the value from the system
-		 * property.
-		 */
-		if ((style & (SWT.WEBKIT | SWT.CHROMIUM | SWT.EDGE)) == 0) {
-			style |= DefaultType;
-		}
-		if ("win32".equals(platform) && (style & SWT.EDGE) != 0) { //$NON-NLS-1$
-			/* Hack to enable Browser to receive focus. */
-			style |= SWT.EMBEDDED;
-		}
-		return style;
-	}
-
 	public WebBrowser webBrowser;
 
 	boolean isClosing;
@@ -290,43 +209,12 @@ public class Browser extends Composite {
 	 *
 	 * @since 3.0
 	 */
-	public Browser(final Composite parent, int style) {
-		super(checkParent(parent), checkStyle(style));
+	public Browser(final Composite parent, final int style) {
+		super(checkParent(parent), style);
 		userStyle = style;
-
-		final String platform = SWT.getPlatform();
-		if ("gtk".equals(platform)) { //$NON-NLS-1$
-			parent.getDisplay().setData(NO_INPUT_METHOD, null);
-		}
-
-		style = getStyle();
 		webBrowser = new Chromium();
-		if (webBrowser != null) {
-			webBrowser.setBrowser(this);
-			webBrowser.create(parent, style);
-			return;
-		}
-		dispose();
-
-		String errMsg = " because there is no underlying browser available.\n";
-		switch (SWT.getPlatform()) {
-		case "gtk":
-			errMsg = errMsg
-					+ "Please ensure that WebKit with its GTK 3.x bindings is installed (WebKit2 API level is preferred)."
-					+ " Additionally, please note that GTK4 does not currently have Browser support.\n";
-			break;
-		case "cocoa":
-			errMsg = errMsg + "SWT failed to load the WebKit library.\n";
-			break;
-		case "win32":
-			errMsg = errMsg
-					+ "SWT uses either IE or WebKit. Either the SWT.WEBKIT flag is passed and the WebKit library was not "
-					+ "loaded properly by SWT, or SWT failed to load IE.\n";
-			break;
-		default:
-			break;
-		}
-		SWT.error(SWT.ERROR_NO_HANDLES, null, errMsg);
+		webBrowser.setBrowser(this);
+		webBrowser.create(parent, style);
 	}
 
 	/**

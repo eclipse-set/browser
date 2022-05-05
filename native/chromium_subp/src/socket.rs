@@ -14,7 +14,6 @@ use std::net::{TcpListener, TcpStream};
 use std::io::{Read, Write};
 use std::ffi::{CString, CStr};
 use std::os::raw::{c_char, c_int};
-// use std::thread::{self, JoinHandle};
 
 #[derive(Debug, PartialEq, Eq)]
 #[repr(C)]
@@ -111,7 +110,6 @@ fn serialize_string() {
     let read_st = read_buffer(&channel);
     
     assert_eq!(ReturnType::Str, read_st.kind);
-    // assert_eq!(7, read_st.length);
     assert_eq!(CString::new("o la la").unwrap(), read_st.str_value);
 }
 
@@ -125,7 +123,6 @@ fn serialize_null() {
     let read_st = read_buffer(&channel);
     
     assert_eq!(ReturnType::Null, read_st.kind);
-    // assert_eq!(7, read_st.length);
     assert_eq!(CString::new("").unwrap(), read_st.str_value);
 }
 
@@ -143,20 +140,16 @@ pub fn wait_response(browser: *mut chromium::cef::cef_browser_t,
             let sent = unsafe {(*browser).send_process_message.unwrap()(browser, target, msg)};
             assert_eq!(sent, 1);
 
-            //println!("new server, waiting response in :{:?}", port);
             let mut res = None;
             listener.set_nonblocking(true).expect("Cannot set non-blocking");
             for stream in listener.incoming() {
                 match stream {
                     Ok(mut stream) => {
-                        //println!("new client!");
                         let mut buffer = Vec::new();
                         loop {
                             match stream.read_to_end(&mut buffer) {
                                 Ok(_n) => {
-                                    //println!("read from socket: {} {} {:?}", n, ::std::mem::size_of::<ReturnSt>(), buffer);
                                     let ret = read_buffer(&buffer);
-                                    //println!("st: {:?}", ret);
                                     res = Some(Ok(ret));
                                     break;
                                 },
@@ -164,7 +157,6 @@ pub fn wait_response(browser: *mut chromium::cef::cef_browser_t,
 
                                 },
                                 Err(e) => {
-                                    //println!("couldn't read from socket: {:?}", e);
                                     res = Some(Err(e.to_string()));
                                     break;
                                 }
@@ -172,7 +164,6 @@ pub fn wait_response(browser: *mut chromium::cef::cef_browser_t,
                         }
                     },
                     Err(_e) => { 
-                        // println!("couldn't get client: {:?}", e);
                         unsafe {
                             if let Some(call) = callback {
                                 call(1, ReturnType::Error as i32, ::std::ptr::null());
@@ -188,7 +179,6 @@ pub fn wait_response(browser: *mut chromium::cef::cef_browser_t,
             res.unwrap()
         },
         Err(e) => {
-            //println!("couldn't bind port: {:?}", e);
             Err(e.to_string())
         }
     }
@@ -201,7 +191,6 @@ pub fn socket_client(port: u16, ret: CString, ret_type: ReturnType) -> i32 {
             1
         }
         Err(_e) => {
-            //println!("Cannot connect to renderer socket {:?}", e);
             0
         }
     }

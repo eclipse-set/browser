@@ -1,2 +1,6 @@
 [workspace]
 members = ["chromium", "chromium_subp", "chromium_swt", "chromium_jni", "chromium_jni_macro", "chromium_jni_utils"]
+
+[profile.release]
+lto = true
+codegen-units = 1

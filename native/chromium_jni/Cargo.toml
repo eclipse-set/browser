@@ -11,9 +11,5 @@ chromium_jni_macro = { path = "../chromium_jni_macro/" }
 chromium_jni_utils = { path = "../chromium_jni_utils/" }
 paste = "1.0"
 
-[profile.release]
-lto = true
-codegen-units = 1
-
 [lib]
 crate_type = ["cdylib"]

@@ -8,7 +8,6 @@
  */
 use chromium_jni_utils::FromJava;
 use jni::objects::{JClass, JObject, JValue};
-use jni::sys::jint;
 use jni::JNIEnv;
 
 /// Implementation of memmove(dest, source, 1) for various CEF types
@@ -19,8 +18,7 @@ macro_rules! jni_memmove {
             env: JNIEnv,
             _class: JClass,
             destination: *mut $type,
-            source: JObject,
-            _num: jint,
+            source: JObject
         ) {
             unsafe {
                 std::ptr::copy(&FromJava::from_java(env, source), destination, 1);
@@ -29,26 +27,25 @@ macro_rules! jni_memmove {
     };
 }
 
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1app_1t_2I, chromium::cef::_cef_app_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1client_1t_2I, chromium::cef::_cef_client_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1context_1menu_1handler_1t_2I, chromium::cef::_cef_context_menu_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1cookie_1visitor_1t_2I, chromium::cef::_cef_cookie_visitor_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1browser_1process_1handler_1t_2I, chromium::cef::_cef_browser_process_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1display_1handler_1t_2I, chromium::cef::_cef_display_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1focus_1handler_1t_2I, chromium::cef::_cef_focus_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1jsdialog_1handler_1t_2I, chromium::cef::_cef_jsdialog_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1life_1span_1handler_1t_2I, chromium::cef::_cef_life_span_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1load_1handler_1t_2I, chromium::cef::_cef_load_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1request_1handler_1t_2I, chromium::cef::_cef_request_handler_t);
-jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1string_1visitor_1t_2I, chromium::cef::_cef_string_visitor_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1app_1t_2, chromium::cef::_cef_app_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1client_1t_2, chromium::cef::_cef_client_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1context_1menu_1handler_1t_2, chromium::cef::_cef_context_menu_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1cookie_1visitor_1t_2, chromium::cef::_cef_cookie_visitor_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1browser_1process_1handler_1t_2, chromium::cef::_cef_browser_process_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1display_1handler_1t_2, chromium::cef::_cef_display_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1focus_1handler_1t_2, chromium::cef::_cef_focus_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1jsdialog_1handler_1t_2, chromium::cef::_cef_jsdialog_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1life_1span_1handler_1t_2, chromium::cef::_cef_life_span_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1load_1handler_1t_2, chromium::cef::_cef_load_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1request_1handler_1t_2, chromium::cef::_cef_request_handler_t);
+jni_memmove!(Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__JLorg_eclipse_set_browser_lib_cef_1string_1visitor_1t_2, chromium::cef::_cef_string_visitor_t);
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_eclipse_set_browser_lib_cef_1popup_1features_1t_2JI(
     env: JNIEnv,
     _class: JClass,
     destination: JObject,
-    source: *mut chromium::cef::_cef_popup_features_t,
-    _num: jint,
+    source: *mut chromium::cef::_cef_popup_features_t
 ) {
     let source_object = unsafe { *source };
     env.set_field(

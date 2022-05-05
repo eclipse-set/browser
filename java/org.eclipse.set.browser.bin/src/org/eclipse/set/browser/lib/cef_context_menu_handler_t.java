@@ -12,14 +12,14 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle context menu events. The functions of this
 /// structure will be called on the UI thread.
 ///
 @SuppressWarnings("javadoc")
-public class cef_context_menu_handler_t {
+public class cef_context_menu_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib
 			.cef_context_menu_handler_t_sizeof();
 	///
@@ -57,8 +57,6 @@ public class cef_context_menu_handler_t {
 	/** @field cast=(void*) */
 	public long on_context_menu_dismissed;
 
-	/** @field flags=no_gen */
-	public long ptr;
 	///
 	/// Called to allow custom display of the context menu. |params| provides
 	/// information about the context menu state. |model| contains the context
@@ -72,7 +70,13 @@ public class cef_context_menu_handler_t {
 	/** @field cast=(void*) */
 	public long run_context_menu;
 
-	/** @field flags=no_gen */
-	public Callback run_context_menu_cb;
+	public cef_context_menu_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
 
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

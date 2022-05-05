@@ -37,4 +37,8 @@ public class cef_string_visitor_t {
 
 	/** @field flags=no_gen */
 	public Callback visit_cb;
+
+	public cef_string_visitor_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
 }

@@ -28,7 +28,6 @@ import org.eclipse.swt.browser.StatusTextListener;
 import org.eclipse.swt.browser.TitleListener;
 import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.Event;
 
 public abstract class WebBrowser {
 	public class EvaluateFunction extends BrowserFunction {
@@ -57,13 +56,13 @@ public abstract class WebBrowser {
 		}
 	}
 
-	protected static String CookieName;
-	protected static boolean CookieResult;
-	protected static String CookieUrl;
-	protected static String CookieValue;
-	protected static Runnable NativeClearSessions;
-	protected static Runnable NativeGetCookie;
-	protected static Runnable NativeSetCookie;
+	public static String CookieName;
+	public static boolean CookieResult;
+	public static String CookieUrl;
+	public static String CookieValue;
+	public static Runnable NativeClearSessions;
+	public static Runnable NativeGetCookie;
+	public static Runnable NativeSetCookie;
 	static final String ERROR_ID = "org.eclipse.swt.browser.error"; // $NON-NLS-1$
 	static final String EXECUTE_ID = "SWTExecuteTemporaryFunction"; // $NON-NLS-1$
 	/* Key Mappings */
@@ -163,6 +162,22 @@ public abstract class WebBrowser {
 		return error.substring(ERROR_ID.length());
 	}
 
+	static String getDeleteFunctionString(final String functionName) {
+		return "delete window." + functionName; //$NON-NLS-1$
+	}
+
+	/**
+	 * Designed to be overriden.
+	 * 
+	 * @return javaScrit code that defines the 'callJava' syntax for javascript.
+	 */
+	static String getJavaCallDeclaration() {
+		return "if (!window.callJava) {\n"
+				+ "		window.callJava = function callJava(index, token, args) {\n"
+				+ "			return external.callJava(index,token,args);\n"
+				+ "		}\n" + "};\n";
+	}
+
 	static void SetPendingCookies(final List<String[]> pendingCookies) {
 		for (final String[] current : pendingCookies) {
 			SetCookie(current[0], current[1], false);
@@ -172,10 +187,12 @@ public abstract class WebBrowser {
 	protected AuthenticationListener[] authenticationListeners = new AuthenticationListener[0];
 	protected Browser browser;
 	protected CloseWindowListener[] closeWindowListeners = new CloseWindowListener[0];
+
 	protected Object evaluateResult;
 	protected Map<Integer, BrowserFunction> functions = new HashMap<>();
 
 	protected boolean jsEnabled = true;
+
 	protected boolean jsEnabledOnNextPage = true;
 
 	protected LocationListener[] locationListeners = new LocationListener[0];
@@ -676,22 +693,6 @@ public abstract class WebBrowser {
 		functions.put(function.index, function);
 	}
 
-	String getDeleteFunctionString(final String functionName) {
-		return "delete window." + functionName; //$NON-NLS-1$
-	}
-
-	/**
-	 * Designed to be overriden.
-	 * 
-	 * @return javaScrit code that defines the 'callJava' syntax for javascript.
-	 */
-	String getJavaCallDeclaration() {
-		return "if (!window.callJava) {\n"
-				+ "		window.callJava = function callJava(index, token, args) {\n"
-				+ "			return external.callJava(index,token,args);\n"
-				+ "		}\n" + "};\n";
-	}
-
 	// Designed to be overriden by platform implementations, used for
 	// optimization and avoiding deadlocks.
 	// Webkit2 is async, we often don't need to bother waiting for a return type
@@ -699,91 +700,4 @@ public abstract class WebBrowser {
 	void nonBlockingExecute(final String script) {
 		execute(script);
 	}
-
-	boolean sendKeyEvent(final Event event) {
-		int traversal = SWT.TRAVERSE_NONE;
-		boolean traverseDoit = true;
-		switch (event.keyCode) {
-		case SWT.ESC: {
-			traversal = SWT.TRAVERSE_ESCAPE;
-			traverseDoit = true;
-			break;
-		}
-		case SWT.CR: {
-			traversal = SWT.TRAVERSE_RETURN;
-			traverseDoit = false;
-			break;
-		}
-		case SWT.ARROW_DOWN:
-		case SWT.ARROW_RIGHT: {
-			traversal = SWT.TRAVERSE_ARROW_NEXT;
-			traverseDoit = false;
-			break;
-		}
-		case SWT.ARROW_UP:
-		case SWT.ARROW_LEFT: {
-			traversal = SWT.TRAVERSE_ARROW_PREVIOUS;
-			traverseDoit = false;
-			break;
-		}
-		case SWT.TAB: {
-			traversal = (event.stateMask & SWT.SHIFT) != 0
-					? SWT.TRAVERSE_TAB_PREVIOUS
-					: SWT.TRAVERSE_TAB_NEXT;
-			traverseDoit = (event.stateMask & SWT.CTRL) != 0;
-			break;
-		}
-		case SWT.PAGE_DOWN: {
-			if ((event.stateMask & SWT.CTRL) != 0) {
-				traversal = SWT.TRAVERSE_PAGE_NEXT;
-				traverseDoit = true;
-			}
-			break;
-		}
-		case SWT.PAGE_UP: {
-			if ((event.stateMask & SWT.CTRL) != 0) {
-				traversal = SWT.TRAVERSE_PAGE_PREVIOUS;
-				traverseDoit = true;
-			}
-			break;
-		}
-		default: {
-			if (translateMnemonics()) {
-				if (event.character != 0 && (event.stateMask
-						& (SWT.ALT | SWT.CTRL)) == SWT.ALT) {
-					traversal = SWT.TRAVERSE_MNEMONIC;
-					traverseDoit = true;
-				}
-			}
-			break;
-		}
-		}
-
-		boolean doit = true;
-		if (traversal != SWT.TRAVERSE_NONE) {
-			final boolean oldEventDoit = event.doit;
-			event.doit = traverseDoit;
-			doit = !browser.traverse(traversal, event);
-			event.doit = oldEventDoit;
-		}
-		if (doit) {
-			browser.notifyListeners(event.type, event);
-			doit = event.doit;
-		}
-		return doit;
-	}
-
-	int translateKey(final int key) {
-		for (final int[] element : KeyTable) {
-			if (element[0] == key) {
-				return element[1];
-			}
-		}
-		return 0;
-	}
-
-	boolean translateMnemonics() {
-		return true;
-	}
-
 }

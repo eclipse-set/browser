@@ -12,7 +12,7 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Implement this structure to handle events related to browser life span. The
@@ -20,7 +20,7 @@ import org.eclipse.swt.internal.Callback;
 /// indicated.
 ///
 @SuppressWarnings("javadoc")
-public class cef_life_span_handler_t {
+public class cef_life_span_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib
 			.cef_life_span_handler_t_sizeof();
 	///
@@ -136,8 +136,6 @@ public class cef_life_span_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long do_close;
-	/** @field flags=no_gen */
-	public Callback do_close_cb;
 	///
 	/// Called after a new browser is created. This callback will be the first
 	/// notification that references |browser|.
@@ -145,8 +143,6 @@ public class cef_life_span_handler_t {
 	/** @field cast=(void*) */
 	public long on_after_created;
 
-	/** @field flags=no_gen */
-	public Callback on_after_created_cb;
 	///
 	/// Called just before a browser is destroyed. Release all references to the
 	/// browser object and do not attempt to execute any functions on the
@@ -157,8 +153,6 @@ public class cef_life_span_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_before_close;
-	/** @field flags=no_gen */
-	public Callback on_before_close_cb;
 	///
 	/// Called on the IO thread before a new popup browser is created. The
 	/// |browser| and |frame| values represent the source of the popup request.
@@ -194,10 +188,14 @@ public class cef_life_span_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_before_popup;
-	/** @field flags=no_gen */
-	public Callback on_before_popup_cb;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_life_span_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
 
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 }

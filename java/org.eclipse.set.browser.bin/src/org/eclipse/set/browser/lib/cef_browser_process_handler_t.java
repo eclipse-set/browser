@@ -12,7 +12,7 @@
  ********************************************************************************/
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.swt.internal.C;
 
 ///
 /// Structure used to implement browser process callbacks. The functions of this
@@ -20,7 +20,7 @@ import org.eclipse.swt.internal.Callback;
 /// indicated.
 ///
 @SuppressWarnings("javadoc")
-public class cef_browser_process_handler_t {
+public class cef_browser_process_handler_t extends CStruct {
 	public static final int sizeof = ChromiumLib
 			.cef_browser_process_handler_t_sizeof();
 	///
@@ -80,10 +80,15 @@ public class cef_browser_process_handler_t {
 	///
 	/** @field cast=(void*) */
 	public long on_schedule_message_pump_work;
-	/** @field flags=no_gen */
-	public Callback on_schedule_message_pump_work_cb;
 
-	/** @field flags=no_gen */
-	public long ptr;
+	public cef_browser_process_handler_t() {
+		base = new cef_base_ref_counted_t(sizeof);
+	}
+
+	@Override
+	public void allocate() {
+		ptr = C.malloc(sizeof);
+		ChromiumLib.memmove(ptr, this);
+	}
 
 }

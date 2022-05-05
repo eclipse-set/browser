@@ -12,7 +12,6 @@
  ********************************************************************************/
 use std::os::raw::c_char;
 use std::ffi::CStr;
-#[cfg(windows)]
 extern crate winapi;
 
 pub fn subp_path(cwd: &::std::path::Path, _version: &str) -> String {
@@ -21,55 +20,16 @@ pub fn subp_path(cwd: &::std::path::Path, _version: &str) -> String {
     String::from(subp)
 }
 
-#[cfg(unix)]
-pub fn prepare_args() -> chromium::cef::_cef_main_args_t {
-    use std::ffi::CString;
-    let mut args: Vec<*mut c_char> = ::std::env::args().map(|arg| {
-        // println!("arg: {:?}", arg);
-        let carg_rslt = CString::new(arg);
-        let carg = carg_rslt.expect("cant create arg");
-        carg.into_raw()
-    }).collect();
-    if cfg!(target_os = "macos") {
-        let carg = CString::new("--disable-gpu-compositing").expect("cant create arg");
-        let mp = carg.into_raw();
-        args.push(mp);
-        let carg = CString::new("--disable-accelerated-2d-canvas").expect("cant create arg");
-        let mp = carg.into_raw();
-        args.push(mp);
-        // println!("Force --disable-gpu-compositing");
-    } else {
-        let carg = CString::new("--enable-webgl-draft-extensions").expect("cant create arg");
-        let mp = carg.into_raw();
-        args.push(mp);
-    }
-
-    let args_size = args.len() as i32;
-    let args_ptr = args.as_mut_ptr();
-    ::std::mem::forget(args);
-
-    let main_args = chromium::cef::_cef_main_args_t {
-        argc : args_size,
-        argv : args_ptr
-    };
-    // println!("Hello CEF, ARGS: {:?}", main_args.argc);
-
-    main_args
-}
-
-#[cfg(windows)]
 pub fn prepare_args() -> chromium::cef::_cef_main_args_t {
     let h_instance = unsafe { winapi::um::libloaderapi::GetModuleHandleA(0 as winapi::um::winnt::LPCSTR) };
     let main_args = chromium::cef::_cef_main_args_t {
         instance: unsafe { ::std::mem::transmute(h_instance) }
-    //instance: unsafe { std::mem::transmute(0 as i64) }
     };
     main_args
 }
 
 pub fn cef_string(value: &str) -> chromium::cef::cef_string_t {
     let mut str_cef = chromium::cef::cef_string_t {str_: ::std::ptr::null_mut(), length: 0, dtor: Option::Some(dtr)};
-    //unsafe { chromium::cef::cef_string_utf16_set(value.as_ptr() as *mut chromium::cef::char16, value.len(), &mut str_cef, 1) };
     unsafe {chromium::cef::cef_string_utf8_to_utf16(value.as_ptr() as *mut c_char, value.len(), &mut str_cef);}
     str_cef
 }
@@ -90,14 +50,12 @@ pub fn cef_string_empty() -> chromium::cef::cef_string_t {
     };
     
     let emp = "";
-    //unsafe { chromium::cef::cef_string_utf16_set(emp.as_ptr() as *mut chromium::cef::char16, 0, &mut empty_str, 1) };
     unsafe { chromium::cef::cef_string_utf8_to_utf16(emp.as_ptr() as *mut c_char, 0, &mut empty_str);}
 
     empty_str
 }
 
 unsafe extern "C" fn dtr(_: *mut chromium::cef::char16) {
-    // println!("DESTROY CEF_STRING");
 }
 
 pub fn str_from_c(cstr: *const c_char) -> &'static str {

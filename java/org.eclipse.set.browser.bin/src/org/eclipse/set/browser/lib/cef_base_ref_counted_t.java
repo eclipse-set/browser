@@ -23,12 +23,13 @@ public class cef_base_ref_counted_t {
 	/// for every new copy of a pointer to a given object.
 	///
 	/** @field cast=(void*) */
-	public long add_ref;
+	public long add_ref = 0;
+
 	///
 	/// Returns true (1) if the current reference count is 1.
 	///
 	/** @field cast=(void*) */
-	public long has_one_ref;
+	public long has_one_ref = 0;
 	///
 	/// Called to decrement the reference count for the object. If the
 	/// reference
@@ -37,11 +38,15 @@ public class cef_base_ref_counted_t {
 	/// resulting reference count is 0.
 	///
 	/** @field cast=(void*) */
-	public long release;
+	public long release = 0;
 	///
 	/// Size of the data structure.
 	///
 	/** @field cast=(size_t) */
 	public int size;
+
+	public cef_base_ref_counted_t(final int sizeof) {
+		size = sizeof;
+	}
 
 }
