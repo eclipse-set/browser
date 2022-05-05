@@ -6,12 +6,21 @@ import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.lib.cef_client_t;
 import org.eclipse.swt.internal.Callback;
 
+/**
+ * Java Handler for cef_client_t (for popups)
+ * 
+ * @author Stuecker
+ */
 public class PopupClientHandler extends AbstractBrowserHandler<cef_client_t> {
 	private final Callback get_life_span_handler_cb = new Callback(this,
 			"get_life_span_handler", long.class, new Type[] { long.class });
 
 	private final PopupLifeSpanHandler popupLifeSpanHandler;
 
+	/**
+	 * @param browser
+	 *            the browser
+	 */
 	public PopupClientHandler(final Chromium browser) {
 		super(browser);
 		popupLifeSpanHandler = new PopupLifeSpanHandler(browser);
@@ -27,7 +36,8 @@ public class PopupClientHandler extends AbstractBrowserHandler<cef_client_t> {
 		get_life_span_handler_cb.dispose();
 	}
 
-	long get_life_span_handler(final long client) {
+	@SuppressWarnings({ "unused" }) // JNI
+	private long get_life_span_handler(final long client) {
 		return popupLifeSpanHandler.get().ptr;
 	}
 }

@@ -6,7 +6,13 @@ import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.lib.cef_display_handler_t;
 import org.eclipse.swt.internal.Callback;
 
-public class DisplayHandler extends AbstractBrowserHandler<cef_display_handler_t> {
+/**
+ * Java Handler for cef_display_handler_t
+ * 
+ * @author Stuecker
+ */
+public class DisplayHandler
+		extends AbstractBrowserHandler<cef_display_handler_t> {
 	private final Callback on_address_change_cb = new Callback(this,
 			"on_address_change", void.class,
 			new Type[] { long.class, long.class, long.class, long.class });
@@ -36,16 +42,19 @@ public class DisplayHandler extends AbstractBrowserHandler<cef_display_handler_t
 		on_title_change_cb.dispose();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	void on_address_change(final long self, final long id, final long frame,
 			final long url) {
-		browser.on_address_change(id, frame, url);
+		browser.on_address_change(frame, url);
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	void on_status_message(final long self, final long id, final long status) {
-		browser.on_status_message(id, status);
+		browser.on_status_message(status);
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	void on_title_change(final long self, final long id, final long title) {
-		browser.on_title_change(id, title);
+		browser.on_title_change(title);
 	}
 }

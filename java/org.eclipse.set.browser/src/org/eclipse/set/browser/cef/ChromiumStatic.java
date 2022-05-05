@@ -14,13 +14,31 @@ import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * Static functionality for the Chromium Implementation
+ */
 public class ChromiumStatic {
+	/**
+	 * Number of active browsers
+	 */
 	public static AtomicInteger browsers = new AtomicInteger(0);
 
+	/**
+	 * Number of browsers currently being destroyed
+	 */
 	public static int disposingAny = 0;
+	/**
+	 * List of all browser instances
+	 */
 	public static Map<Integer, Chromium> instances = new HashMap<>();
+	/**
+	 * Number of instances
+	 */
 	public static int INSTANCES = 0;
 
+	/**
+	 * Whether chromium is shutting down globally
+	 */
 	public static boolean shuttingDown;
 	private static AppHandler app;
 
@@ -37,11 +55,15 @@ public class ChromiumStatic {
 		return messageLoop;
 	}
 
+	/**
+	 * Shuts down the CEF implementation
+	 */
 	public static void shutdown() {
 		if (app == null) {
 			return;
 		}
 		if (browsers.get() == 0) {
+			messageLoop.shutdown();
 			ChromiumLib.cefswt_shutdown();
 
 			cookieVisitor.dispose();
@@ -50,11 +72,6 @@ public class ChromiumStatic {
 		} else if (!shuttingDown) {
 			shuttingDown = true;
 		}
-	}
-
-	public static boolean useSwtDialogs() {
-		return !"native"
-				.equals(System.getProperty("swt.chromium.dialogs", "swt"));
 	}
 
 	private static void setupCookies() {

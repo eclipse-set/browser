@@ -72,8 +72,21 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 
+/**
+ * Chromium WebBrowser implementation
+ */
 public class Chromium extends WebBrowser {
+	/**
+	 * Interface for JS Callbacks
+	 */
 	public static interface EvalReturned {
+		/**
+		 * @param loop
+		 * @param type
+		 *            type of the result
+		 * @param value
+		 *            value of the result
+		 */
 		void invoke(int loop, int type, long value);
 	}
 
@@ -124,6 +137,10 @@ public class Chromium extends WebBrowser {
 		return url;
 	}
 
+	protected static long getHandle(final Composite control) {
+		return control.handle;
+	}
+
 	static long checkGetAddress(final Callback cb) {
 		final long address = cb.getAddress();
 		if (address == 0) {
@@ -138,16 +155,16 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	static void doSetUrlPost(final long browser, final String url,
+	static void doSetUrlPost(final long browser_id, final String url,
 			final String postData, final String[] headers) {
 		final byte[] bytes = postData != null
 				? postData.getBytes(Charset.forName("ASCII"))
 				: null;
-		final int bytesLength = postData != null ? bytes.length : 0;
+		final int bytesLength = bytes != null ? bytes.length : 0;
 		final int headersLength = headers != null ? headers.length : 0;
 		final String joinHeaders = headers == null ? null
 				: String.join("::", headers);
-		ChromiumLib.cefswt_load_url(browser, url, bytes, bytesLength,
+		ChromiumLib.cefswt_load_url(browser_id, url, bytes, bytesLength,
 				joinHeaders, headersLength);
 	}
 
@@ -155,7 +172,9 @@ public class Chromium extends WebBrowser {
 		Display.getDefault().asyncExec(() -> C.free(ptr));
 	}
 
+	@SuppressWarnings("hiding")
 	private long browser;
+
 	private boolean canGoBack;
 
 	private boolean canGoForward;
@@ -197,9 +216,6 @@ public class Chromium extends WebBrowser {
 	int instance;
 
 	PopupClientHandler popupClientHandler;
-
-	public Chromium() {
-	}
 
 	@Override
 	public boolean back() {
@@ -296,6 +312,9 @@ public class Chromium extends WebBrowser {
 		deregisterFunction(function);
 	}
 
+	/**
+	 * Disposes the browser
+	 */
 	public void dispose() {
 		debugPrint("in dispose, disposing " + disposing);
 		if (disposing == Dispose.FromDispose || isDisposed()) {
@@ -315,12 +334,12 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public int do_close(final long browser) {
-		if (!ChromiumLib.cefswt_is_same(Chromium.this.browser, browser)) {
-			debugPrint(
-					"DoClose popup:" + Chromium.this.browser + ":" + browser);
-			return 0;
-		}
+	/**
+	 * Closes the browser instance
+	 * 
+	 * @return 1 on success, 0 on failure
+	 */
+	public int do_close() {
 		final Display display = Display.getDefault();
 		if (!isDisposed() && closeWindowListeners != null) {
 			final org.eclipse.swt.browser.WindowEvent event = new org.eclipse.swt.browser.WindowEvent(
@@ -408,7 +427,22 @@ public class Chromium extends WebBrowser {
 		return false;
 	}
 
-	public int get_auth_credentials(final long browser2, final long frame,
+	/**
+	 * @param browser_id2
+	 *            the browser
+	 * @param frame
+	 *            the frame
+	 * @param host
+	 *            host to get credentials for
+	 * @param port
+	 *            port to get credentials for
+	 * @param realm
+	 *            scope to get credentials for
+	 * @param callback
+	 *            callback to call with the results
+	 * @return 1 on success, 0 on failure
+	 */
+	public int get_auth_credentials(final long browser_id2, final long frame,
 			final long host, final int port, final long realm,
 			final long callback) {
 		if (isDisposed()) {
@@ -424,6 +458,7 @@ public class Chromium extends WebBrowser {
 			final URL u = new URL(this.url);
 			protocol = u.getProtocol();
 		} catch (final MalformedURLException e) {
+			return 0;
 		}
 		final String hostStr = host != 0
 				? ChromiumLib.cefswt_cefstring_to_java(host)
@@ -470,7 +505,6 @@ public class Chromium extends WebBrowser {
 		if (urlPtr != 0) {
 			cefurl = ChromiumLib.cefswt_cstring_to_java(urlPtr);
 		}
-		// debugPrint("getUrl1:" + cefurl);
 		if (cefurl == null) {
 			cefurl = getPlainUrl(this.url);
 		} else {
@@ -494,8 +528,14 @@ public class Chromium extends WebBrowser {
 		return canGoForward;
 	}
 
-	public void on_address_change(final long browser, final long frame,
-			final long url) {
+	/**
+	 * @param frame
+	 *            the frame
+	 * @param url
+	 *            the new url
+	 */
+	@SuppressWarnings("hiding")
+	public void on_address_change(final long frame, final long url) {
 		if (isDisposed() || locationListeners == null) {
 			return;
 		}
@@ -519,13 +559,19 @@ public class Chromium extends WebBrowser {
 		});
 	}
 
-	public void on_after_created(final long browser) {
+	/**
+	 * Callback to be triggered after creation
+	 * 
+	 * @param browser_id
+	 *            the browser
+	 */
+	public void on_after_created(final long browser_id) {
 		if (isDisposed() || visibilityWindowListeners == null) {
 			return;
 		}
-		debugPrint("on_after_created: " + browser);
+		debugPrint("on_after_created: " + browser_id);
 		if (browser != 0) {
-			Chromium.this.browser = browser;
+			this.browser = browser_id;
 			if (this.isPopup == null) {
 				final org.eclipse.swt.graphics.Point size = getChromiumSize();
 				ChromiumLib.cefswt_resized(browser, size.x, size.y);
@@ -534,10 +580,10 @@ public class Chromium extends WebBrowser {
 				debugPrint("load url after created");
 				doSetUrlPost(browser, url, postData, headers);
 			} else if (!"about:blank".equals(this.url)) {
-				enableProgress.complete(true);
+				enableProgress.complete(Boolean.TRUE);
 			}
 		}
-		created.complete(true);
+		created.complete(Boolean.TRUE);
 
 		if (ChromiumStatic.browsers.get() == 1) {
 			debugPrint("STARTING MSG LOOP");
@@ -576,10 +622,20 @@ public class Chromium extends WebBrowser {
 			// not sleeping here causes deadlock with multiple window.open
 			Thread.sleep(LOOP);
 		} catch (final InterruptedException e) {
+			// not handled
 		}
 	}
 
-	public int on_before_browse(final long browser2, final long frame,
+	/**
+	 * @param browser_id2
+	 *            the browser
+	 * @param frame
+	 *            the frame
+	 * @param request
+	 *            the request url
+	 * @return 1 on success, 0 on failure
+	 */
+	public int on_before_browse(final long browser_id2, final long frame,
 			final long request) {
 		if (isDisposed() || locationListeners == null) {
 			return 0;
@@ -610,7 +666,11 @@ public class Chromium extends WebBrowser {
 		return 0;
 	}
 
-	public void on_before_close(final long browser) {
+	/**
+	 * @param browser_id
+	 *            the browser id
+	 */
+	public void on_before_close(final long browser_id) {
 		this.browser = 0;
 		this.chromium = null;
 		if (textVisitor != null) {
@@ -622,7 +682,16 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public int on_before_popup(final long browser, final long popupFeaturesPtr,
+	/**
+	 * @param popupFeaturesPtr
+	 *            the feature pointer
+	 * @param windowInfo
+	 *            the window info
+	 * @param client
+	 *            the cef client
+	 * @return 1 on success, 0 on failure
+	 */
+	public int on_before_popup(final long popupFeaturesPtr,
 			final long windowInfo, final long client) {
 		if (isDisposed()) {
 			return 1;
@@ -640,13 +709,14 @@ public class Chromium extends WebBrowser {
 			// not sleeping here causes deadlock with multiple window.open
 			Thread.sleep(LOOP);
 		} catch (final InterruptedException e) {
+			// not handled
 		}
 		chromium.getDisplay().syncExec(() -> {
 			debugPrint("on_before_popup syncExec" + browser);
 			event.display = chromium.getDisplay();
 			event.widget = chromium;
 			event.required = false;
-			event.addressBar = popupFeatures.locationBarVisible == 1;
+			event.addressBar = false;
 			event.menuBar = popupFeatures.menuBarVisible == 1;
 			event.statusBar = popupFeatures.statusBarVisible == 1;
 			event.toolBar = popupFeatures.toolBarVisible == 1;
@@ -695,31 +765,45 @@ public class Chromium extends WebBrowser {
 		return 0;
 	}
 
-	public int on_before_unload_dialog(final long browser,
-			final long message_text, final int is_reload, final long callback) {
+	/**
+	 * @param message_text
+	 *            the message to ask the user (provided by the website)
+	 * @param is_reload
+	 *            whether this is a reload action rather than a "browse away"
+	 *            action
+	 * @param callback
+	 *            the callback to call with the result
+	 * @return 0 on failure, 1 on close
+	 */
+	public int on_before_unload_dialog(final long message_text,
+			final int is_reload, final long callback) {
 		if (disposing == Dispose.FromClose) {
 			disposing = Dispose.Unload;
 
-			if (ChromiumStatic.useSwtDialogs()) {
-				final String msg = ChromiumLib
-						.cefswt_cefstring_to_java(message_text);
-				openJsDialog(cef_jsdialog_handler_t.JSDIALOGTYPE_PROMPT,
-						"Are you sure you want to leave this page?", msg, 0,
-						callback);
-				disposing = Dispose.UnloadClosed;
-				return 1;
-			}
+			final String msg = ChromiumLib
+					.cefswt_cefstring_to_java(message_text);
+			openJsDialog(cef_jsdialog_handler_t.JSDIALOGTYPE_PROMPT,
+					"Are you sure you want to leave this page?", msg, 0,
+					callback);
+			disposing = Dispose.UnloadClosed;
+			return 1;
 		}
 		return 0;
 	}
 
-	public void on_dialog_closed(final long browser) {
+	/**
+	 * Triggered when a Dialog is closed
+	 */
+	public void on_dialog_closed() {
 		if (disposing == Dispose.Unload) {
 			disposing = Dispose.UnloadClosed;
 		}
 	}
 
-	public void on_got_focus(final long browser2) {
+	/**
+	 * Triggered when the browser gets focused
+	 */
+	public void on_got_focus() {
 		if (!isDisposed()) {
 			hasFocus = true;
 			if (!isDisposed()
@@ -730,15 +814,29 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public int on_jsdialog(final long browser, final long origin_url,
-			final int dialog_type, final long message_text,
-			final long default_prompt_text, final long callback) {
+	/**
+	 * Triggered when a JS Dialog is opened
+	 * 
+	 * @param origin_url
+	 *            the origin url
+	 * @param dialog_type
+	 *            the type of dialog
+	 * @param message_text
+	 *            the message text
+	 * @param default_prompt_text
+	 *            the default prompt text
+	 * @param callback
+	 *            the callback to call
+	 * @return 0 on failure, 1 on success
+	 */
+	public int on_jsdialog(final long origin_url, final int dialog_type,
+			final long message_text, final long default_prompt_text,
+			final long callback) {
 		if (isDisposed()) {
 			return 0;
 		}
 
-		// String prompt =
-		// ChromiumLib.cefswt_cefstring_to_java(default_prompt_text);
+		@SuppressWarnings("hiding")
 		final String url = ChromiumLib.cefswt_cefstring_to_java(origin_url);
 		final String title = getPlainUrl(url);
 		final String msg = ChromiumLib.cefswt_cefstring_to_java(message_text);
@@ -746,10 +844,20 @@ public class Chromium extends WebBrowser {
 		return 1;
 	}
 
-	public void on_loading_state_change(final long browser, final int isLoading,
-			final int canGoBack, final int canGoForward) {
-		Chromium.this.canGoBack = canGoBack == 1;
-		Chromium.this.canGoForward = canGoForward == 1;
+	/**
+	 * Called when the loading state of the browser changes
+	 * 
+	 * @param isLoading
+	 *            whether the browser is currently loading a new web page
+	 * @param canUserGoBack
+	 *            whether the user can go back
+	 * @param canUserGoForward
+	 *            whether the user can go forward
+	 */
+	public void on_loading_state_change(final int isLoading,
+			final int canUserGoBack, final int canUserGoForward) {
+		canGoBack = canUserGoBack == 1;
+		canGoForward = canUserGoForward == 1;
 		if (isDisposed() || progressListeners == null) {
 			return;
 		}
@@ -765,11 +873,9 @@ public class Chromium extends WebBrowser {
 		}
 		updateText();
 		if (isPopup != null) {
-			textReady.thenRun(() -> enableProgress.complete(true));
+			textReady.thenRun(() -> enableProgress.complete(Boolean.TRUE));
 		} else if (!enableProgress.isDone() && isLoading == 0) {
-			textReady.thenRun(() -> {
-				enableProgress.complete(true);
-			});
+			textReady.thenRun(() -> enableProgress.complete(Boolean.TRUE));
 			return;
 		} else if (!enableProgress.isDone()) {
 			return;
@@ -796,7 +902,17 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public int on_process_message_received(final long browser, final int source,
+	/**
+	 * Called when a process message is received (e.g. due to a Javascript
+	 * result being available)
+	 * 
+	 * @param source
+	 *            the source process
+	 * @param processMessage
+	 *            the message
+	 * @return 0 on failure 1 on success
+	 */
+	public int on_process_message_received(final int source,
 			final long processMessage) {
 		if (source != CEFFactory.PID_RENDERER || !jsEnabled
 				|| chromium == null) {
@@ -826,6 +942,7 @@ public class Chromium extends WebBrowser {
 					checkGetAddress(callback_cb));
 			disposeCallback(callback_cb);
 		}
+		@SuppressWarnings("boxing")
 		final Object ret = functions.get(id).function(args);
 
 		final Object[] returnPair = convertType(ret);
@@ -837,7 +954,12 @@ public class Chromium extends WebBrowser {
 		return 1;
 	}
 
-	public int on_set_focus(final long browser) {
+	/**
+	 * Triggered when the focus is set
+	 * 
+	 * @return 1 on success, 0 on failure
+	 */
+	public int on_set_focus() {
 		if (ignoreFirstFocus) {
 			ignoreFirstFocus = false;
 			return 1;
@@ -845,7 +967,13 @@ public class Chromium extends WebBrowser {
 		return 0;
 	}
 
-	public void on_status_message(final long browser, final long status) {
+	/**
+	 * Triggered when a status text changes
+	 * 
+	 * @param status
+	 *            the status text
+	 */
+	public void on_status_message(final long status) {
 		if (isDisposed() || statusTextListeners == null) {
 			return;
 		}
@@ -860,7 +988,13 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public void on_take_focus(final long browser, final int next) {
+	/**
+	 * Triggered on taking the focus
+	 * 
+	 * @param next
+	 *            whether to take the current or next tab
+	 */
+	public void on_take_focus(final int next) {
 		hasFocus = false;
 		Control[] tabOrder = chromium.getParent().getTabList();
 		if (tabOrder.length == 0) {
@@ -880,7 +1014,13 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public void on_title_change(final long browser, final long title) {
+	/**
+	 * Called when a new title is set
+	 * 
+	 * @param title
+	 *            the new title
+	 */
+	public void on_title_change(final long title) {
 		if (isDisposed() || titleListeners == null) {
 			return;
 		}
@@ -903,7 +1043,14 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	public int run_context_menu(final long browser2, final long callback) {
+	/**
+	 * Opens the context menu
+	 * 
+	 * @param callback
+	 *            the callback
+	 * @return 0 on failure, 1 on success
+	 */
+	public int run_context_menu(final long callback) {
 		if (chromium.getMenu() != null) {
 			chromium.getMenu().setVisible(true);
 			ChromiumLib.cefswt_context_menu_cancel(callback);
@@ -925,9 +1072,9 @@ public class Chromium extends WebBrowser {
 				final Path tmp = Files.createTempFile(SET_TEXT_URL, ".html");
 				Files.write(tmp, html.getBytes());
 				tmp.toFile().deleteOnExit();
-				final boolean s = setUrl(tmp.toUri().toString(), null, null);
-				return s;
+				return setUrl(tmp.toUri().toString(), null, null);
 			} catch (final IOException e) {
+				// IMPROVE: Can we handle this in a useful manner?
 			}
 		}
 		final String texturl = DATA_TEXT_URL
@@ -1001,6 +1148,7 @@ public class Chromium extends WebBrowser {
 		return new Object[] { returnType, returnStr };
 	}
 
+	@SuppressWarnings("boxing")
 	private void createBrowser() {
 		if (this.url == null) {
 			this.url = "about:blank";
@@ -1021,6 +1169,7 @@ public class Chromium extends WebBrowser {
 				size.x, size.y, jsEnabledOnNextPage ? 1 : 0, cefBgColor);
 	}
 
+	@SuppressWarnings("boxing")
 	private void createPopup(final long windowInfo, final long client,
 			final WindowEvent event) {
 		if (paintListener != null) {
@@ -1052,6 +1201,7 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
+	@SuppressWarnings("hiding")
 	private CompletableFuture<Void> doSetUrl(final String url,
 			final String postData, final String[] headers) {
 		return enableProgress.thenRun(() -> {
@@ -1083,7 +1233,7 @@ public class Chromium extends WebBrowser {
 		} else if (type == ReturnType.Bool.intValue()) {
 			return "1".equals(value) ? Boolean.TRUE : Boolean.FALSE;
 		} else if (type == ReturnType.Double.intValue()) {
-			return Double.parseDouble(value);
+			return Double.valueOf(value);
 		} else if (type == ReturnType.Array.intValue()) {
 			final String value_unquoted = value.substring(1,
 					value.length() - 1);
@@ -1106,6 +1256,7 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
+	@SuppressWarnings("boxing")
 	private void openJsDialog(final int dialog_type, final String title,
 			final String msg, final long default_prompt_text,
 			final long callback) {
@@ -1119,6 +1270,9 @@ public class Chromium extends WebBrowser {
 			break;
 		case cef_jsdialog_handler_t.JSDIALOGTYPE_PROMPT:
 			style = SWT.ICON_QUESTION | SWT.YES | SWT.NO;
+			break;
+		default:
+			style = SWT.ICON_QUESTION;
 			break;
 		}
 		final Consumer<Integer> close = open -> {
@@ -1215,15 +1369,12 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	protected long getHandle(final Composite control) {
-		return control.handle;
-	}
-
 	boolean isDisposed() {
 		return chromium == null || chromium.isDisposed();
 	}
 
-	void textVisitor_visit(final long self, final long cefString) {
+	void textVisitor_visit(@SuppressWarnings("unused") final long self,
+			final long cefString) {
 		if (--textVisitor.refs == 0) {
 			freeTextVisitor();
 		}

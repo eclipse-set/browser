@@ -83,8 +83,6 @@ public class cef_load_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_loading_state_change;
-	/** @field flags=no_gen */
-	public long ptr;
 
 	public cef_load_handler_t() {
 		base = new cef_base_ref_counted_t(sizeof);

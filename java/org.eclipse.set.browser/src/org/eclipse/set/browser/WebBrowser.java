@@ -29,6 +29,8 @@ import org.eclipse.swt.browser.TitleListener;
 import org.eclipse.swt.browser.VisibilityWindowListener;
 import org.eclipse.swt.widgets.Composite;
 
+// Taken from SWT, do not track Warnings
+@SuppressWarnings({ "javadoc", "static-method", "unused", "boxing" })
 public abstract class WebBrowser {
 	public class EvaluateFunction extends BrowserFunction {
 		public EvaluateFunction(final Browser browser, final String name) {

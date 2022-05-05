@@ -6,6 +6,11 @@ import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.lib.cef_focus_handler_t;
 import org.eclipse.swt.internal.Callback;
 
+/**
+ * Java Handler for cef_focus_handler_t
+ * 
+ * @author Stuecker
+ */
 public class FocusHandler extends AbstractBrowserHandler<cef_focus_handler_t> {
 	private final Callback on_got_focus_cb = new Callback(this, "on_got_focus",
 			void.class, new Type[] { long.class, long.class });
@@ -15,6 +20,10 @@ public class FocusHandler extends AbstractBrowserHandler<cef_focus_handler_t> {
 			"on_take_focus", void.class,
 			new Type[] { long.class, long.class, int.class });
 
+	/**
+	 * @param browser
+	 *            the browser
+	 */
 	public FocusHandler(final Chromium browser) {
 		super(browser);
 
@@ -33,17 +42,20 @@ public class FocusHandler extends AbstractBrowserHandler<cef_focus_handler_t> {
 		on_take_focus_cb.dispose();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private void on_got_focus(final long focusHandler, final long id) {
-		browser.on_got_focus(id);
+		browser.on_got_focus();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private int on_set_focus(final long focusHandler, final long id,
 			final int focusSource) {
-		return browser.on_set_focus(id);
+		return browser.on_set_focus();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private void on_take_focus(final long focusHandler, final long id,
 			final int next) {
-		browser.on_take_focus(id, next);
+		browser.on_take_focus(next);
 	}
 }

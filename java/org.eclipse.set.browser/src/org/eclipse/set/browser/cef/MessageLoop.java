@@ -3,30 +3,49 @@ package org.eclipse.set.browser.cef;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.swt.widgets.Display;
 
+/**
+ * Wrapper for the CEF message loop
+ * 
+ * @author Stuecker
+ */
 public class MessageLoop {
 	private static final int LOOP = 75;
 
-	public boolean loopDisable;
+	private boolean loopDisable;
 
-	public boolean loopShutdown = false;
-	public Runnable loopWorkRunnable = () -> {
+	private boolean loopShutdown = false;
+	private Runnable loopWork;
+	private final Runnable loopWorkRunnable = () -> {
 		final Display display = Display.getCurrent();
 		if (display == null || display.isDisposed()) {
 			return;
 		}
 		loop_work();
 	};
-	public boolean pumpDisable;
-	private Runnable loopWork;
+	private boolean pumpDisable;
 
+	/**
+	 * Disables message pumping until the next message loop cycle
+	 */
 	public void disablePump() {
 		pumpDisable = true;
 	}
 
+	/**
+	 * Pauses the message loop
+	 */
 	public void pause() {
 		loopDisable = true;
 	}
 
+	/**
+	 * Restarts the message loop with a delay
+	 * 
+	 * @param display
+	 *            the display
+	 * @param ms
+	 *            the delay after which to restart the message loop
+	 */
 	public void restartLoop(final Display display, final int ms) {
 		if (loopWork != null) {
 			display.timerExec(-1, loopWork);
@@ -38,6 +57,7 @@ public class MessageLoop {
 	 * Note: May be called from other threads
 	 * 
 	 * @param delay
+	 *            delay after which the message pump should be scheduled
 	 */
 	public void scheduleMessagePumpWork(final int delay) {
 		if (pumpDisable) {
@@ -72,10 +92,16 @@ public class MessageLoop {
 
 	}
 
+	/**
+	 * Exits the loop with the next iteration
+	 */
 	public void shutdown() {
 		loopShutdown = true;
 	}
 
+	/**
+	 * Starts the loop
+	 */
 	public void start() {
 		loopWork = () -> {
 			if (!loopShutdown && !Display.getDefault().isDisposed()) {
@@ -86,10 +112,9 @@ public class MessageLoop {
 		Display.getDefault().timerExec(LOOP, loopWork);
 	}
 
-	public void stop() {
-		loopShutdown = true;
-	}
-
+	/**
+	 * Unpauses the loop
+	 */
 	public void unpause() {
 		loopDisable = false;
 	}

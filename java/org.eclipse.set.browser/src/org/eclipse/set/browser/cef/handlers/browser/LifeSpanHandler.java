@@ -9,6 +9,11 @@ import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.set.browser.lib.cef_life_span_handler_t;
 import org.eclipse.swt.internal.Callback;
 
+/**
+ * Java Handler for cef_life_span_handler_t
+ * 
+ * @author Stuecker
+ */
 public class LifeSpanHandler
 		extends AbstractBrowserHandler<cef_life_span_handler_t> {
 	private final Callback do_close_cb = new Callback(this, "do_close",
@@ -28,6 +33,10 @@ public class LifeSpanHandler
 					long.class, int.class, int.class, long.class, long.class,
 					long.class, long.class, int.class });
 
+	/**
+	 * @param browser
+	 *            the browser
+	 */
 	public LifeSpanHandler(final Chromium browser) {
 		super(browser);
 
@@ -48,10 +57,12 @@ public class LifeSpanHandler
 		do_close_cb.dispose();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private int do_close(final long self, final long id) {
-		return browser.do_close(id);
+		return browser.do_close();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private void on_after_created(final long self, final long id) {
 		if (id != 0) {
 			ChromiumStatic.browsers.incrementAndGet();
@@ -60,6 +71,7 @@ public class LifeSpanHandler
 		browser.on_after_created(id);
 	}
 
+	@SuppressWarnings({ "static-method", "unused", "boxing", "hiding" }) // JNI
 	private void on_before_close(final long plifeSpanHandler,
 			final long browser) {
 		final int id = ChromiumLib.cefswt_get_id(browser);
@@ -74,6 +86,7 @@ public class LifeSpanHandler
 		}
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	private int on_before_popup(final long self, final long id,
 			final long frame, final long target_url,
 			final long target_frame_name, final int target_disposition,
@@ -83,8 +96,8 @@ public class LifeSpanHandler
 		final MessageLoop messageLoop = ChromiumStatic.getMessageLoop();
 		messageLoop.pause();
 		messageLoop.disablePump();
-		final int ret = browser.on_before_popup(id, popupFeaturesPtr,
-				windowInfo, client);
+		final int ret = browser.on_before_popup(popupFeaturesPtr, windowInfo,
+				client);
 		messageLoop.unpause();
 		return ret;
 	}

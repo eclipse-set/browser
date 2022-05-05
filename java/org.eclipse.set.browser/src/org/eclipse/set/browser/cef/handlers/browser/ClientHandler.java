@@ -134,6 +134,6 @@ public class ClientHandler extends AbstractBrowserHandler<cef_client_t> {
 	@SuppressWarnings("unused") // JNI Call
 	int on_process_message_received(final long client, final long id,
 			final int source, final long processMessage) {
-		return browser.on_process_message_received(id, source, processMessage);
+		return browser.on_process_message_received(source, processMessage);
 	}
 }

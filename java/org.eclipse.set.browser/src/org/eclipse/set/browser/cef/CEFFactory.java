@@ -12,11 +12,22 @@
  ********************************************************************************/
 package org.eclipse.set.browser.cef;
 
+/**
+ * CEF Factory
+ */
 public class CEFFactory {
 
-	public static enum ReturnType {
+	/**
+	 * Enumeration for Return Types received from JNI
+	 */
+	@SuppressWarnings("javadoc")
+	public enum ReturnType {
 		Array(4), Bool(1), Double(0), Error(5), Null(3), Str(2);
 
+		/**
+		 * @param v
+		 * @return the return type
+		 */
 		public static ReturnType from(final String v) {
 			try {
 				final int value = Integer.parseInt(v);
@@ -26,6 +37,7 @@ public class CEFFactory {
 					}
 				}
 			} catch (final NumberFormatException e) {
+				// IllegalArgumentException thrown below
 			}
 			throw new IllegalArgumentException(v);
 		}
@@ -44,8 +56,14 @@ public class CEFFactory {
 		}
 	}
 
+	/**
+	 * Browser Process ID
+	 */
 	public static final int PID_BROWSER = 0;
 
+	/**
+	 * Renderer Process ID
+	 */
 	public static final int PID_RENDERER = 1;
 
 }

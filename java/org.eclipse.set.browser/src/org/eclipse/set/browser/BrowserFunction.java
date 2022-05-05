@@ -46,6 +46,7 @@ import org.eclipse.swt.browser.LocationEvent;
  *
  * @since 3.5
  */
+@SuppressWarnings("javadoc") // Ignore warnings from SWT code
 public class BrowserFunction {
 	public int index;
 	public String name;
@@ -145,6 +146,7 @@ public class BrowserFunction {
 		this(browser, name, top, frameNames, true);
 	}
 
+	@SuppressWarnings("null")
 	BrowserFunction(final Browser browser, final String name, final boolean top,
 			final String[] frameNames, final boolean create) {
 		super();

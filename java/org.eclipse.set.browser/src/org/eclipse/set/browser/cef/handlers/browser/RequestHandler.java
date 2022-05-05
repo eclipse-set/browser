@@ -6,7 +6,13 @@ import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.lib.cef_request_handler_t;
 import org.eclipse.swt.internal.Callback;
 
-public class RequestHandler extends AbstractBrowserHandler<cef_request_handler_t> {
+/**
+ * Java Handler for cef_request_handler_t
+ * 
+ * @author Stuecker
+ */
+public class RequestHandler
+		extends AbstractBrowserHandler<cef_request_handler_t> {
 	private final Callback get_auth_credentials_cb = new Callback(this,
 			"get_auth_credentials", int.class,
 			new Type[] { long.class, long.class, long.class, int.class,
@@ -16,6 +22,10 @@ public class RequestHandler extends AbstractBrowserHandler<cef_request_handler_t
 			"on_before_browse", int.class, new Type[] { long.class, long.class,
 					long.class, long.class, int.class });
 
+	/**
+	 * @param browser
+	 *            the browser
+	 */
 	public RequestHandler(final Chromium browser) {
 		super(browser);
 
@@ -32,6 +42,7 @@ public class RequestHandler extends AbstractBrowserHandler<cef_request_handler_t
 		on_before_browse_cb.dispose();
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	int get_auth_credentials(final long self, final long id, final long frame,
 			final int isProxy, final long host, final int port,
 			final long realm, final long scheme, final long callback) {
@@ -39,6 +50,7 @@ public class RequestHandler extends AbstractBrowserHandler<cef_request_handler_t
 				callback);
 	}
 
+	@SuppressWarnings({ "unused" }) // JNI
 	int on_before_browse(final long self, final long id, final long frame,
 			final long request, final int is_redirect) {
 		return browser.on_before_browse(id, frame, request);

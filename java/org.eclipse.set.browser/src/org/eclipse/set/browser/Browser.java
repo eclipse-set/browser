@@ -166,6 +166,9 @@ public class Browser extends Composite {
 		return parent;
 	}
 
+	/**
+	 * the web browser
+	 */
 	public WebBrowser webBrowser;
 
 	boolean isClosing;
