@@ -570,7 +570,7 @@ public class Chromium extends WebBrowser {
 			return;
 		}
 		debugPrint("on_after_created: " + browser_id);
-		if (browser != 0) {
+		if (browser_id != 0) {
 			this.browser = browser_id;
 			if (this.isPopup == null) {
 				final org.eclipse.swt.graphics.Point size = getChromiumSize();
