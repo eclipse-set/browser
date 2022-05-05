@@ -32,25 +32,10 @@ fn link() {
   if !cef_path.exists() {
     panic!("cargo:warning=Extract and rename cef binary (minimal) distro to {:?}", cef_path);
   }
-
-  if cfg!(target_os = "linux") {
-    // println!("cargo:rustc-link-lib=gtk-x11-2.0");
-    // println!("cargo:rustc-link-lib=gdk-x11-2.0");
-    // println!("cargo:rustc-link-lib=gtk-3.so.0");
-    println!("cargo:rustc-link-lib=X11");
-  }
+  
   // Tell cargo to tell rustc to link the system shared library.
   let mut cef_bin = cef_path.clone();
   cef_bin.push(CEF_TARGET);
-  let lib = if cfg!(target_os = "windows") {
-    println!("cargo:rustc-link-search={}", cef_bin.display()); 
-    "libcef" 
-  } else if cfg!(target_os = "macos") {
-    println!("cargo:rustc-link-search=framework={}", cef_bin.display());
-    "framework=Chromium Embedded Framework"
-  } else { 
-    println!("cargo:rustc-link-search={}", cef_bin.display());
-    "cef" 
-  };
-  println!("cargo:rustc-link-lib={}", lib);
+  println!("cargo:rustc-link-search={}", cef_bin.display()); 
+  println!("cargo:rustc-link-lib=libcef");
 }
