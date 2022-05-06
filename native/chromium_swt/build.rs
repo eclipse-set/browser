@@ -12,31 +12,32 @@
  *   Guillermo Zunino, Equo - initial implementation
  */
 #[cfg(debug_assertions)]
-const CEF_TARGET: &'static str = "Debug"; 
+const CEF_TARGET: &str = "Debug";
 #[cfg(not(debug_assertions))]
-const CEF_TARGET: &'static str = "Release";
+const CEF_TARGET: &str = "Release";
 fn main() {
-  link();
+    link();
 }
 
 fn get_cef_path() -> std::path::PathBuf {
-  let cwd = std::env::current_dir().unwrap();
-  let mut cef_path = cwd.clone();
-  cef_path.push("..");
-  cef_path.push("..");
-  cef_path.push("cef");
-  cef_path
+    let mut cef_path = std::env::current_dir().unwrap();
+    cef_path.push("..");
+    cef_path.push("..");
+    cef_path.push("cef");
+    cef_path
 }
 
 fn link() {
-  let cef_path = get_cef_path();
-  if !cef_path.exists() {
-    panic!("cargo:warning=Extract and rename cef binary (minimal) distro to {:?}", cef_path);
-  }
-  
-  // Tell cargo to tell rustc to link the system shared library.
-  let mut cef_bin = cef_path.clone();
-  cef_bin.push(CEF_TARGET);
-  println!("cargo:rustc-link-search={}", cef_bin.display()); 
-  println!("cargo:rustc-link-lib=libcef");
+    let mut cef_path = get_cef_path();
+    if !cef_path.exists() {
+        panic!(
+            "cargo:warning=Extract and rename cef binary (minimal) distro to {:?}",
+            cef_path
+        );
+    }
+
+    // Tell cargo to tell rustc to link the system shared library.
+    cef_path.push(CEF_TARGET);
+    println!("cargo:rustc-link-search={}", cef_path.display());
+    println!("cargo:rustc-link-lib=libcef");
 }

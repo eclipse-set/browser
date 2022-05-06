@@ -12,10 +12,10 @@
  *   Guillermo Zunino, Equo - initial implementation
  */
 use crate::socket;
+use crate::utils;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
-use crate::utils;
 
 pub struct Base {}
 
@@ -26,7 +26,7 @@ impl Base {
             add_ref: Option::None,
             has_one_ref: Option::None,
             release: Option::None,
-            has_at_least_one_ref: Option::None
+            has_at_least_one_ref: Option::None,
         }
     }
 }
@@ -279,7 +279,7 @@ unsafe fn convert_type(
             let (valcstr, valtyp) = convert_type(vali, _eval_id, context);
             let valstr = format!("'{},{}'", valtyp as u32, valcstr.into_string().unwrap());
             if i > 0 {
-                arraystr.push_str(";");
+                arraystr.push(';');
             }
             arraystr.push_str(&valstr);
         }
@@ -362,7 +362,7 @@ impl V8Handler {
                             *retval = v;
                         }
                         Err(e) => {
-                            *exception = utils::cef_string(&e);
+                            *exception = utils::cef_string(e);
                         }
                     }
                 }
@@ -403,8 +403,8 @@ unsafe fn map_type(
             let rstr = rstr.get(1..rstr.len() - 1).expect("not quoted");
             let v = split(rstr, '"', ';');
             let array = chromium::cef::cef_v8value_create_array(v.len() as i32);
-            for i in 0..v.len() {
-                let elem_unquoted = v[i].get(1..v[i].len() - 1).expect("elem not quoted");
+            for (i, str) in v.iter().enumerate() {
+                let elem_unquoted = str.get(1..str.len() - 1).expect("elem not quoted");
                 let parts = splitn(elem_unquoted, 2, '\'', ',');
                 let elem_type = socket::ReturnType::from(parts[0].parse::<i32>().unwrap());
                 let elem_value = map_type(elem_type, parts[1]);
@@ -421,7 +421,7 @@ unsafe fn map_type(
     }
 }
 
-fn split<'a>(rstr: &'a str, quote: char, sep: char) -> Vec<&'a str> {
+fn split(rstr: &'_ str, quote: char, sep: char) -> Vec<&'_ str> {
     let mut in_string = false;
     let v: Vec<&str> = rstr
         .split_terminator(|c| {
@@ -436,7 +436,7 @@ fn split<'a>(rstr: &'a str, quote: char, sep: char) -> Vec<&'a str> {
     v
 }
 
-fn splitn<'a>(rstr: &'a str, max: usize, quote: char, sep: char) -> Vec<&'a str> {
+fn splitn(rstr: &'_ str, max: usize, quote: char, sep: char) -> Vec<&'_ str> {
     let mut in_string = false;
     let v: Vec<&str> = rstr
         .splitn(max, |c| {

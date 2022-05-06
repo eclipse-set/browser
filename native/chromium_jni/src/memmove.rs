@@ -18,7 +18,7 @@ macro_rules! jni_memmove {
             env: JNIEnv,
             _class: JClass,
             destination: *mut $type,
-            source: JObject
+            source: JObject,
         ) {
             unsafe {
                 std::ptr::copy(&FromJava::from_java(env, source), destination, 1);
@@ -45,91 +45,66 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_ecl
     env: JNIEnv,
     _class: JClass,
     destination: JObject,
-    source: *mut chromium::cef::_cef_popup_features_t
+    source: *mut chromium::cef::_cef_popup_features_t,
 ) {
     let source_object = unsafe { *source };
-    env.set_field(
-        destination,
-        "x",
-        "I",
-        JValue::Int(source_object.x.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "xSet",
-        "I",
-        JValue::Int(source_object.xSet.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "y",
-        "I",
-        JValue::Int(source_object.y.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "ySet",
-        "I",
-        JValue::Int(source_object.ySet.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "width",
-        "I",
-        JValue::Int(source_object.width.try_into().unwrap()),
-    )
-    .unwrap();
+    env.set_field(destination, "x", "I", JValue::Int(source_object.x))
+        .unwrap();
+    env.set_field(destination, "xSet", "I", JValue::Int(source_object.xSet))
+        .unwrap();
+    env.set_field(destination, "y", "I", JValue::Int(source_object.y))
+        .unwrap();
+    env.set_field(destination, "ySet", "I", JValue::Int(source_object.ySet))
+        .unwrap();
+    env.set_field(destination, "width", "I", JValue::Int(source_object.width))
+        .unwrap();
     env.set_field(
         destination,
         "widthSet",
         "I",
-        JValue::Int(source_object.widthSet.try_into().unwrap()),
+        JValue::Int(source_object.widthSet),
     )
     .unwrap();
     env.set_field(
         destination,
         "height",
         "I",
-        JValue::Int(source_object.height.try_into().unwrap()),
+        JValue::Int(source_object.height),
     )
     .unwrap();
     env.set_field(
         destination,
         "heightSet",
         "I",
-        JValue::Int(source_object.heightSet.try_into().unwrap()),
+        JValue::Int(source_object.heightSet),
     )
     .unwrap();
     env.set_field(
         destination,
         "menuBarVisible",
         "I",
-        JValue::Int(source_object.menuBarVisible.try_into().unwrap()),
+        JValue::Int(source_object.menuBarVisible),
     )
     .unwrap();
     env.set_field(
         destination,
         "statusBarVisible",
         "I",
-        JValue::Int(source_object.statusBarVisible.try_into().unwrap()),
+        JValue::Int(source_object.statusBarVisible),
     )
     .unwrap();
     env.set_field(
         destination,
         "toolBarVisible",
         "I",
-        JValue::Int(source_object.toolBarVisible.try_into().unwrap()),
+        JValue::Int(source_object.toolBarVisible),
     )
-    .unwrap();    
+    .unwrap();
     env.set_field(
         destination,
         "scrollbarsVisible",
         "I",
-        JValue::Int(source_object.scrollbarsVisible.try_into().unwrap()),
+        JValue::Int(source_object.scrollbarsVisible),
     )
     .unwrap();
 }

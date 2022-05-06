@@ -92,7 +92,6 @@ pub fn cefswt_init(
         user_agent_product: chromium_subp::utils::cef_string_empty(),
         cookieable_schemes_list: chromium_subp::utils::cef_string_empty(),
         cookieable_schemes_exclude_defaults: 0,
-
     };
 
     do_initialize(main_args, settings, japp);
@@ -136,8 +135,7 @@ pub fn cefswt_create_browser(
         std::mem::size_of::<cef::_cef_client_t>()
     );
     let url = chromium_subp::utils::str_from_c(url);
-    let browser = app::create_browser(hwnd, url, client, w, h, js, bg);
-    browser
+    app::create_browser(hwnd, url, client, w, h, js, bg)
 }
 
 pub fn cefswt_set_window_info_parent(
@@ -244,8 +242,7 @@ pub fn cefswt_load_url(
 
                 let headers = chromium_subp::utils::str_from_c(headers);
                 let headers: Vec<&str> = headers.splitn(headers_size, "::").collect();
-                for i in 0..headers_size {
-                    let header_str = headers[i];
+                for header_str in headers.iter().take(headers_size) {
                     let header: Vec<&str> = header_str.splitn(2, ':').collect();
                     let key = header[0].trim();
                     let value = header[1].trim();
@@ -272,7 +269,7 @@ pub fn cefswt_get_url(browser: *mut cef::cef_browser_t) -> *mut c_char {
 }
 
 pub fn cefswt_cefstring_to_java(cefstring: *mut cef::cef_string_t) -> *const c_char {
-    return chromium_subp::utils::cstr_from_cef(cefstring);
+    chromium_subp::utils::cstr_from_cef(cefstring)
 }
 
 pub fn cefswt_request_to_java(request: *mut cef::cef_request_t) -> *mut c_char {
@@ -284,7 +281,7 @@ pub fn cefswt_request_to_java(request: *mut cef::cef_request_t) -> *mut c_char {
 
 pub fn cefswt_cookie_to_java(cookie: *mut cef::_cef_cookie_t) -> *mut c_char {
     let name = unsafe { (*cookie).name };
-    return chromium_subp::utils::cstr_from_cef(&name);
+    chromium_subp::utils::cstr_from_cef(&name)
 }
 
 pub fn cefswt_stop(browser: *mut cef::cef_browser_t) {
@@ -368,11 +365,7 @@ pub fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id
         assert_eq!(s, 1);
         let frame = (*browser).get_main_frame.unwrap()(browser);
 
-        (*frame).send_process_message.unwrap()(
-            frame,
-            cef::cef_process_id_t::PID_RENDERER,
-            msg,
-        );
+        (*frame).send_process_message.unwrap()(frame, cef::cef_process_id_t::PID_RENDERER, msg);
     }
 }
 
@@ -429,9 +422,9 @@ pub fn cefswt_function_return(
     ret: *const c_char,
 ) -> c_int {
     let cstr = unsafe { std::ffi::CStr::from_ptr(ret) };
-    return chromium_subp::socket::socket_client(port as u16, cstr.to_owned(), unsafe {
+    chromium_subp::socket::socket_client(port as u16, cstr.to_owned(), unsafe {
         std::mem::transmute(kind)
-    });
+    })
 }
 
 pub fn cefswt_set_focus(browser: *mut cef::cef_browser_t, set: bool, parent: *mut c_void) {
@@ -549,7 +542,7 @@ pub fn cefswt_get_cookie(jurl: *const c_char, jvisitor: *mut cef::_cef_cookie_vi
 }
 
 pub fn cefswt_cookie_value(cookie: *mut cef::_cef_cookie_t) -> *mut c_char {
-    unsafe { chromium_subp::utils::cstr_from_cef(&mut (*cookie).value) }
+    unsafe { chromium_subp::utils::cstr_from_cef(&(*cookie).value) }
 }
 
 pub fn cefswt_delete_cookies() {
@@ -571,8 +564,7 @@ pub fn cefswt_shutdown() {
 
 fn get_browser_host(browser: *mut cef::cef_browser_t) -> *mut cef::_cef_browser_host_t {
     let get_host_fn = unsafe { (*browser).get_host.expect("null get_host") };
-    let browser_host = unsafe { get_host_fn(browser) };
-    browser_host
+    unsafe { get_host_fn(browser) }
 }
 
 pub fn cefswt_is_main_frame(frame: *mut cef::_cef_frame_t) -> i32 {

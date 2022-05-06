@@ -66,9 +66,9 @@ impl Parse for JNIWrapInput {
 
         Ok(JNIWrapInput {
             namespace: ns_string,
-            func: func,
-            retn: retn,
-            args: args,
+            func,
+            retn,
+            args,
         })
     }
 }
@@ -91,9 +91,7 @@ pub fn jni_wrap_impl(tokens: TokenStream) -> TokenStream {
     ) = args
         .iter()
         .enumerate()
-        .map(|(i, ty)| {
-            return setup_argument(i, ty);
-        })
+        .map(|(i, ty)| setup_argument(i, ty))
         .unzip4();
 
     // Function name
@@ -145,7 +143,7 @@ fn setup_argument(
 ) {
     let arg = Ident::new(&format!("arg{}", index), Span::call_site());
     let param = Ident::new(&format!("param{}", index), Span::call_site());
-    return (
+    (
         // JNI Function argument: arg[index]: type
         quote! { #arg : #ty },
         // Preparation statement: let param[index] = arg[index] + conversion
@@ -154,7 +152,7 @@ fn setup_argument(
         quote! { #param },
         // Cleanup statement as required by the preparation statement
         param_cleanup(index, ty, &arg, &param),
-    );
+    )
 }
 
 /// Generates a statement to prepare a parameter by performing
