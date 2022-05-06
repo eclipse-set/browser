@@ -10,11 +10,11 @@
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
  ********************************************************************************/
-use socket;
+use crate::socket;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
-use utils;
+use crate::utils;
 
 pub struct Base {}
 

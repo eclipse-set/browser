@@ -10,7 +10,7 @@
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
  ********************************************************************************/
-use cef;
+use crate::cef;
 extern crate winapi;
 use std::mem::size_of;
 use std::os::raw::{c_int, c_void};
