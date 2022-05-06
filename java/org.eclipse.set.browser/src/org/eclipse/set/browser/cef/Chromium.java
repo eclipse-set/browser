@@ -442,9 +442,9 @@ public class Chromium extends WebBrowser {
 	 *            callback to call with the results
 	 * @return 1 on success, 0 on failure
 	 */
-	public int get_auth_credentials(final long browser_id2, final long frame,
-			final long host, final int port, final long realm,
-			final long callback) {
+	public int get_auth_credentials(final long browser_id2,
+			final long origin_url, final long host, final int port,
+			final long realm, final long callback) {
 		if (isDisposed()) {
 			return 0;
 		}

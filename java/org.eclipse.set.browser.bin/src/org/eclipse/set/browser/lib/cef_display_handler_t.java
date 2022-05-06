@@ -30,12 +30,19 @@ public class cef_display_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_address_change;
-
+	///
+	// Called when auto-resize is enabled via
+	// cef_browser_host_t::SetAutoResizeEnabled and the contents have auto-
+	// resized. |new_size| will be the desired size in view coordinates. Return
+	// true (1) if the resize was handled or false (0) for default handling.
+	///
+	public long on_auto_resize;
 	/// Called to display a console message. Return true (1) to stop the message
 	/// from being output to the console.
 	///
 	/** @field cast=(void*) */
 	public long on_console_message;
+	public long on_cursor_change;
 	///
 	/// Called when the page icon changes.
 	///
@@ -50,6 +57,11 @@ public class cef_display_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_fullscreen_mode_change;
+	///
+	// Called when the overall page loading progress has changed. |progress|
+	// ranges from 0.0 to 1.0.
+	///
+	public long on_loading_progress_change;
 	///
 	/// Called when the browser receives a status message. |value| contains the
 	/// text that will be displayed in the status message.

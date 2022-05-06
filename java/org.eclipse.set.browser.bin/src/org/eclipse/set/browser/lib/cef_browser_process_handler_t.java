@@ -27,12 +27,8 @@ public class cef_browser_process_handler_t extends CStruct {
 	/// Base structure.
 	///
 	public cef_base_ref_counted_t base;
-	///
-	/// Return the handler for printing on Linux. If a print handler is not
-	/// provided then printing will not be supported on the Linux platform.
-	///
-	/** @field cast=(void*) */
-	public long get_print_handler;
+
+	public long get_default_client;
 	///
 	/// Called before a child process is launched. Will be called on the browser
 	/// process UI thread when launching a render process and on the browser
@@ -42,6 +38,7 @@ public class cef_browser_process_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_before_child_process_launch;
+
 	///
 	/// Called on the browser process UI thread immediately after the CEF
 	/// context
@@ -49,17 +46,6 @@ public class cef_browser_process_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_context_initialized;
-	///
-	/// Called on the browser process IO thread after the main thread has been
-	/// created for a new render process. Provides an opportunity to specify
-	/// extra
-	/// information that will be passed to
-	/// cef_render_process_handler_t::on_render_thread_created() in the render
-	/// process. Do not keep a reference to |extra_info| outside of this
-	/// function.
-	///
-	/** @field cast=(void*) */
-	public long on_render_process_thread_created;
 
 	///
 	/// Called from any thread when work has been scheduled for the browser

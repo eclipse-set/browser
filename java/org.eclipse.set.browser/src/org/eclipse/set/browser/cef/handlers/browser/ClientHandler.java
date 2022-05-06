@@ -40,8 +40,8 @@ public class ClientHandler extends AbstractBrowserHandler<cef_client_t> {
 	private final LoadHandler loadHandler;
 
 	private final Callback on_process_message_received_cb = new Callback(this,
-			"on_process_message_received", int.class,
-			new Type[] { long.class, long.class, int.class, long.class });
+			"on_process_message_received", int.class, new Type[] { long.class,
+					long.class, long.class, int.class, long.class });
 
 	private final RequestHandler requestHandler;
 
@@ -133,7 +133,7 @@ public class ClientHandler extends AbstractBrowserHandler<cef_client_t> {
 
 	@SuppressWarnings("unused") // JNI Call
 	int on_process_message_received(final long client, final long id,
-			final int source, final long processMessage) {
+			final long frame, final int source, final long processMessage) {
 		return browser.on_process_message_received(source, processMessage);
 	}
 }

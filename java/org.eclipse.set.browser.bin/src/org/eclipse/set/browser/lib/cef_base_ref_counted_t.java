@@ -26,6 +26,10 @@ public class cef_base_ref_counted_t {
 	public long add_ref = 0;
 
 	///
+	// Returns true (1) if the current reference count is at least 1.
+	///
+	public long has_at_least_one_ref = 0;
+	///
 	/// Returns true (1) if the current reference count is 1.
 	///
 	/** @field cast=(void*) */

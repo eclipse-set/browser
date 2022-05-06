@@ -26,6 +26,21 @@ public class cef_request_handler_t extends CStruct {
 	///
 	public cef_base_ref_counted_t base;
 	///
+	// Called on the IO thread before sending a network request with a "Cookie"
+	// request header. Return true (1) to allow cookies to be included in the
+	// network request or false (0) to block cookies. The |request| object
+	/// should
+	// not be modified in this callback.
+	///
+	public long can_get_cookies;
+	///
+	// Called on the IO thread when receiving a network request with a "Set-
+	// Cookie" response header value represented by |cookie|. Return true (1) to
+	// allow the cookie to be stored or false (0) to block the cookie. The
+	// |request| object should not be modified in this callback.
+	///
+	public long can_set_cookie;
+	///
 	/// Called on the IO thread when the browser needs credentials from the
 	/// user.
 	/// |isProxy| indicates whether the host is a proxy server. |host| contains
@@ -45,23 +60,7 @@ public class cef_request_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long get_auth_credentials;
-	///
-	/// Called on the IO thread before a resource is loaded. To allow the
-	/// resource
-	/// to load normally return NULL. To specify a handler for the resource
-	/// return
-	/// a cef_resource_handler_t object. The |request| object should not be
-	/// modified in this callback.
-	///
-	/** @field cast=(void*) */
-	public long get_resource_handler;
-	///
-	/// Called on the IO thread to optionally filter resource response content.
-	/// |request| and |response| represent the request and response respectively
-	/// and cannot be modified in this callback.
-	///
-	/** @field cast=(void*) */
-	public long get_resource_response_filter;
+	public long get_resource_request_handler;
 	///
 	/// Called on the UI thread before browser navigation. Return true (1) to
 	/// cancel the navigation or false (0) to allow the navigation to proceed.
@@ -78,17 +77,7 @@ public class cef_request_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_before_browse;
-	///
-	/// Called on the IO thread before a resource request is loaded. The
-	/// |request|
-	/// object may be modified. Return RV_CONTINUE to continue the request
-	/// immediately. Return RV_CONTINUE_ASYNC and call cef_request_tCallback::
-	/// cont() at a later time to continue or cancel the request asynchronously.
-	/// Return RV_CANCEL to cancel the request immediately.
-	///
-	///
-	/** @field cast=(void*) */
-	public long on_before_resource_load;
+
 	///
 	/// Called on the UI thread to handle requests for URLs with an invalid SSL
 	/// certificate. Return true (1) and call cef_request_tCallback::cont()
@@ -101,6 +90,7 @@ public class cef_request_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_certificate_error;
+	public long on_document_available_in_main_frame;
 	///
 	/// Called on the UI thread before OnBeforeBrowse in certain limited cases
 	/// where navigating a new or different browser might be desirable. This
@@ -130,17 +120,6 @@ public class cef_request_handler_t extends CStruct {
 	/** @field cast=(void*) */
 	public long on_plugin_crashed;
 	///
-	/// Called on the UI thread to handle requests for URLs with an unknown
-	/// protocol component. Set |allow_os_execution| to true (1) to attempt
-	/// execution via the registered OS protocol handler, if any. SECURITY
-	/// WARNING:
-	/// YOU SHOULD USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST
-	/// OR
-	/// OTHER URL ANALYSIS BEFORE ALLOWING OS EXECUTION.
-	///
-	/** @field cast=(void*) */
-	public long on_protocol_execution;
-	///
 	/// Called on the IO thread when JavaScript requests a specific storage
 	/// quota
 	/// size via the webkitStorageInfo.requestQuota function. |origin_url| is
@@ -161,6 +140,7 @@ public class cef_request_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_render_process_terminated;
+
 	///
 	/// Called on the browser process UI thread when the render view associated
 	/// with |browser| is ready to receive/handle IPC messages in the render
@@ -179,28 +159,6 @@ public class cef_request_handler_t extends CStruct {
 	/** @field cast=(void*) */
 	public long on_resource_load_complete;
 
-	///
-	/// Called on the IO thread when a resource load is redirected. The
-	/// |request|
-	/// parameter will contain the old URL and other request-related
-	/// information.
-	/// The |response| parameter will contain the response that resulted in the
-	/// redirect. The |new_url| parameter will contain the new URL and can be
-	/// changed if desired. The |request| object cannot be modified in this
-	/// callback.
-	///
-	/** @field cast=(void*) */
-	public long on_resource_redirect;
-	///
-	/// Called on the IO thread when a resource response is received. To allow
-	/// the
-	/// resource to load normally return false (0). To redirect or retry the
-	/// resource modify |request| (url, headers or post body) and return true
-	/// (1).
-	/// The |response| object cannot be modified in this callback.
-	///
-	/** @field cast=(void*) */
-	public long on_resource_response;
 	///
 	/// Called on the UI thread when a client certificate is being requested for
 	/// authentication. Return false (0) to use the default behavior and
@@ -221,9 +179,6 @@ public class cef_request_handler_t extends CStruct {
 	///
 	/** @field cast=(void*) */
 	public long on_select_client_certificate;
-
-	/** @field flags=no_gen */
-	public long ptr;
 
 	public cef_request_handler_t() {
 		base = new cef_base_ref_counted_t(sizeof);

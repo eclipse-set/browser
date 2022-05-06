@@ -106,7 +106,7 @@ jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_load_url, *mut chrom
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_auth_callback, *mut chromium::cef::_cef_auth_callback_t, JString, JString, jint);
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_create_browser, return jlong, *mut c_void, JString, &mut chromium::cef::_cef_client_t, jint, jint, jint, jint);
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_eval, *mut chromium::cef::_cef_browser_t, JString, jint, unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char));
-jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_function, return jboolean, *mut chromium::cef::_cef_browser_t, JString, jint);
+jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_function, *mut chromium::cef::_cef_browser_t, JString, jint);
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_get_cookie, return jboolean, JString, *mut chromium::cef::_cef_cookie_visitor_t);
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_init, *mut chromium::cef::_cef_app_t, JString, JString, JString, jint);
 jni_wrap!("org.eclipse.set.browser.lib.ChromiumLib", cefswt_set_cookie, return jboolean, JString, JString, JString, JString, JString, jint, jint, jdouble);

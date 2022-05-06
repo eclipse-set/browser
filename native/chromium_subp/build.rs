@@ -43,4 +43,6 @@ fn link() {
   cef_bin.push(CEF_TARGET);
   println!("cargo:rustc-link-search={}", cef_bin.display()); 
   println!("cargo:rustc-link-lib={}", "libcef");
+  println!("cargo:rustc-link-arg=/SUBSYSTEM:WINDOWS");
+  println!("cargo:rustc-link-arg=/ENTRY:mainCRTStartup");
 }

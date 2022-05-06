@@ -18,13 +18,9 @@ package org.eclipse.set.browser.lib;
 @SuppressWarnings("javadoc")
 public class cef_popup_features_t {
 	public static final int sizeof = ChromiumLib.cef_popup_features_t_sizeof();
-	public int dialog;
-	public int fullscreen;
 	public int height;
 	public int heightSet;
-	public int locationBarVisible;
 	public int menuBarVisible;
-	public int resizable;
 	public int scrollbarsVisible;
 	public int statusBarVisible;
 	public int toolBarVisible;

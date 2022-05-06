@@ -10,6 +10,8 @@
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
  ********************************************************************************/
+#![windows_subsystem = "windows"]
+
 pub mod utils;
 pub mod app;
 pub mod socket;

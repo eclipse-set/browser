@@ -47,24 +47,19 @@ pub fn create_browser(
         } else {
             cef::cef_state_t::STATE_DEFAULT
         },
-        javascript_open_windows: cef::cef_state_t::STATE_DEFAULT,
         javascript_close_windows: cef::cef_state_t::STATE_DEFAULT,
         javascript_access_clipboard: cef::cef_state_t::STATE_DEFAULT,
         javascript_dom_paste: cef::cef_state_t::STATE_DEFAULT,
-        plugins: cef::cef_state_t::STATE_DEFAULT,
-        universal_access_from_file_urls: cef::cef_state_t::STATE_ENABLED,
-        file_access_from_file_urls: cef::cef_state_t::STATE_ENABLED,
-        web_security: cef::cef_state_t::STATE_DEFAULT,
         image_loading: cef::cef_state_t::STATE_DEFAULT,
         image_shrink_standalone_to_fit: cef::cef_state_t::STATE_DEFAULT,
         text_area_resize: cef::cef_state_t::STATE_DEFAULT,
         tab_to_links: cef::cef_state_t::STATE_DEFAULT,
         local_storage: cef::cef_state_t::STATE_DEFAULT,
         databases: cef::cef_state_t::STATE_DEFAULT,
-        application_cache: cef::cef_state_t::STATE_DEFAULT,
         webgl: cef::cef_state_t::STATE_DEFAULT,
         background_color: bg,
         accept_language_list: chromium_subp::utils::cef_string_empty(),
+        chrome_status_bubble: cef::cef_state_t::STATE_DISABLED,
     };
 
     let url_cef = chromium_subp::utils::cef_string(url);
@@ -77,6 +72,7 @@ pub fn create_browser(
             &url_cef,
             &browser_settings,
             null_mut(),
+            null_mut(),
         )
     };
     assert_eq!(
@@ -88,10 +84,12 @@ pub fn create_browser(
 
 fn cef_window_info(hwnd: *mut c_void, w: c_int, h: c_int) -> cef::_cef_window_info_t {
     return cef::_cef_window_info_t {
-        x: 0,
-        y: 0,
-        width: w,
-        height: h,
+        bounds: cef::win::_cef_rect_t{
+            x: 0,
+            y: 0,
+            width: w,
+            height: h,    
+        },
         parent_window: hwnd as cef::win::HWND,
         windowless_rendering_enabled: 0,
         window: 0 as cef::win::HWND,
@@ -107,6 +105,8 @@ fn cef_window_info(hwnd: *mut c_void, w: c_int, h: c_int) -> cef::_cef_window_in
             | winapi::um::winuser::WS_VISIBLE
             | winapi::um::winuser::WS_TABSTOP,
         menu: 0 as cef::win::HMENU,
+        shared_texture_enabled: 0,
+        external_begin_frame_enabled: 0
     };
 }
 
@@ -120,16 +120,16 @@ pub fn set_window_parent(
 ) {
     unsafe {
         if x != 0 {
-            (*window_info).x = x;
+            (*window_info).bounds.x = x;
         }
         if y != 0 {
-            (*window_info).y = y;
+            (*window_info).bounds.y = y;
         }
         if w != 0 {
-            (*window_info).width = w;
+            (*window_info).bounds.width = w;
         }
         if h != 0 {
-            (*window_info).height = h;
+            (*window_info).bounds.height = h;
         }
         (*window_info).parent_window = hwnd as cef::win::HWND;
         (*window_info).windowless_rendering_enabled = 0;

@@ -1,6 +1,6 @@
 [package]
 name = "chromium_subp"
-version = "59.0.0"
+version = "101.0.0"
 authors = ["Equo <https://www.equoplatform.com/>", "Guillermo Zunino <guillez@gmail.com>"]
 
 [[bin]]

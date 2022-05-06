@@ -137,9 +137,8 @@ pub fn wait_response(browser: *mut chromium::cef::cef_browser_t,
             let port = listener.local_addr().unwrap().port();
             let s = unsafe {(*args).set_int.unwrap()(args, 0, port as i32) };
             assert_eq!(s, 1);
-            let sent = unsafe {(*browser).send_process_message.unwrap()(browser, target, msg)};
-            assert_eq!(sent, 1);
-
+            let frame = unsafe {(*browser).get_main_frame.unwrap()(browser)};
+            unsafe {(*frame).send_process_message.unwrap()(frame, target, msg)};
             let mut res = None;
             listener.set_nonblocking(true).expect("Cannot set non-blocking");
             for stream in listener.incoming() {

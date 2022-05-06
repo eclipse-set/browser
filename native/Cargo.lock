@@ -89,7 +89,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chromium"
-version = "0.1.0"
+version = "101.0.0"
 dependencies = [
  "bindgen",
  "chromium_jni_macro",
@@ -100,19 +100,18 @@ dependencies = [
 
 [[package]]
 name = "chromium_jni"
-version = "0.1.0"
+version = "101.0.0"
 dependencies = [
  "chromium",
  "chromium_jni_macro",
  "chromium_jni_utils",
  "chromium_swt",
  "jni",
- "paste",
 ]
 
 [[package]]
 name = "chromium_jni_macro"
-version = "0.1.0"
+version = "101.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -121,14 +120,14 @@ dependencies = [
 
 [[package]]
 name = "chromium_jni_utils"
-version = "0.1.0"
+version = "101.0.0"
 dependencies = [
  "jni",
 ]
 
 [[package]]
 name = "chromium_subp"
-version = "59.0.0"
+version = "101.0.0"
 dependencies = [
  "chromium",
  "winapi",
@@ -136,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "chromium_swt"
-version = "59.0.0"
+version = "101.0.0"
 dependencies = [
  "chromium",
  "chromium_subp",
@@ -297,12 +296,6 @@ dependencies = [
  "memchr",
  "minimal-lexical",
 ]
-
-[[package]]
-name = "paste"
-version = "1.0.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0c520e05135d6e763148b6426a837e239041653ba7becd2e538c076c738025fc"
 
 [[package]]
 name = "peeking_take_while"

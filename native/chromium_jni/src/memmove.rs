@@ -124,40 +124,11 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_ecl
         "I",
         JValue::Int(source_object.toolBarVisible.try_into().unwrap()),
     )
-    .unwrap();
-    env.set_field(
-        destination,
-        "locationBarVisible",
-        "I",
-        JValue::Int(source_object.locationBarVisible.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
+    .unwrap();    env.set_field(
         destination,
         "scrollbarsVisible",
         "I",
         JValue::Int(source_object.scrollbarsVisible.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "resizable",
-        "I",
-        JValue::Int(source_object.resizable.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "fullscreen",
-        "I",
-        JValue::Int(source_object.fullscreen.try_into().unwrap()),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "dialog",
-        "I",
-        JValue::Int(source_object.dialog.try_into().unwrap()),
     )
     .unwrap();
 }

@@ -1,6 +1,6 @@
 [package]
 name = "chromium_jni"
-version = "0.1.0"
+version = "101.0.0"
 edition = "2021"
 
 [dependencies]
@@ -9,7 +9,6 @@ chromium = { path = "../chromium/" }
 chromium_swt = { path = "../chromium_swt/" }
 chromium_jni_macro = { path = "../chromium_jni_macro/" }
 chromium_jni_utils = { path = "../chromium_jni_utils/" }
-paste = "1.0"
 
 [lib]
 crate_type = ["cdylib"]

@@ -20,7 +20,7 @@ public class RequestHandler
 					long.class });
 	private final Callback on_before_browse_cb = new Callback(this,
 			"on_before_browse", int.class, new Type[] { long.class, long.class,
-					long.class, long.class, int.class });
+					long.class, long.class, int.class, int.class });
 
 	/**
 	 * @param browser
@@ -43,16 +43,17 @@ public class RequestHandler
 	}
 
 	@SuppressWarnings({ "unused" }) // JNI
-	int get_auth_credentials(final long self, final long id, final long frame,
-			final int isProxy, final long host, final int port,
-			final long realm, final long scheme, final long callback) {
-		return browser.get_auth_credentials(id, frame, host, port, realm,
+	int get_auth_credentials(final long self, final long id,
+			final long origin_url, final int isProxy, final long host,
+			final int port, final long realm, final long scheme,
+			final long callback) {
+		return browser.get_auth_credentials(id, origin_url, host, port, realm,
 				callback);
 	}
 
 	@SuppressWarnings({ "unused" }) // JNI
 	int on_before_browse(final long self, final long id, final long frame,
-			final long request, final int is_redirect) {
+			final long request, final int user_gesture, final int is_redirect) {
 		return browser.on_before_browse(id, frame, request);
 	}
 

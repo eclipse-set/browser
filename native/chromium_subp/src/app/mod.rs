@@ -25,6 +25,7 @@ impl Base {
             add_ref: Option::None,
             has_one_ref: Option::None,
             release: Option::None,
+            has_at_least_one_ref: Option::None
         }
     }
 }
@@ -117,6 +118,7 @@ impl RenderProcessHandler {
         unsafe extern "C" fn on_process_message_received(
             self_: *mut chromium::cef::_cef_render_process_handler_t,
             browser: *mut chromium::cef::_cef_browser_t,
+            _frame: *mut chromium::cef::_cef_frame_t,
             source_process: chromium::cef::cef_process_id_t,
             message: *mut chromium::cef::_cef_process_message_t,
         ) -> c_int {
@@ -167,12 +169,10 @@ impl RenderProcessHandler {
 
         chromium::cef::_cef_render_process_handler_t {
             base: Base::new(mem::size_of::<chromium::cef::_cef_render_process_handler_t>()),
-            on_render_thread_created: Option::None,
             on_web_kit_initialized: Option::None,
             on_browser_created: Option::None,
             on_browser_destroyed: Option::None,
             get_load_handler: Option::None,
-            on_before_navigation: Option::None,
             on_context_created: Option::Some(on_context_created),
             on_context_released: Option::None,
             on_uncaught_exception: Option::None,

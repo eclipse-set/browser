@@ -184,3 +184,17 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F> FromJavaMember for Option<unsafe ext
     }
 }
 
+
+
+impl<T, U, V, W, Q, R, S, A, B, C, D, E, F, G> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U>
+{
+    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U> {
+        let field_value = env.get_field(object, name, "J").and_then(|v| v.j()).map(|v| v as *const());
+        let pointer = match field_value {
+            Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
+            Err(_) => None
+        };
+        return pointer;
+    }
+}
+

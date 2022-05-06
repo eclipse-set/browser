@@ -62,7 +62,6 @@ pub fn cefswt_init(
 
     let settings = cef::_cef_settings_t {
         size: std::mem::size_of::<cef::_cef_settings_t>(),
-        single_process: 0,
         no_sandbox: 1,
         browser_subprocess_path: subp_cef,
         framework_dir_path: framework_dir_cef,
@@ -71,11 +70,11 @@ pub fn cefswt_init(
         windowless_rendering_enabled: 0,
         command_line_args_disabled: 0,
         cache_path: cache_dir_cef,
+        root_cache_path: cache_dir_cef,
         user_data_path: chromium_subp::utils::cef_string_empty(),
         persist_session_cookies: 1,
         persist_user_preferences: 1,
         user_agent: chromium_subp::utils::cef_string_empty(),
-        product_version: chromium_subp::utils::cef_string_empty(),
         locale: chromium_subp::utils::cef_string_empty(),
         log_file: logfile_cef,
         log_severity: cef::cef_log_severity_t::LOGSEVERITY_INFO,
@@ -85,10 +84,14 @@ pub fn cefswt_init(
         pack_loading_disabled: 0,
         remote_debugging_port: debug_port,
         uncaught_exception_stack_size: 0,
-        ignore_certificate_errors: 0,
-        enable_net_security_expiration: 0,
         background_color: 0,
         accept_language_list: chromium_subp::utils::cef_string_empty(),
+        main_bundle_path: chromium_subp::utils::cef_string_empty(),
+        chrome_runtime: 0,
+        user_agent_product: chromium_subp::utils::cef_string_empty(),
+        cookieable_schemes_list: chromium_subp::utils::cef_string_empty(),
+        cookieable_schemes_exclude_defaults: 0,
+
     };
 
     do_initialize(main_args, settings, japp);
@@ -283,16 +286,6 @@ pub fn cefswt_cookie_to_java(cookie: *mut cef::_cef_cookie_t) -> *mut c_char {
     return chromium_subp::utils::cstr_from_cef(&name);
 }
 
-pub fn cefswt_load_text(browser: *mut cef::cef_browser_t, text: *const c_char) {
-    let text = chromium_subp::utils::str_from_c(text);
-    let text_cef = chromium_subp::utils::cef_string(text);
-    let url_cef = chromium_subp::utils::cef_string("http://text/");
-    let get_frame = unsafe { (*browser).get_main_frame.expect("null get_main_frame") };
-    let main_frame = unsafe { get_frame(browser) };
-    let load_string = unsafe { (*main_frame).load_string.expect("null load_string") };
-    unsafe { load_string(main_frame, &text_cef, &url_cef) };
-}
-
 pub fn cefswt_stop(browser: *mut cef::cef_browser_t) {
     unsafe {
         (*browser).stop_load.expect("null stop_load")(browser);
@@ -362,7 +355,7 @@ pub fn cefswt_eval(
     }
 }
 
-pub fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id: i32) -> c_int {
+pub fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id: i32) {
     let name_cef = chromium_subp::utils::cef_string_from_c(name);
     let msg_name = chromium_subp::utils::cef_string("function");
     unsafe {
@@ -372,13 +365,13 @@ pub fn cefswt_function(browser: *mut cef::cef_browser_t, name: *const c_char, id
         assert_eq!(s, 1);
         let s = (*args).set_string.unwrap()(args, 1, &name_cef);
         assert_eq!(s, 1);
-        let sent = (*browser).send_process_message.unwrap()(
-            browser,
+        let frame = (*browser).get_main_frame.unwrap()(browser);
+
+        (*frame).send_process_message.unwrap()(
+            frame,
             cef::cef_process_id_t::PID_RENDERER,
             msg,
         );
-        assert_eq!(sent, 1);
-        sent
     }
 }
 
@@ -530,6 +523,8 @@ pub fn cefswt_set_cookie(
         expires,
         creation: expires,
         last_access: expires,
+        same_site: cef::cef_cookie_same_site_t::CEF_COOKIE_SAME_SITE_NO_RESTRICTION,
+        priority: cef::cef_cookie_priority_t::CEF_COOKIE_PRIORITY_MEDIUM,
     };
     unsafe {
         (*manager).set_cookie.expect("null set_cookie")(
