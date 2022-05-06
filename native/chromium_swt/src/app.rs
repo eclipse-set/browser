@@ -85,11 +85,11 @@ pub fn create_browser(
 
 fn cef_window_info(hwnd: *mut c_void, w: c_int, h: c_int) -> cef::_cef_window_info_t {
     return cef::_cef_window_info_t {
-        bounds: cef::win::_cef_rect_t{
+        bounds: cef::win::_cef_rect_t {
             x: 0,
             y: 0,
             width: w,
-            height: h,    
+            height: h,
         },
         parent_window: hwnd as cef::win::HWND,
         windowless_rendering_enabled: 0,
@@ -107,7 +107,7 @@ fn cef_window_info(hwnd: *mut c_void, w: c_int, h: c_int) -> cef::_cef_window_in
             | winapi::um::winuser::WS_TABSTOP,
         menu: 0 as cef::win::HMENU,
         shared_texture_enabled: 0,
-        external_begin_frame_enabled: 0
+        external_begin_frame_enabled: 0,
     };
 }
 

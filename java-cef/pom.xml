@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.set</groupId>
 	<artifactId>org.eclipse.set.browser.cef.releng.parent</artifactId>
-	<version>59.0.1-SNAPSHOT</version>
+	<version>101.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
 
 	<properties>
