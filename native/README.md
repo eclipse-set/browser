@@ -1,4 +1,4 @@
-# Native componten for Chromium
+# Native component for Chromium
 
 ## Project structure
 

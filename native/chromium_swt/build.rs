@@ -1,4 +1,5 @@
-/********************************************************************************
+/**
+ * Copyright (c) 2022 DB Netz AG and others.
  * Copyright (c) 2020 Equo
  *
  * This program and the accompanying materials are made available under the
@@ -9,7 +10,7 @@
  *
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
- ********************************************************************************/
+ */
 #[cfg(debug_assertions)]
 const CEF_TARGET: &'static str = "Debug"; 
 #[cfg(not(debug_assertions))]

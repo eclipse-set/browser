@@ -63,6 +63,12 @@ public class CEFLibrary {
 		CEFLibrary.cefSupplierClass = supplierClass;
 
 		try {
+			final URI uri2 = CEFLibrary.cefSupplierClass.getClassLoader()
+					.getResource(System.mapLibraryName(LIBCEF)).toURI();
+			cef_path = Path.of(new File(uri2).getAbsolutePath()).getParent();
+			if (true) {
+				return;
+			}
 			final URI uri = CEFLibrary.cefSupplierClass.getClassLoader()
 					.getResource(CEF_DIR).toURI();
 			if (!uri.isOpaque()) {

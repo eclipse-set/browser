@@ -1,4 +1,5 @@
-/********************************************************************************
+/**
+ * Copyright (c) 2022 DB Netz AG and others.
  * Copyright (c) 2020 Equo
  *
  * This program and the accompanying materials are made available under the
@@ -9,7 +10,7 @@
  *
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
- ********************************************************************************/
+ */
 package org.eclipse.set.browser.cef;
 
 import java.io.IOException;
@@ -430,8 +431,8 @@ public class Chromium extends WebBrowser {
 	/**
 	 * @param browser_id2
 	 *            the browser
-	 * @param frame
-	 *            the frame
+	 * @param origin_url
+	 *            the origin url
 	 * @param host
 	 *            host to get credentials for
 	 * @param port

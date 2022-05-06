@@ -1,4 +1,5 @@
-/********************************************************************************
+/**
+ * Copyright (c) 2022 DB Netz AG and others.
  * Copyright (c) 2020 Equo
  *
  * This program and the accompanying materials are made available under the
@@ -9,9 +10,7 @@
  *
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
- ********************************************************************************/
-#![windows_subsystem = "windows"]
-
+ */
 pub mod utils;
 pub mod app;
 pub mod socket;
