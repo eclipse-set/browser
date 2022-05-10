@@ -10,4 +10,4 @@ path = "src/bin/chromium_subp.rs"
 
 [dependencies]
 chromium = { path = "../chromium/" }
-winapi = { version = "0.3.9", features = ["winuser", "libloaderapi"] }
+winapi = { version = "0.3.9", features = ["winuser", "libloaderapi", "synchapi", "tlhelp32", "handleapi"] }
