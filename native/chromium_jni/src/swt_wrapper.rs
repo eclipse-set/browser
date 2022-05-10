@@ -35,6 +35,9 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1cstring_1
     _class: JClass,
     string: *const c_char,
 ) -> jstring {
+    if std::ptr::null() == string {
+        return std::ptr::null_mut();
+    }
     let value = unsafe { CStr::from_ptr(string) };
     return env
         .new_string(value.to_str().unwrap())
@@ -130,7 +133,6 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1function_
 jni_wrap!(
     "org.eclipse.set.browser.lib.ChromiumLib",
     cefswt_function_arg,
-    return jboolean,
     *mut chromium::cef::_cef_process_message_t,
     jint,
     unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char)

@@ -132,7 +132,7 @@ public class ChromiumLib extends C {
 	 * @param callback
 	 *            cast=(void *)
 	 */
-	public static final native boolean cefswt_function_arg(long msg, int index,
+	public static final native void cefswt_function_arg(long msg, int index,
 			long callback);
 
 	/**

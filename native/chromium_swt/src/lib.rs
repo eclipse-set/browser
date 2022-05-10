@@ -402,7 +402,7 @@ pub fn cefswt_function_arg(
     message: *mut cef::cef_process_message_t,
     index: i32,
     callback: unsafe extern "system" fn(work: c_int, kind: c_int, value: *const c_char),
-) -> c_int {
+) {
     unsafe {
         let args = (*message).get_argument_list.unwrap()(message);
         let kind = (*args).get_int.unwrap()(args, (1 + index * 2 + 1) as usize);
@@ -410,7 +410,6 @@ pub fn cefswt_function_arg(
         let cstr = chromium_subp::utils::cstr_from_cef(arg);
         let kind = chromium_subp::socket::ReturnType::from(kind);
         callback(0, kind as i32, cstr);
-        1
     }
 }
 
