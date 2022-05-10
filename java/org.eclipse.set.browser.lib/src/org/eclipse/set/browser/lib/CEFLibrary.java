@@ -24,6 +24,10 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
 
+import org.eclipse.core.runtime.FileLocator;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
+
 /**
  * Helper class for accessing and loading CEF Binaries
  * 
@@ -65,14 +69,22 @@ public class CEFLibrary {
 		try {
 			final URI uri = CEFLibrary.cefSupplierClass.getClassLoader()
 					.getResource(CEF_DIR).toURI();
-			if (!uri.isOpaque()) {
+			final Bundle bundle = FrameworkUtil
+					.getBundle(CEFLibrary.cefSupplierClass);
+			if (bundle == null && !uri.isOpaque()) {
 				cef_path = Path.of(new File(uri).getAbsolutePath());
 			} else {
 				// Extract from jar into temporary directory
 				cef_path = Files.createTempDirectory("set_cef_");
 
-				extractFiles(CEFLibrary.cefSupplierClass.getClassLoader()
-						.getResource(CEF_DIR).toURI(), cef_path);
+				if (bundle != null) {
+					final String location = bundle.getLocation()
+							.replace("reference:", "jar:") + "!/cef";
+					extractFiles(URI.create(location), cef_path);
+				} else {
+					extractFiles(CEFLibrary.cefSupplierClass.getClassLoader()
+							.getResource(CEF_DIR).toURI(), cef_path);
+				}
 			}
 
 		} catch (final URISyntaxException | IOException e) {
@@ -147,6 +159,10 @@ public class CEFLibrary {
 		final URL libraryUrl = CEFLibrary.class.getClassLoader()
 				.getResource(mapLibraryName);
 
-		return new File(libraryUrl.toURI());
+		try {
+			return new File(FileLocator.toFileURL(libraryUrl).toURI());
+		} catch (final IOException e) {
+			throw new RuntimeException(e);
+		}
 	}
 }
