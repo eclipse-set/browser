@@ -7,6 +7,6 @@ version = "101.0.0"
 proc-macro = true
 
 [dependencies]
-syn = { version = "1.0", features=["full"], default-features = false }
-quote ={ version = "1.0", default-features = false }
-proc-macro2 ={ version = "1.0", default-features = false }
+proc-macro2 = { version = "1.0" }
+quote = { version = "1.0" }
+syn = { version = "1.0", features=["full", "parsing", "proc-macro"], default-features = false }
