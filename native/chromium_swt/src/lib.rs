@@ -20,9 +20,8 @@ use std::os::raw::{c_char, c_int, c_void};
 
 pub fn cefswt_init(
     japp: *mut cef::cef_app_t,
-    cefrust_path: *const c_char,
+    subp_path: *const c_char,
     cef_path: *const c_char,
-    version: *const c_char,
     debug_port: c_int,
 ) {
     assert_eq!(
@@ -30,19 +29,17 @@ pub fn cefswt_init(
         std::mem::size_of::<cef::_cef_app_t>()
     );
 
-    let cefrust_path = chromium_subp::utils::str_from_c(cefrust_path);
+    let subp_path = chromium_subp::utils::str_from_c(subp_path);
     let cef_path = chromium_subp::utils::str_from_c(cef_path);
-    let version = chromium_subp::utils::str_from_c(version);
 
     let main_args = chromium_subp::utils::prepare_args();
 
-    let cefrust_dir = std::path::Path::new(&cefrust_path);
+    let subp = std::path::Path::new(&subp_path);
     let cef_dir = std::path::Path::new(&cef_path);
 
-    let subp = chromium_subp::utils::subp_path(cefrust_dir, version);
-    let subp_cef = chromium_subp::utils::cef_string(&subp);
+    let subp_cef = chromium_subp::utils::cef_string(subp.to_str().unwrap());
 
-    if cef_path != cefrust_path {
+    if cef_path != subp_path {
         set_env_var(cef_path, "PATH", ";");
     }
 

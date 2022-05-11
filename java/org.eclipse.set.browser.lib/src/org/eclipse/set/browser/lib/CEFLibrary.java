@@ -20,6 +20,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.stream.Stream;
@@ -38,6 +39,7 @@ public class CEFLibrary {
 	private static Path cef_path;
 	private static Class<?> cefSupplierClass;
 	private static final String CHROME_ELF = "chrome_elf";
+	private static final String CHROMIUM_SUBPROCESS = "chromium_subp.exe";
 	private static final String JNI_LIB = "chromium_jni";
 	private static final String LIBCEF = "libcef";
 
@@ -49,12 +51,15 @@ public class CEFLibrary {
 	}
 
 	/**
-	 * @return the path to the JNI/subprocess binaries
+	 * @return the path to the Chromium subprocess binary
 	 */
-	public static String getJNIPath() {
+	public static String getSubprocessExePath() {
 		try {
-			return getLibraryFile(JNI_LIB).getParentFile().getAbsolutePath();
-		} catch (final URISyntaxException e) {
+			final URL url = CEFLibrary.class.getClassLoader()
+					.getResource(CHROMIUM_SUBPROCESS);
+			return Paths.get(FileLocator.toFileURL(url).toURI())
+					.toAbsolutePath().toString();
+		} catch (final URISyntaxException | IOException e) {
 			throw new RuntimeException(e);
 		}
 	}
@@ -158,7 +163,6 @@ public class CEFLibrary {
 		final String mapLibraryName = System.mapLibraryName(library);
 		final URL libraryUrl = CEFLibrary.class.getClassLoader()
 				.getResource(mapLibraryName);
-
 		try {
 			return new File(FileLocator.toFileURL(libraryUrl).toURI());
 		} catch (final IOException e) {

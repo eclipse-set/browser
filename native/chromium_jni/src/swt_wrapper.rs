@@ -204,7 +204,6 @@ jni_wrap!(
     *mut chromium::cef::_cef_app_t,
     JString,
     JString,
-    JString,
     jint
 );
 jni_wrap!(

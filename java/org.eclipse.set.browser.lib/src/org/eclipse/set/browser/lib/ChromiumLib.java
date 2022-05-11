@@ -194,8 +194,8 @@ public class ChromiumLib extends C {
 	 * @param app
 	 *            cast=(void *)
 	 */
-	public static final native void cefswt_init(long app, String cefrustPath,
-			String cefPath, String version, int debugPort);
+	public static final native void cefswt_init(long app, String subprocessPath,
+			String cefPath, int debugPort);
 
 	/**
 	 * @param frame

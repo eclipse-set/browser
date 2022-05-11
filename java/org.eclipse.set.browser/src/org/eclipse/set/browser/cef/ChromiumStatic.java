@@ -54,9 +54,6 @@ public class ChromiumStatic {
 	 */
 	public static boolean shuttingDown;
 	private static AppHandler app;
-
-	private static String cefPath;
-	private static String cefrustPath;
 	private static CookieVisitor cookieVisitor;
 
 	private static MessageLoop messageLoop = new MessageLoop();
@@ -84,6 +81,15 @@ public class ChromiumStatic {
 			app = null;
 		} else if (!shuttingDown) {
 			shuttingDown = true;
+		}
+	}
+
+	private static int getDebugPort() {
+		try {
+			return Integer.parseInt(System.getProperty(
+					"org.eclipse.swt.chromium.remote-debugging-port", "0"));
+		} catch (final NumberFormatException e) {
+			return 0;
 		}
 	}
 
@@ -115,21 +121,13 @@ public class ChromiumStatic {
 	static synchronized void initCEF(final Display display) {
 		if (app == null) {
 			CEFLibrary.loadLibraries();
-			cefrustPath = CEFLibrary.getJNIPath();
-			cefPath = CEFLibrary.getCEFPath();
 			setupCookies();
 			app = new AppHandler();
 			cookieVisitor = new CookieVisitor();
 
-			int debugPort = 0;
-			try {
-				debugPort = Integer.parseInt(System.getProperty(
-						"org.eclipse.swt.chromium.remote-debugging-port", "0"));
-			} catch (final NumberFormatException e) {
-				debugPort = 0;
-			}
-			ChromiumLib.cefswt_init(app.get().ptr, cefrustPath, cefPath, "",
-					debugPort);
+			ChromiumLib.cefswt_init(app.get().ptr,
+					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
+					getDebugPort());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {
@@ -141,5 +139,4 @@ public class ChromiumStatic {
 		}
 
 	}
-
 }

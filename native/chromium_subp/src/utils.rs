@@ -14,12 +14,6 @@ use std::ffi::CStr;
 use std::os::raw::c_char;
 extern crate winapi;
 
-pub fn subp_path(cwd: &::std::path::Path, _version: &str) -> String {
-    let subp_path = cwd.join("chromium_subp.exe");
-    let subp = subp_path.to_str().unwrap();
-    String::from(subp)
-}
-
 pub fn prepare_args() -> chromium::cef::_cef_main_args_t {
     let h_instance =
         unsafe { winapi::um::libloaderapi::GetModuleHandleA(0 as winapi::um::winnt::LPCSTR) };
