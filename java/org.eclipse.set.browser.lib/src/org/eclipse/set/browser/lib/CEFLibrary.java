@@ -76,22 +76,35 @@ public class CEFLibrary {
 					.getResource(CEF_DIR).toURI();
 			final Bundle bundle = FrameworkUtil
 					.getBundle(CEFLibrary.cefSupplierClass);
-			if (bundle == null && !uri.isOpaque()) {
-				cef_path = Path.of(new File(uri).getAbsolutePath());
-			} else {
-				// Extract from jar into temporary directory
-				cef_path = Files.createTempDirectory("set_cef_");
 
-				if (bundle != null) {
-					final String location = bundle.getLocation()
-							.replace("reference:", "jar:") + "!/cef";
-					extractFiles(URI.create(location), cef_path);
+			// Special handling as various packaging methods result in different
+			// behavior
+			// on how to locate files on the filesystem
+			if (bundle == null) {
+				// If not installed as a bundle the files are either
+				// present on disk directly (e.g. when running from an Eclipse
+				// workspace with the bundle as project)
+				// or included as a jar file (e.g. when running from an Eclipse
+				// workspace with the bundle referenced via the target platform)
+				if (!uri.isOpaque()) {
+					cef_path = Path.of(new File(uri).getAbsolutePath());
 				} else {
-					extractFiles(CEFLibrary.cefSupplierClass.getClassLoader()
-							.getResource(CEF_DIR).toURI(), cef_path);
+					// Extract from jar into temporary directory
+					cef_path = Files.createTempDirectory("set_cef_");
+					extractFiles(new File(toJarPath(uri)), cef_path);
+				}
+			} else {
+				// If installed as a bundle, try to locate it via the
+				// FileLocator
+				final File bundleFile = FileLocator.getBundleFile(bundle);
+				if (bundleFile.isDirectory()) {
+					cef_path = bundleFile.toPath().resolve("cef");
+				} else {
+					// Extract jar file to temporary directory
+					cef_path = Files.createTempDirectory("set_cef_");
+					extractFiles(bundleFile, cef_path);
 				}
 			}
-
 		} catch (final URISyntaxException | IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -124,10 +137,10 @@ public class CEFLibrary {
 		}
 	}
 
-	private static void extractFiles(final URI uri, final Path destination)
+	private static void extractFiles(final File file, final Path destination)
 			throws IOException {
-		try (final FileSystem fileSystem = FileSystems.newFileSystem(uri,
-				Collections.<String, Object> emptyMap())) {
+		try (final FileSystem fileSystem = FileSystems.newFileSystem(
+				file.toPath(), Collections.<String, Object> emptyMap())) {
 			final Path cefPath = fileSystem.getPath(CEF_DIR);
 			// Walk contents of the file
 			try (final Stream<Path> walk = Files.walk(cefPath)) {
@@ -168,5 +181,19 @@ public class CEFLibrary {
 		} catch (final IOException e) {
 			throw new RuntimeException(e);
 		}
+	}
+
+	/**
+	 * Transforms a jar URI to a jar file path
+	 * 
+	 * e.g. jar:C:/eclipse/example.jar!/folder/file.dll results in
+	 * C:/eclipse/example.jar!/folder/file.dll
+	 * 
+	 * @param uri
+	 * @return the path to the jar file
+	 */
+	private static String toJarPath(final URI uri) {
+		final String path = uri.getSchemeSpecificPart().replace("file:/", "");
+		return path.substring(0, path.indexOf('!'));
 	}
 }
