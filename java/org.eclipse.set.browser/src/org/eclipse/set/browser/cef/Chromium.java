@@ -244,9 +244,7 @@ public class Chromium extends WebBrowser {
 		final Shell shell = chromium.getShell();
 		final Display display = shell.getDisplay();
 		while (!shell.isDisposed() && System.currentTimeMillis() < end) {
-			// debug("in close, disposing:"+disposing);
 			if (disposing == Dispose.Unload) {
-				// debug("in close, disposing:"+disposing);
 				end += 1000;
 			} else if (disposing == Dispose.UnloadClosed) {
 				disposing = Dispose.WaitIfClosed;
@@ -277,7 +275,6 @@ public class Chromium extends WebBrowser {
 		paintListener = new PaintListener() {
 			@Override
 			public void paintControl(final PaintEvent e) {
-				debugPrint("paintControl");
 				chromium.removePaintListener(this);
 				createBrowser();
 				paintListener = null;
@@ -317,7 +314,6 @@ public class Chromium extends WebBrowser {
 	 * Disposes the browser
 	 */
 	public void dispose() {
-		debugPrint("in dispose, disposing " + disposing);
 		if (disposing == Dispose.FromDispose || isDisposed()) {
 			return;
 		}
@@ -329,7 +325,6 @@ public class Chromium extends WebBrowser {
 		}
 		focusListener = null;
 		if (browser != 0 && callClose) {
-			debugPrint("call close_browser");
 			ChromiumLib.cefswt_close_browser(browser, 1);
 			waitForClose(Display.getDefault());
 		}
@@ -387,7 +382,6 @@ public class Chromium extends WebBrowser {
 			} else {
 				final String value = ChromiumLib
 						.cefswt_cstring_to_java(valuePtr);
-				debugPrint("eval returned: " + type + ":" + value);
 				ret[0] = mapType(type, value);
 			}
 		};
@@ -468,7 +462,6 @@ public class Chromium extends WebBrowser {
 				? ChromiumLib.cefswt_cefstring_to_java(realm)
 				: null;
 		event.location = protocol + "://" + hostStr;
-		debugPrint("get_auth_credentials:" + event.location);
 		chromium.getDisplay().syncExec(() -> {
 			for (final AuthenticationListener listener : authenticationListeners) {
 				listener.authenticate(event);
@@ -547,12 +540,8 @@ public class Chromium extends WebBrowser {
 		event.location = getPlainUrl(ChromiumLib.cefswt_cefstring_to_java(url));
 		event.top = ChromiumLib.cefswt_is_main_frame(frame);
 		if (!enableProgress.isDone()) {
-			debugPrint("!on_address_change to " + event.location + " "
-					+ (event.top ? "main" : "!main"));
 			return;
 		}
-		debugPrint("on_address_change to " + event.location + " "
-				+ (event.top ? "main" : "!main"));
 		chromium.getDisplay().asyncExec(() -> {
 			for (final LocationListener listener : locationListeners) {
 				listener.changed(event);
@@ -570,7 +559,6 @@ public class Chromium extends WebBrowser {
 		if (isDisposed() || visibilityWindowListeners == null) {
 			return;
 		}
-		debugPrint("on_after_created: " + browser_id);
 		if (browser_id != 0) {
 			this.browser = browser_id;
 			if (this.isPopup == null) {
@@ -578,7 +566,6 @@ public class Chromium extends WebBrowser {
 				ChromiumLib.cefswt_resized(browser, size.x, size.y);
 			}
 			if (this.isPopup != null && this.url != null) {
-				debugPrint("load url after created");
 				doSetUrlPost(browser, url, postData, headers);
 			} else if (!"about:blank".equals(this.url)) {
 				enableProgress.complete(Boolean.TRUE);
@@ -587,11 +574,9 @@ public class Chromium extends WebBrowser {
 		created.complete(Boolean.TRUE);
 
 		if (ChromiumStatic.browsers.get() == 1) {
-			debugPrint("STARTING MSG LOOP");
 			ChromiumStatic.getMessageLoop().start();
 		}
 
-		debugPrint("on_after_created handling " + browser);
 		if (isDisposed() || visibilityWindowListeners == null) {
 			return;
 		}
@@ -648,7 +633,6 @@ public class Chromium extends WebBrowser {
 			event.doit = true;
 			event.location = getPlainUrl(
 					ChromiumLib.cefswt_request_to_java(request));
-			debugPrint("on_before_browse:" + event.location);
 			try {
 				ChromiumStatic.getMessageLoop().pause();
 				for (final LocationListener listener : locationListeners) {
@@ -658,8 +642,6 @@ public class Chromium extends WebBrowser {
 				ChromiumStatic.getMessageLoop().unpause();
 			}
 			if (!event.doit) {
-				debugPrint("canceled nav, dependats:"
-						+ enableProgress.getNumberOfDependents());
 				enableProgress = new CompletableFuture<>();
 			}
 			return event.doit ? 0 : 1;
@@ -713,7 +695,6 @@ public class Chromium extends WebBrowser {
 			// not handled
 		}
 		chromium.getDisplay().syncExec(() -> {
-			debugPrint("on_before_popup syncExec" + browser);
 			event.display = chromium.getDisplay();
 			event.widget = chromium;
 			event.required = false;
@@ -887,13 +868,11 @@ public class Chromium extends WebBrowser {
 		event.current = isLoading == 1 ? 1 : MAX_PROGRESS;
 		event.total = MAX_PROGRESS;
 		if (isLoading == 1) {
-			debugPrint("progress changed");
 			for (final ProgressListener listener : progressListeners) {
 				listener.changed(event);
 			}
 		} else {
 			textReady.thenRun(() -> {
-				debugPrint("progress completed");
 				chromium.getDisplay().asyncExec(() -> {
 					for (final ProgressListener listener : progressListeners) {
 						listener.completed(event);
@@ -1092,7 +1071,6 @@ public class Chromium extends WebBrowser {
 		this.headers = headers;
 		jsEnabled = jsEnabledOnNextPage;
 		if (!isDisposed() && browser != 0) {
-			debugPrint("set url: " + url);
 			doSetUrl(url, postData, headers);
 		}
 		return true;
@@ -1186,33 +1164,20 @@ public class Chromium extends WebBrowser {
 
 		prepareBrowser();
 		final long popupHandle = hwnd;
-		debugPrint("popup will use hwnd:" + popupHandle);
 		final Point size = new Point(0, 0);
 		ChromiumLib.cefswt_set_window_info_parent(windowInfo, client,
 				clientHandler.get().ptr, popupHandle, 0, 0, size.x, size.y);
-		debugPrint("reparent popup");
-	}
-
-	private void debugPrint(final String log) {
-		if (true) {
-			System.out.println("J" + instance + ":"
-					+ Thread.currentThread().getName() + ":" + log
-					+ (this.url != null ? " (" + getPlainUrl(this.url) + ")"
-							: " empty-url"));
-		}
 	}
 
 	@SuppressWarnings("hiding")
 	private CompletableFuture<Void> doSetUrl(final String url,
 			final String postData, final String[] headers) {
 		return enableProgress.thenRun(() -> {
-			debugPrint("load url");
 			doSetUrlPost(browser, url, postData, headers);
 		});
 	}
 
 	private void freeTextVisitor() {
-		debugPrint("free text visitor");
 		disposeCallback(textVisitor.visit_cb);
 		freeDelayed(textVisitor.ptr);
 		textVisitor = null;
@@ -1306,10 +1271,7 @@ public class Chromium extends WebBrowser {
 	private void prepareBrowser() {
 		hwnd = getHandle(chromium);
 
-		chromium.addDisposeListener(e -> {
-			debugPrint("disposing chromium");
-			dispose();
-		});
+		chromium.addDisposeListener(e -> dispose());
 		focusListener = new CEFFocusListener();
 		chromium.addFocusListener(focusListener);
 
@@ -1336,7 +1298,6 @@ public class Chromium extends WebBrowser {
 
 	private void updateText() {
 		if (browser != 0 && !isDisposed() && disposing == Dispose.No) {
-			debugPrint("update text");
 			if (textVisitor != null) {
 				textVisitor.refs++;
 			} else {
