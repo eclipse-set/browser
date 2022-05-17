@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: CEF Binaries 59.0.3071.109
 Bundle-SymbolicName: org.eclipse.set.browser.cef;singleton:=true
-Bundle-Version: 101.0.2.qualifier
+Bundle-Version: 101.1.1.qualifier
 Automatic-Module-Name: org.eclipse.set.browser.cef
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Export-Package: org.eclipse.set.browser.cef
