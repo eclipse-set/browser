@@ -1,6 +1,6 @@
 [package]
 name = "chromium_swt"
-version = "101.0.0"
+version = "1.0.0"
 authors = ["Equo <https://www.equoplatform.com/>", "Guillermo Zunino <guillez@gmail.com>"]
 edition = "2021"
 

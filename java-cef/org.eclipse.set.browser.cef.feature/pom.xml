@@ -9,6 +9,6 @@
 		<relativePath>..</relativePath>
 		<groupId>org.eclipse.set</groupId>
 		<artifactId>org.eclipse.set.browser.cef.releng.parent</artifactId>
-		<version>101.0.1-SNAPSHOT</version>
+		<version>101.0.2-SNAPSHOT</version>
 	</parent>
 </project>

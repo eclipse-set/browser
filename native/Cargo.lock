@@ -89,7 +89,7 @@ checksum = "baf1de4339761588bc0619e3cbc0120ee582ebb74b53b4efbf79117bd2da40fd"
 
 [[package]]
 name = "chromium"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "bindgen",
  "chromium_jni_macro",
@@ -100,7 +100,7 @@ dependencies = [
 
 [[package]]
 name = "chromium_jni"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "chromium",
  "chromium_jni_macro",
@@ -111,7 +111,7 @@ dependencies = [
 
 [[package]]
 name = "chromium_jni_macro"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -120,14 +120,14 @@ dependencies = [
 
 [[package]]
 name = "chromium_jni_utils"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "jni",
 ]
 
 [[package]]
 name = "chromium_subp"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "chromium",
  "winapi",
@@ -135,7 +135,7 @@ dependencies = [
 
 [[package]]
 name = "chromium_swt"
-version = "101.0.0"
+version = "1.0.0"
 dependencies = [
  "chromium",
  "chromium_subp",
