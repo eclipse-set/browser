@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.eclipse.set.browser.cef.feature" label="CEF Binary Feature" version="101.1.1.qualifier" provider-name="Eclipse SET Project">
+<feature
+      id="org.eclipse.set.browser.cef.feature"
+      label="CEF Binary Feature"
+      version="101.1.1.qualifier"
+      provider-name="Eclipse SET Project">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]
@@ -12,7 +16,5 @@
    <license url="http://www.example.com/license">
       [Enter License Description here.]
    </license>
-
-   <plugin id="org.eclipse.set.browser.cef" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
 
 </feature>
