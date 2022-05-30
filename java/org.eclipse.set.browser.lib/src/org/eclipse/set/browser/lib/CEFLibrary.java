@@ -72,8 +72,7 @@ public class CEFLibrary {
 		CEFLibrary.cefSupplierClass = supplierClass;
 
 		try {
-			final URI uri = CEFLibrary.cefSupplierClass.getClassLoader()
-					.getResource(CEF_DIR).toURI();
+
 			final Bundle bundle = FrameworkUtil
 					.getBundle(CEFLibrary.cefSupplierClass);
 
@@ -86,6 +85,8 @@ public class CEFLibrary {
 				// workspace with the bundle as project)
 				// or included as a jar file (e.g. when running from an Eclipse
 				// workspace with the bundle referenced via the target platform)
+				final URI uri = CEFLibrary.cefSupplierClass.getClassLoader()
+						.getResource("libcef.dll").toURI();
 				if (!uri.isOpaque()) {
 					cef_path = Path.of(new File(uri).getAbsolutePath());
 				} else {
@@ -128,12 +129,9 @@ public class CEFLibrary {
 	private static void extractFile(final InputStream resourceStream,
 			final Path destinationFile) throws IOException {
 		Files.createDirectories(destinationFile.getParent());
-
 		try (OutputStream output = new FileOutputStream(
 				destinationFile.toFile())) {
 			resourceStream.transferTo(output);
-		} catch (final IOException ioException) {
-			ioException.printStackTrace();
 		}
 	}
 
