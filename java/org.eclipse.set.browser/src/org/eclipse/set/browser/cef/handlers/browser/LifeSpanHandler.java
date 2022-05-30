@@ -24,9 +24,6 @@ import org.eclipse.swt.internal.Callback;
  */
 public class LifeSpanHandler
 		extends AbstractBrowserHandler<cef_life_span_handler_t> {
-	private final Callback do_close_cb = new Callback(this, "do_close",
-			int.class, new Type[] { long.class, long.class });
-
 	private final Callback on_after_created_cb = new Callback(this,
 			"on_after_created", void.class,
 			new Type[] { long.class, long.class });
@@ -52,7 +49,6 @@ public class LifeSpanHandler
 		handler.on_before_close = on_before_close_cb.getAddress();
 		handler.on_after_created = on_after_created_cb.getAddress();
 		handler.on_before_popup = on_before_popup_cb.getAddress();
-		handler.do_close = do_close_cb.getAddress();
 		handler.allocate();
 	}
 
@@ -62,12 +58,6 @@ public class LifeSpanHandler
 		on_before_close_cb.dispose();
 		on_after_created_cb.dispose();
 		on_before_popup_cb.dispose();
-		do_close_cb.dispose();
-	}
-
-	@SuppressWarnings({ "unused" }) // JNI
-	private int do_close(final long self, final long id) {
-		return browser.do_close();
 	}
 
 	@SuppressWarnings({ "unused" }) // JNI
@@ -84,9 +74,7 @@ public class LifeSpanHandler
 			final long browser) {
 		final int id = ChromiumLib.cefswt_get_id(browser);
 		ChromiumStatic.instances.remove(id).on_before_close(browser);
-
 		final int decrementAndGet = ChromiumStatic.browsers.decrementAndGet();
-
 		ChromiumLib.cefswt_free(browser);
 		ChromiumStatic.disposingAny--;
 		if (decrementAndGet == 0 && ChromiumStatic.shuttingDown) {

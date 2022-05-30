@@ -330,38 +330,6 @@ public class Chromium extends WebBrowser {
 		}
 	}
 
-	/**
-	 * Closes the browser instance
-	 * 
-	 * @return 1 on success, 0 on failure
-	 */
-	public int do_close() {
-		final Display display = Display.getDefault();
-		if (!isDisposed() && closeWindowListeners != null) {
-			final org.eclipse.swt.browser.WindowEvent event = new org.eclipse.swt.browser.WindowEvent(
-					chromium);
-			event.display = display;
-			event.widget = chromium;
-			for (final CloseWindowListener listener : closeWindowListeners) {
-				listener.close(event);
-			}
-		}
-
-		if (disposing == Dispose.FromClose || disposing == Dispose.Unload
-				|| disposing == Dispose.UnloadClosed
-				|| disposing == Dispose.WaitIfClosed) {
-			disposing = Dispose.DoIt;
-		} else if (disposing == Dispose.No) {
-			if (chromium != null) {
-				disposing = Dispose.FromBrowser;
-				chromium.dispose();
-			}
-		}
-		clientHandler.dispose();
-		popupClientHandler.dispose();
-		return 1;
-	}
-
 	@Override
 	public Object evaluate(final String script) throws SWTException {
 		if (!jsEnabled) {
@@ -654,6 +622,30 @@ public class Chromium extends WebBrowser {
 	 *            the browser id
 	 */
 	public void on_before_close(final long browser_id) {
+		final Display display = Display.getDefault();
+		if (!isDisposed() && closeWindowListeners != null) {
+			final org.eclipse.swt.browser.WindowEvent event = new org.eclipse.swt.browser.WindowEvent(
+					chromium);
+			event.display = display;
+			event.widget = chromium;
+			for (final CloseWindowListener listener : closeWindowListeners) {
+				listener.close(event);
+			}
+		}
+
+		if (disposing == Dispose.FromClose || disposing == Dispose.Unload
+				|| disposing == Dispose.UnloadClosed
+				|| disposing == Dispose.WaitIfClosed) {
+			disposing = Dispose.DoIt;
+		} else if (disposing == Dispose.No) {
+			if (chromium != null) {
+				disposing = Dispose.FromBrowser;
+				chromium.dispose();
+			}
+		}
+		clientHandler.dispose();
+		popupClientHandler.dispose();
+
 		this.browser = 0;
 		this.chromium = null;
 		if (textVisitor != null) {
