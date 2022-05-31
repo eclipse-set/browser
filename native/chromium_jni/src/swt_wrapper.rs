@@ -51,6 +51,9 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1cefstring
     _class: JClass,
     string: *mut chromium::cef::_cef_string_utf16_t,
 ) -> jstring {
+    if std::ptr::null() == string {
+        return std::ptr::null_mut();
+    }
     let value = unsafe { CStr::from_ptr(chromium_swt::cefswt_cefstring_to_java(string)) };
     return env
         .new_string(value.to_str().unwrap())
