@@ -127,7 +127,7 @@ public class ChromiumStatic {
 
 			ChromiumLib.cefswt_init(app.get().ptr,
 					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					getDebugPort());
+					CEFLibrary.getTempPath(), getDebugPort());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {

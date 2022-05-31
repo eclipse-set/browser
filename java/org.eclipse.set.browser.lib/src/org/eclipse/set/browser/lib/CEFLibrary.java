@@ -51,6 +51,14 @@ public class CEFLibrary {
 	}
 
 	/**
+	 * @return a path for temporary files for the browser
+	 */
+	public static String getTempPath() {
+		return Paths.get(System.getenv("APPDATA"), "Eclipse SET", "cef")
+				.toAbsolutePath().toString();
+	}
+
+	/**
 	 * @param cefPath
 	 *            path to CEF binaries
 	 */

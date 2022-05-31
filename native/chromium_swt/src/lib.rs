@@ -22,6 +22,7 @@ pub fn cefswt_init(
     japp: *mut cef::cef_app_t,
     subp_path: *const c_char,
     cef_path: *const c_char,
+    temp_path: *const c_char,
     debug_port: c_int,
 ) {
     assert_eq!(
@@ -31,11 +32,13 @@ pub fn cefswt_init(
 
     let subp_path = chromium_subp::utils::str_from_c(subp_path);
     let cef_path = chromium_subp::utils::str_from_c(cef_path);
+    let temp_path = chromium_subp::utils::str_from_c(temp_path);
 
     let main_args = chromium_subp::utils::prepare_args();
 
     let subp = std::path::Path::new(&subp_path);
     let cef_dir = std::path::Path::new(&cef_path);
+    let temp_dir = std::path::Path::new(&temp_path);
 
     let subp_cef = chromium_subp::utils::cef_string(subp.to_str().unwrap());
 
@@ -46,17 +49,10 @@ pub fn cefswt_init(
     let resources_cef = chromium_subp::utils::cef_string(cef_dir.to_str().unwrap());
     let locales_cef = chromium_subp::utils::cef_string(cef_dir.join("locales").to_str().unwrap());
     let framework_dir_cef = chromium_subp::utils::cef_string_empty();
-    let cache_dir_cef = chromium_subp::utils::cef_string(
-        cef_dir
-            .parent()
-            .unwrap()
-            .parent()
-            .unwrap()
-            .join("cef_cache")
-            .to_str()
-            .unwrap(),
-    );
-    let logfile_cef = chromium_subp::utils::cef_string(cef_dir.join("lib.log").to_str().unwrap());
+    let cache_dir_cef =
+        chromium_subp::utils::cef_string(temp_dir.join("cef_cache").to_str().unwrap());
+    let logfile_cef =
+        chromium_subp::utils::cef_string(temp_dir.join("cef_lib.log").to_str().unwrap());
 
     let settings = cef::_cef_settings_t {
         size: std::mem::size_of::<cef::_cef_settings_t>(),
