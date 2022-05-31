@@ -643,18 +643,16 @@ public class Chromium extends WebBrowser {
 				chromium.dispose();
 			}
 		}
-		clientHandler.dispose();
-		popupClientHandler.dispose();
 
+		Display.getCurrent().asyncExec(() -> {
+			clientHandler.dispose();
+			popupClientHandler.dispose();
+			if (textVisitor != null) {
+				freeTextVisitor();
+			}
+		});
 		this.browser = 0;
 		this.chromium = null;
-		if (textVisitor != null) {
-			Display.getCurrent().asyncExec(() -> {
-				if (textVisitor != null) {
-					freeTextVisitor();
-				}
-			});
-		}
 	}
 
 	/**
