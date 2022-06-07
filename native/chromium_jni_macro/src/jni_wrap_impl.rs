@@ -192,7 +192,7 @@ fn param_cleanup(_index: usize, ty: &Type, arg: &Ident, param: &Ident) -> proc_m
                         }
                     }
                 }
-                // Otherwise do nothing attempt to defer to TryInto
+                // Otherwise do nothing
                 _ => quote! {},
             }
         }

@@ -132,7 +132,7 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1function_
         .unwrap();
 }
 
-// Auto generated wrappers for various chormium_swt functions
+// Generate wrappers for various chormium_swt functions
 jni_wrap!(
     "org.eclipse.set.browser.lib.ChromiumLib",
     cefswt_function_arg,

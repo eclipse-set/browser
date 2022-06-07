@@ -34,7 +34,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
     };
 
     // For each field, build the initialization call
-    let query_parts = build_initilization(&fields);
+    let query_parts = build_initialization(&fields);
 
     let modified = quote! {
         impl FromJava for #name {
@@ -49,7 +49,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
 }
 
 /// For a field `x` construct `x: FromJavaMember::from_java_member(env, object, "x")`
-fn build_initilization(
+fn build_initialization(
     fields: &Punctuated<Field, Comma>,
 ) -> impl Iterator<Item = proc_macro2::TokenStream> + '_ {
     let fields = fields.iter().enumerate().map(move |(_i, field)| {
