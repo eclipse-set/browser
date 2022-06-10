@@ -24,12 +24,25 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+/**
+ * Dialog for handling HTTP Basic access authentication
+ */
 class AuthDialog extends Dialog {
 
 	public AuthDialog(final Shell parent) {
 		super(parent);
 	}
 
+	/**
+	 * Opens the dialog
+	 * 
+	 * IMPROVE: Support Localization
+	 * 
+	 * @param authEvent
+	 *            The event
+	 * @param realm
+	 *            The realm to authenticate for
+	 */
 	public void open(final AuthenticationEvent authEvent, final String realm) {
 		final Shell parent = getParent();
 		final Shell shell = new Shell(parent,

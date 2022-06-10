@@ -36,10 +36,11 @@ public class CEFFactory {
 						return rt;
 					}
 				}
+				// Unknown return type provided
+				throw new IllegalArgumentException(v);
 			} catch (final NumberFormatException e) {
-				// IllegalArgumentException thrown below
+				throw new IllegalArgumentException(v, e);
 			}
-			throw new IllegalArgumentException(v);
 		}
 
 		private final int value;

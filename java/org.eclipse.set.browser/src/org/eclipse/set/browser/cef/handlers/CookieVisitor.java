@@ -49,6 +49,8 @@ public class CookieVisitor extends AbstractHandler<cef_cookie_visitor_t> {
 
 	/**
 	 * Attempts to retrieve the requested cookie for WebBrowser
+	 * 
+	 * IMPROVE: Handle this in chromium_swt instead
 	 */
 	public void getCookie() {
 		cookieVisited = new CompletableFuture<>();
