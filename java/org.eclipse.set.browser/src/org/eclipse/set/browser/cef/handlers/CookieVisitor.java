@@ -17,7 +17,6 @@ import java.util.concurrent.TimeoutException;
 import org.eclipse.set.browser.WebBrowser;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.set.browser.lib.cef_cookie_visitor_t;
-import org.eclipse.swt.SWTException;
 import org.eclipse.swt.internal.Callback;
 
 /**
@@ -58,7 +57,7 @@ public class CookieVisitor extends AbstractHandler<cef_cookie_visitor_t> {
 				.cefswt_get_cookie(WebBrowser.CookieUrl, handler.ptr);
 		if (!result) {
 			cookieVisited = null;
-			throw new SWTException("Failed to get cookies");
+			throw new RuntimeException("Failed to get cookies");
 		}
 		try {
 			cookieVisited.get(100, TimeUnit.MILLISECONDS);
