@@ -117,9 +117,7 @@ struct ToJavaCallbacks();
 impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
     fn add_derives(&self, name: &str) -> Vec<String> {
         if vec![
-            "_cef_base_ref_counted_t",
             "_cef_app_t",
-            "_cef_string_visitor_t",
             "_cef_request_handler_t",
             "_cef_load_handler_t",
             "_cef_life_span_handler_t",
@@ -127,17 +125,27 @@ impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
             "_cef_focus_handler_t",
             "_cef_display_handler_t",
             "_cef_browser_process_handler_t",
-            "_cef_cookie_visitor_t",
             "_cef_context_menu_handler_t",
             "_cef_client_t",
             "_cef_browser_process_handler_t",
+            "_cef_download_handler_t",
         ]
         .contains(&name)
         {
-            vec!["FromJava".into()]
-        } else {
-            vec![]
+            return vec!["JNICEFCallback".into()];
         }
+
+        if vec![
+            "_cef_string_visitor_t",
+            "_cef_cookie_visitor_t",
+            "_cef_base_ref_counted_t",
+        ]
+        .contains(&name)
+        {
+            return vec!["FromJava".into()];
+        }
+
+        vec![]
     }
 }
 
@@ -146,7 +154,7 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
     let mut config = bindgen::CodegenConfig::FUNCTIONS;
     config.insert(bindgen::CodegenConfig::TYPES);
     let callbacks = ToJavaCallbacks();
-    let gen = bindgen::builder()
+    bindgen::builder()
         .clang_arg(format!("-I{}", cef_path))
         .clang_arg(format!(
             "-I{}",
@@ -171,7 +179,12 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .raw_line("use chromium_jni_macro::FromJava;")
         .raw_line("use chromium_jni_utils::FromJava;")
         .raw_line("use chromium_jni_utils::FromJavaMember;")
+        .raw_line("use chromium_jni_macro::JNICEFCallback;")
+        .raw_line("use chromium_jni_utils::JNICEFCallback;")
+        .raw_line("use chromium_jni_utils::JNIWrapperType;")
         .raw_line("use jni::JNIEnv;")
-        .raw_line("use jni::objects::JObject;");
-    gen
+        .raw_line("use crate::ToJava;")
+        .raw_line("use jni::objects::GlobalRef;")
+        .raw_line("use jni::objects::JObject;")
+        .raw_line("use chromium_jni_utils::jni_unwrap;")
 }

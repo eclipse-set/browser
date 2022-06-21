@@ -31,17 +31,17 @@ pub fn create_browser(
     let browser_settings = cef::_cef_browser_settings_t {
         size: size_of::<cef::_cef_browser_settings_t>(),
         windowless_frame_rate: 0,
-        standard_font_family: chromium_subp::utils::cef_string_empty(),
-        fixed_font_family: chromium_subp::utils::cef_string_empty(),
-        serif_font_family: chromium_subp::utils::cef_string_empty(),
-        sans_serif_font_family: chromium_subp::utils::cef_string_empty(),
-        cursive_font_family: chromium_subp::utils::cef_string_empty(),
-        fantasy_font_family: chromium_subp::utils::cef_string_empty(),
+        standard_font_family: chromium::utils::cef_string_empty(),
+        fixed_font_family: chromium::utils::cef_string_empty(),
+        serif_font_family: chromium::utils::cef_string_empty(),
+        sans_serif_font_family: chromium::utils::cef_string_empty(),
+        cursive_font_family: chromium::utils::cef_string_empty(),
+        fantasy_font_family: chromium::utils::cef_string_empty(),
         default_font_size: 0,
         default_fixed_font_size: 0,
         minimum_font_size: 0,
         minimum_logical_font_size: 0,
-        default_encoding: chromium_subp::utils::cef_string_empty(),
+        default_encoding: chromium::utils::cef_string_empty(),
         remote_fonts: cef::cef_state_t::STATE_DEFAULT,
         javascript: if js == 0 {
             cef::cef_state_t::STATE_DISABLED
@@ -59,11 +59,11 @@ pub fn create_browser(
         databases: cef::cef_state_t::STATE_DEFAULT,
         webgl: cef::cef_state_t::STATE_DEFAULT,
         background_color: bg,
-        accept_language_list: chromium_subp::utils::cef_string_empty(),
+        accept_language_list: chromium::utils::cef_string_empty(),
         chrome_status_bubble: cef::cef_state_t::STATE_DISABLED,
     };
 
-    let url_cef = chromium_subp::utils::cef_string(url);
+    let url_cef = chromium::utils::cef_string(url);
 
     // Create browser.
     let browser: *mut cef::cef_browser_t = unsafe {

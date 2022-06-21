@@ -8,8 +8,14 @@
 use chromium_jni_macro::FromJava;
 use chromium_jni_utils::FromJava;
 use chromium_jni_utils::FromJavaMember;
+use chromium_jni_macro::JNICEFCallback;
+use chromium_jni_utils::JNICEFCallback;
+use chromium_jni_utils::JNIWrapperType;
 use jni::JNIEnv;
+use crate::ToJava;
+use jni::objects::GlobalRef;
 use jni::objects::JObject;
+use chromium_jni_utils::jni_unwrap;
 use crate::cef::cef_string_t;
 
 pub type DWORD = ::std::os::raw::c_ulong;

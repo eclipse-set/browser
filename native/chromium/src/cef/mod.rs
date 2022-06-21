@@ -8,8 +8,14 @@
 use chromium_jni_macro::FromJava;
 use chromium_jni_utils::FromJava;
 use chromium_jni_utils::FromJavaMember;
+use chromium_jni_macro::JNICEFCallback;
+use chromium_jni_utils::JNICEFCallback;
+use chromium_jni_utils::JNIWrapperType;
 use jni::JNIEnv;
+use crate::ToJava;
+use jni::objects::GlobalRef;
 use jni::objects::JObject;
+use chromium_jni_utils::jni_unwrap;
 pub mod win;
 pub use self::win::_cef_window_info_t;
 pub use self::win::_cef_main_args_t;
@@ -9226,7 +9232,7 @@ pub struct _cef_run_context_menu_callback_t {
 #[doc = " structure will be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_context_menu_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -9648,7 +9654,7 @@ pub struct _cef_dialog_handler_t {
 #[doc = " The functions of this structure will be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_display_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -9949,7 +9955,7 @@ pub struct _cef_download_item_callback_t {
 #[doc = " called on the browser process UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_download_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -10081,7 +10087,7 @@ pub struct _cef_find_handler_t {
 #[doc = " this structure will be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_focus_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -10299,7 +10305,7 @@ pub struct _cef_jsdialog_callback_t {
 #[doc = " functions of this structure will be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_jsdialog_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -10414,7 +10420,7 @@ pub struct _cef_keyboard_handler_t {
 #[doc = " indicated."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Copy, Clone, FromJava)]
+#[derive(Copy, Clone, JNICEFCallback)]
 pub struct _cef_life_span_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -10588,7 +10594,7 @@ pub struct _cef_life_span_handler_t {
 #[doc = " or render process main thread (TID_RENDERER)."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_load_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -11591,7 +11597,7 @@ pub struct _cef_select_client_certificate_callback_t {
 #[doc = " functions of this structure will be called on the thread indicated."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_request_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -11790,7 +11796,7 @@ pub struct _cef_request_handler_t {
 #[doc = " Implement this structure to provide handler implementations."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_client_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -12118,7 +12124,7 @@ extern "C" {
 #[doc = " indicated."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_browser_process_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -13712,7 +13718,7 @@ extern "C" {
 #[doc = " called by the process and/or thread indicated."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_app_t {
     #[doc = ""]
     #[doc = " Base structure."]

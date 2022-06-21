@@ -16,12 +16,11 @@ extern crate chromium_subp;
 
 use chromium::cef;
 use chromium_subp::app;
-use chromium_subp::utils;
 use std::os::raw::c_int;
 use std::ptr::null_mut;
 
 fn main() {
-    let main_args = utils::prepare_args();
+    let main_args = chromium::utils::prepare_args();
     let mut app = app::App::new();
     unsafe { cef::cef_enable_highdpi_support() };
     let exit_code: c_int =

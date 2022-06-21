@@ -8,93 +8,50 @@
  */
 package org.eclipse.set.browser.cef.handlers.browser;
 
-import java.lang.reflect.Type;
-
 import org.eclipse.set.browser.cef.Chromium;
-import org.eclipse.set.browser.lib.cef_client_t;
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.set.browser.lib.ChromiumLib;
 
 /**
  * Handler wrapper for cef_client_t callbacks
  * 
  * @author Stuecker
  */
-public class ClientHandler extends AbstractBrowserHandler<cef_client_t> {
+public class ClientHandler {
+	private final long cefClientHandler = ChromiumLib
+			.allocate_cef_client_t(this);
+
 	private final ContextMenuHandler contextMenuHandler;
+
 	private final DisplayHandler displayHandler;
+	private final DownloadHandler downloadHandler;
 	private final FocusHandler focusHandler;
-	private final Callback get_context_menu_handler_cb = new Callback(this,
-			"get_context_menu_handler", long.class, new Type[] { long.class });
-	private final Callback get_display_handler_cb = new Callback(this,
-			"get_display_handler", long.class, new Type[] { long.class });
-	private final Callback get_focus_handler_cb = new Callback(this,
-			"get_focus_handler", long.class, new Type[] { long.class });
-	private final Callback get_jsdialog_handler_cb = new Callback(this,
-			"get_jsdialog_handler", long.class, new Type[] { long.class });
-
-	private final Callback get_life_span_handler_cb = new Callback(this,
-			"get_life_span_handler", long.class, new Type[] { long.class });
-
-	private final Callback get_load_handler_cb = new Callback(this,
-			"get_load_handler", long.class, new Type[] { long.class });
-
-	private final Callback get_request_handler_cb = new Callback(this,
-			"get_request_handler", long.class, new Type[] { long.class });
-
 	private final JSDialogHandler jsDialogHandler;
-
 	private final LifeSpanHandler lifeSpanHandler;
-
 	private final LoadHandler loadHandler;
-
-	private final Callback on_process_message_received_cb = new Callback(this,
-			"on_process_message_received", int.class, new Type[] { long.class,
-					long.class, long.class, int.class, long.class });
-
 	private final RequestHandler requestHandler;
+
+	protected final Chromium browser;
 
 	/**
 	 * @param browser
 	 *            the browser
 	 */
 	public ClientHandler(final Chromium browser) {
-		super(browser);
-
+		this.browser = browser;
 		requestHandler = new RequestHandler(browser);
+		downloadHandler = new DownloadHandler(browser);
 		contextMenuHandler = new ContextMenuHandler(browser);
 		displayHandler = new DisplayHandler(browser);
 		focusHandler = new FocusHandler(browser);
 		jsDialogHandler = new JSDialogHandler(browser);
 		lifeSpanHandler = new LifeSpanHandler(browser);
 		loadHandler = new LoadHandler(browser);
-
-		handler = new cef_client_t();
-		handler.get_context_menu_handler = get_context_menu_handler_cb
-				.getAddress();
-		handler.get_display_handler = get_display_handler_cb.getAddress();
-		handler.get_focus_handler = get_focus_handler_cb.getAddress();
-		handler.get_jsdialog_handler = get_jsdialog_handler_cb.getAddress();
-		handler.get_life_span_handler = get_life_span_handler_cb.getAddress();
-		handler.get_load_handler = get_load_handler_cb.getAddress();
-		handler.get_request_handler = get_request_handler_cb.getAddress();
-		handler.on_process_message_received = on_process_message_received_cb
-				.getAddress();
-
-		handler.allocate();
 	}
 
-	@Override
+	/**
+	 * Disposes the handler
+	 */
 	public void dispose() {
-		super.dispose();
-		get_context_menu_handler_cb.dispose();
-		get_display_handler_cb.dispose();
-		get_focus_handler_cb.dispose();
-		get_jsdialog_handler_cb.dispose();
-		get_life_span_handler_cb.dispose();
-		get_request_handler_cb.dispose();
-		get_load_handler_cb.dispose();
-		on_process_message_received_cb.dispose();
-
 		focusHandler.dispose();
 		lifeSpanHandler.dispose();
 		loadHandler.dispose();
@@ -102,45 +59,60 @@ public class ClientHandler extends AbstractBrowserHandler<cef_client_t> {
 		requestHandler.dispose();
 		jsDialogHandler.dispose();
 		contextMenuHandler.dispose();
+		downloadHandler.dispose();
+
+		ChromiumLib.deallocate_cef_client_t(cefClientHandler);
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_context_menu_handler(final long client) {
-		return contextMenuHandler.get().ptr;
+	/**
+	 * @return the cef_client_t pointer
+	 */
+	public long get() {
+		return cefClientHandler;
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_display_handler(final long client) {
-		return displayHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_context_menu_handler(final long client) {
+		return contextMenuHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_focus_handler(final long client) {
-		return focusHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_display_handler(final long client) {
+		return displayHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_jsdialog_handler(final long client) {
-		return jsDialogHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_download_handler(final long client) {
+		return downloadHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_life_span_handler(final long client) {
-		return lifeSpanHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_focus_handler(final long client) {
+		return focusHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_load_handler(final long client) {
-		return loadHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_jsdialog_handler(final long client) {
+		return jsDialogHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	long get_request_handler(final long client) {
-		return requestHandler.get().ptr;
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_life_span_handler(final long client) {
+		return lifeSpanHandler.get();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
-	int on_process_message_received(final long client, final long id,
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_load_handler(final long client) {
+		return loadHandler.get();
+	}
+
+	@SuppressWarnings("unused") // Called from JNI
+	private long get_request_handler(final long client) {
+		return requestHandler.get();
+	}
+
+	@SuppressWarnings("unused") // Called from JNI
+	private int on_process_message_received(final long client, final long id,
 			final long frame, final int source, final long processMessage) {
 		return browser.on_process_message_received(source, processMessage);
 	}

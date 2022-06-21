@@ -6,10 +6,5 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
-extern crate chromium_swt;
-
-pub mod allocate;
-pub mod cef_download_item;
-pub mod memmove;
-pub mod sizeof;
-pub mod swt_wrapper;
+pub mod jni_utils;
+pub mod unzip4;

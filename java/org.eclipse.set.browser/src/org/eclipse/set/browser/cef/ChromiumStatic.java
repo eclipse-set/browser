@@ -20,11 +20,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import org.eclipse.set.browser.WebBrowser;
 import org.eclipse.set.browser.cef.handlers.AppHandler;
 import org.eclipse.set.browser.cef.handlers.CookieVisitor;
 import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.set.browser.lib.ChromiumLib;
+import org.eclipse.set.browser.swt.WebBrowser;
 import org.eclipse.swt.widgets.Display;
 
 /**
@@ -114,10 +114,6 @@ public class ChromiumStatic {
 		WebBrowser.NativeGetCookie = () -> cookieVisitor.getCookie();
 	}
 
-	static int cefColor(final int a, final int r, final int g, final int b) {
-		return a << 24 | r << 16 | g << 8 | b << 0;
-	}
-
 	static synchronized void initCEF(final Display display) {
 		if (app == null) {
 			CEFLibrary.loadLibraries();
@@ -125,9 +121,9 @@ public class ChromiumStatic {
 			app = new AppHandler();
 			cookieVisitor = new CookieVisitor();
 
-			ChromiumLib.cefswt_init(app.get().ptr,
+			ChromiumLib.cefswt_init(app.get(),
 					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					CEFLibrary.getTempPath(), getDebugPort());
+					CEFLibrary.getTempPath(), "de-DE", getDebugPort());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {

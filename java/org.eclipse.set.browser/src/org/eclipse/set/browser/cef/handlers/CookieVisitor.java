@@ -14,9 +14,9 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import org.eclipse.set.browser.WebBrowser;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.set.browser.lib.cef_cookie_visitor_t;
+import org.eclipse.set.browser.swt.WebBrowser;
 import org.eclipse.swt.internal.Callback;
 
 /**

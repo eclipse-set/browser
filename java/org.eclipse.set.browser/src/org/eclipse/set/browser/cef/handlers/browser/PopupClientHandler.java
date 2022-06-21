@@ -8,44 +8,35 @@
  */
 package org.eclipse.set.browser.cef.handlers.browser;
 
-import java.lang.reflect.Type;
-
-import org.eclipse.set.browser.cef.Chromium;
-import org.eclipse.set.browser.lib.cef_client_t;
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.set.browser.lib.ChromiumLib;
 
 /**
  * Java Handler for cef_client_t (for popups)
  * 
  * @author Stuecker
  */
-public class PopupClientHandler extends AbstractBrowserHandler<cef_client_t> {
-	private final Callback get_life_span_handler_cb = new Callback(this,
-			"get_life_span_handler", long.class, new Type[] { long.class });
+public class PopupClientHandler {
+	private final long cefClientHandler = ChromiumLib
+			.allocate_cef_client_t(this);
 
-	private final PopupLifeSpanHandler popupLifeSpanHandler;
+	private final PopupLifeSpanHandler popupLifeSpanHandler = new PopupLifeSpanHandler();
 
 	/**
-	 * @param browser
-	 *            the browser
+	 * Disposes the handler
 	 */
-	public PopupClientHandler(final Chromium browser) {
-		super(browser);
-		popupLifeSpanHandler = new PopupLifeSpanHandler(browser);
-
-		handler = new cef_client_t();
-		handler.get_life_span_handler = get_life_span_handler_cb.getAddress();
-		handler.allocate();
-	}
-
-	@Override
 	public void dispose() {
-		super.dispose();
-		get_life_span_handler_cb.dispose();
+		popupLifeSpanHandler.dispose();
 	}
 
-	@SuppressWarnings({ "unused" }) // JNI
+	/**
+	 * @return the cef_client_t pointer
+	 */
+	public long get() {
+		return cefClientHandler;
+	}
+
+	@SuppressWarnings("unused") // Called from JNI
 	private long get_life_span_handler(final long client) {
-		return popupLifeSpanHandler.get().ptr;
+		return popupLifeSpanHandler.get();
 	}
 }

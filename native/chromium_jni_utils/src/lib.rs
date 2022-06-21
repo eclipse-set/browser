@@ -6,8 +6,31 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
+use jni::objects::GlobalRef;
 use jni::objects::JObject;
+use jni::objects::JValue;
 use jni::JNIEnv;
+use jni::JavaVM;
+
+/// Wrapper type for a CEF ref counted struct, which includes a
+/// reference to the associated Java object
+///
+/// IMPROVE: Can we limit T to containing a CEF ref counter (cef_base_ref_counted_t)?
+#[repr(C)]
+pub struct JNIWrapperType<T> {
+    pub value: T,
+    pub this: GlobalRef,
+    pub jvm: JavaVM,
+}
+
+pub unsafe fn jni_unwrap<T>(ptr: *mut T) -> *mut JNIWrapperType<T> {
+    return ptr as *mut JNIWrapperType<T>;
+}
+pub trait JNICEFCallback {
+    fn jni_allocate(env: JNIEnv, object: GlobalRef) -> JNIWrapperType<Self>
+    where
+        Self: Sized;
+}
 
 /// Allows extracting an object from a Java field
 pub trait FromJavaMember {
@@ -19,6 +42,43 @@ pub trait FromJavaMember {
 pub trait FromJava {
     /// Constructs `Self` from the JNI object `object`
     fn from_java(env: JNIEnv, object: JObject) -> Self;
+}
+
+/// Allows constructing an object from a Java object
+pub trait FromJavaValue {
+    /// Constructs `Self` from the JNI object `object`
+    fn from_java_value(env: JNIEnv, object: JValue) -> Self;
+}
+
+impl FromJavaValue for i32 {
+    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+        match object {
+            JValue::Int(i) => i.into(),
+            JValue::Byte(b) => b.into(),
+            JValue::Short(b) => b.into(),
+            JValue::Bool(b) => b.into(),
+            _ => panic!("Wrong type for from_java_value"),
+        }
+    }
+}
+
+impl FromJavaValue for i64 {
+    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+        match object {
+            JValue::Long(l) => l.into(),
+            JValue::Int(i) => i.into(),
+            JValue::Byte(b) => b.into(),
+            JValue::Short(b) => b.into(),
+            JValue::Bool(b) => b.into(),
+            _ => panic!("Wrong type for from_java_value"),
+        }
+    }
+}
+
+impl<T> FromJavaValue for *mut T {
+    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+        object.j().unwrap() as *mut T
+    }
 }
 
 impl FromJavaMember for usize {

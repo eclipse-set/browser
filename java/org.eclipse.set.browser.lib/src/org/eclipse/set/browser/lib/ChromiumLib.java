@@ -17,30 +17,63 @@ import org.eclipse.swt.internal.C;
 
 @SuppressWarnings("javadoc")
 public class ChromiumLib extends C {
+	public static final int JSDIALOGTYPE_ALERT = 0;
+	public static final int JSDIALOGTYPE_CONFIRM = 1;
+	public static final int JSDIALOGTYPE_PROMPT = 2;
 
-	public static final native int cef_app_t_sizeof();
+	/**
+	 * Creates a native cef_client_t object and sets up `handler` to handle
+	 * callbacks
+	 * 
+	 * For each CEF callback in cef_client_t, the native code looks up whether a
+	 * method of the same name and a corresponding signature exists in
+	 * `handler`. If so, the handler is set up to call the Java method
+	 * 
+	 * Note that this allocates memory which must be manually free'd with
+	 * deallocate_*
+	 * 
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to a cef_client_t to be passed to other methods
+	 */
+	public static final native long allocate_cef_app_t(final Object handler);
 
-	public static final native int cef_browser_process_handler_t_sizeof();
+	public static final native long allocate_cef_browser_process_handler_t(
+			final Object handler);
 
-	public static final native int cef_client_t_sizeof();
+	public static final native long allocate_cef_client_t(final Object handler);
 
-	public static final native int cef_context_menu_handler_t_sizeof();
+	public static final native long allocate_cef_context_menu_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_cookie_visitor_t(
+			final Object handler);
+
+	public static final native long allocate_cef_display_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_download_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_focus_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_jsdialog_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_life_span_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_load_handler_t(
+			final Object handler);
+
+	public static final native long allocate_cef_request_handler_t(
+			final Object handler);
 
 	public static final native int cef_cookie_visitor_t_sizeof();
 
-	public static final native int cef_display_handler_t_sizeof();
-
-	public static final native int cef_focus_handler_t_sizeof();
-
-	public static final native int cef_jsdialog_handler_t_sizeof();
-
-	public static final native int cef_life_span_handler_t_sizeof();
-
-	public static final native int cef_load_handler_t_sizeof();
-
 	public static final native int cef_popup_features_t_sizeof();
-
-	public static final native int cef_request_handler_t_sizeof();
 
 	public static final native int cef_string_visitor_t_sizeof();
 
@@ -195,7 +228,7 @@ public class ChromiumLib extends C {
 	 *            cast=(void *)
 	 */
 	public static final native void cefswt_init(long app, String subprocessPath,
-			String cefPath, String tempPath, int debugPort);
+			String cefPath, String tempPath, String locale, int debugPort);
 
 	/**
 	 * @param frame
@@ -270,6 +303,117 @@ public class ChromiumLib extends C {
 	public static final native void cefswt_stop(long browser);
 
 	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_app_t
+	 */
+	public static final native void deallocate_cef_app_t(final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_browser_process_handler_t
+	 */
+	public static final native void deallocate_cef_browser_process_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_client_t
+	 */
+	public static final native void deallocate_cef_client_t(final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_context_menu_handler_t
+	 */
+	public static final native long deallocate_cef_context_menu_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_cookie_visitor_t
+	 */
+	public static final native long deallocate_cef_cookie_visitor_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_display_handler_t
+	 */
+	public static final native long deallocate_cef_display_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_download_handler_t
+	 */
+	public static final native long deallocate_cef_download_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_focus_handler_t
+	 */
+	public static final native long deallocate_cef_focus_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_jsdialog_handler_t
+	 */
+	public static final native long deallocate_cef_jsdialog_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_life_span_handler_t
+	 */
+	public static final native long deallocate_cef_life_span_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_load_handler_t
+	 */
+	public static final native long deallocate_cef_load_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_request_handler_t
+	 */
+	public static final native long deallocate_cef_request_handler_t(
+			final long object);
+
+	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
@@ -277,40 +421,6 @@ public class ChromiumLib extends C {
 	 */
 	public static final native void memmove(cef_popup_features_t dest,
 			long src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest, cef_app_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_browser_process_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest, cef_client_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_context_menu_handler_t src);
 
 	/**
 	 * @param dest
@@ -328,58 +438,5 @@ public class ChromiumLib extends C {
 	 *            cast=(const void *),flags=no_out
 	 */
 	public static final native void memmove(long dest,
-			cef_display_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest, cef_focus_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_jsdialog_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_life_span_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest, cef_load_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_request_handler_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
 			cef_string_visitor_t src);
-
 }

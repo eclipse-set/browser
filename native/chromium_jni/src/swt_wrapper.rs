@@ -208,6 +208,7 @@ jni_wrap!(
     JString,
     JString,
     JString,
+    JString,
     jint
 );
 jni_wrap!(

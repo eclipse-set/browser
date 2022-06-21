@@ -10,7 +10,10 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 mod derive_from_java_impl;
+mod jni_allocate;
+mod jni_name;
 mod jni_wrap_impl;
+mod utils;
 
 /// See jni_wrap_impl.rs
 #[proc_macro]
@@ -22,4 +25,15 @@ pub fn jni_wrap(tokens: TokenStream) -> TokenStream {
 #[proc_macro_derive(FromJava)]
 pub fn from_java_derive(tokens: TokenStream) -> TokenStream {
     derive_from_java_impl::derive_from_java_impl(tokens)
+}
+
+/// See jni_allocate.rs
+#[proc_macro_derive(JNICEFCallback)]
+pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
+    jni_allocate::jni_allocate(tokens)
+}
+
+#[proc_macro_attribute]
+pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
+    jni_name::jni_name(attr.into(), item.into()).into()
 }

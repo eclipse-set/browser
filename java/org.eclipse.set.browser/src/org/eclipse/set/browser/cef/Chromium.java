@@ -28,19 +28,18 @@ import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 import java.util.function.Consumer;
 
-import org.eclipse.set.browser.Browser;
-import org.eclipse.set.browser.BrowserFunction;
-import org.eclipse.set.browser.OpenWindowListener;
 import org.eclipse.set.browser.WebBrowser;
-import org.eclipse.set.browser.WindowEvent;
 import org.eclipse.set.browser.cef.CEFFactory.ReturnType;
 import org.eclipse.set.browser.cef.handlers.browser.ClientHandler;
 import org.eclipse.set.browser.cef.handlers.browser.PopupClientHandler;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.set.browser.lib.FunctionSt;
-import org.eclipse.set.browser.lib.cef_jsdialog_handler_t;
 import org.eclipse.set.browser.lib.cef_popup_features_t;
 import org.eclipse.set.browser.lib.cef_string_visitor_t;
+import org.eclipse.set.browser.swt.Browser;
+import org.eclipse.set.browser.swt.BrowserFunction;
+import org.eclipse.set.browser.swt.OpenWindowListener;
+import org.eclipse.set.browser.swt.WindowEvent;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
 import org.eclipse.swt.SWTException;
@@ -126,6 +125,11 @@ public class Chromium extends WebBrowser {
 	private static final int MAX_PROGRESS = 100;
 
 	private static final String SET_TEXT_URL = "swt.chromium.setText.";
+
+	private static int cefColor(final int a, final int r, final int g,
+			final int b) {
+		return a << 24 | r << 16 | g << 8 | b << 0;
+	}
 
 	private static String getPlainUrl(final String url) {
 		if (url != null && url.startsWith(DATA_TEXT_URL)) {
@@ -268,7 +272,7 @@ public class Chromium extends WebBrowser {
 		ChromiumStatic.initCEF(chromium.getDisplay());
 
 		clientHandler = new ClientHandler(this);
-		popupClientHandler = new PopupClientHandler(this);
+		popupClientHandler = new PopupClientHandler();
 
 		chromium.setBackground(
 				parent.getDisplay().getSystemColor(SWT.COLOR_TRANSPARENT));
@@ -720,7 +724,7 @@ public class Chromium extends WebBrowser {
 			} else if (!event.required) {
 				instance = ++ChromiumStatic.INSTANCES;
 				ChromiumLib.cefswt_set_window_info_parent(windowInfo, client,
-						popupClientHandler.get().ptr, 0,
+						popupClientHandler.get(), 0,
 						event.location != null ? event.location.x : 0,
 						event.location != null ? event.location.y : 0,
 						event.size != null ? event.size.x : 0,
@@ -754,7 +758,7 @@ public class Chromium extends WebBrowser {
 
 			final String msg = ChromiumLib
 					.cefswt_cefstring_to_java(message_text);
-			openJsDialog(cef_jsdialog_handler_t.JSDIALOGTYPE_PROMPT,
+			openJsDialog(ChromiumLib.JSDIALOGTYPE_PROMPT,
 					"Are you sure you want to leave this page?", msg, 0,
 					callback);
 			disposing = Dispose.UnloadClosed;
@@ -1127,14 +1131,14 @@ public class Chromium extends WebBrowser {
 		final Color bg = chromium.getBackground();
 		final Color bgColor = bg != null ? bg
 				: display.getSystemColor(SWT.COLOR_WIDGET_BACKGROUND);
-		final int cefBgColor = ChromiumStatic.cefColor(bgColor.getAlpha(),
-				bgColor.getRed(), bgColor.getGreen(), bgColor.getBlue());
+		final int cefBgColor = cefColor(bgColor.getAlpha(), bgColor.getRed(),
+				bgColor.getGreen(), bgColor.getBlue());
 
 		final org.eclipse.swt.graphics.Point size = getChromiumSize();
 
 		instance = ++ChromiumStatic.INSTANCES;
 		ChromiumStatic.instances.put(instance, this);
-		ChromiumLib.cefswt_create_browser(hwnd, url, clientHandler.get().ptr,
+		ChromiumLib.cefswt_create_browser(hwnd, url, clientHandler.get(),
 				size.x, size.y, jsEnabledOnNextPage ? 1 : 0, cefBgColor);
 	}
 
@@ -1156,7 +1160,7 @@ public class Chromium extends WebBrowser {
 		final long popupHandle = hwnd;
 		final Point size = new Point(0, 0);
 		ChromiumLib.cefswt_set_window_info_parent(windowInfo, client,
-				clientHandler.get().ptr, popupHandle, 0, 0, size.x, size.y);
+				clientHandler.get(), popupHandle, 0, 0, size.x, size.y);
 	}
 
 	@SuppressWarnings("hiding")
@@ -1218,13 +1222,13 @@ public class Chromium extends WebBrowser {
 			final long callback) {
 		int style = SWT.ICON_WORKING;
 		switch (dialog_type) {
-		case cef_jsdialog_handler_t.JSDIALOGTYPE_ALERT:
+		case ChromiumLib.JSDIALOGTYPE_ALERT:
 			style = SWT.ICON_INFORMATION;
 			break;
-		case cef_jsdialog_handler_t.JSDIALOGTYPE_CONFIRM:
+		case ChromiumLib.JSDIALOGTYPE_CONFIRM:
 			style = SWT.ICON_WARNING;
 			break;
-		case cef_jsdialog_handler_t.JSDIALOGTYPE_PROMPT:
+		case ChromiumLib.JSDIALOGTYPE_PROMPT:
 			style = SWT.ICON_QUESTION | SWT.YES | SWT.NO;
 			break;
 		default:

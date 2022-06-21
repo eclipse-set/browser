@@ -7,13 +7,12 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 extern crate proc_macro;
+use crate::utils::unzip4::Unzip4;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::parse::{Parse, ParseStream};
 use syn::{self, parse_macro_input, Expr, ExprLit, ExprReturn, Lit, Path, Result, Token, Type};
-mod unzip4;
-use unzip4::Unzip4;
 
 /// Input for jni_wrap
 struct JNIWrapInput {

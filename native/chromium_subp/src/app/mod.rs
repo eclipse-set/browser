@@ -12,7 +12,6 @@
  *   Guillermo Zunino, Equo - initial implementation
  */
 use crate::socket;
-use crate::utils;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
@@ -130,37 +129,40 @@ impl RenderProcessHandler {
                     return 0;
                 }
                 let rph = self_ as *mut RenderProcessHandler;
-                let handled =
-                    if chromium::cef::cef_string_utf16_cmp(&utils::cef_string("eval"), name) == 0 {
-                        handle_eval(browser, message);
-                        1
-                    } else if chromium::cef::cef_string_utf16_cmp(
-                        &utils::cef_string("function"),
-                        name,
-                    ) == 0
-                    {
-                        let args = (*message).get_argument_list.unwrap()(message);
-                        let id = (*args).get_int.unwrap()(args, 0);
-                        let name = (*args).get_string.unwrap()(args, 1);
+                let handled = if chromium::cef::cef_string_utf16_cmp(
+                    &chromium::utils::cef_string("eval"),
+                    name,
+                ) == 0
+                {
+                    handle_eval(browser, message);
+                    1
+                } else if chromium::cef::cef_string_utf16_cmp(
+                    &chromium::utils::cef_string("function"),
+                    name,
+                ) == 0
+                {
+                    let args = (*message).get_argument_list.unwrap()(message);
+                    let id = (*args).get_int.unwrap()(args, 0);
+                    let name = (*args).get_string.unwrap()(args, 1);
 
-                        let context = (*rph).context;
-                        (*rph).functions.push((id, name));
-                        if !(*rph).context.is_null() {
-                            let handler: Option<&mut V8Handler> = (*rph).function_handler.as_mut();
-                            let handler: &mut V8Handler = handler.expect("no handler");
+                    let context = (*rph).context;
+                    (*rph).functions.push((id, name));
+                    if !(*rph).context.is_null() {
+                        let handler: Option<&mut V8Handler> = (*rph).function_handler.as_mut();
+                        let handler: &mut V8Handler = handler.expect("no handler");
 
-                            let s = (*context).enter.unwrap()(context);
-                            assert_eq!(s, 1);
-                            let global = (*context).get_global.unwrap()(context);
+                        let s = (*context).enter.unwrap()(context);
+                        assert_eq!(s, 1);
+                        let global = (*context).get_global.unwrap()(context);
 
-                            register_function(id, name, global, handler);
-                            let s = (*context).exit.unwrap()(context);
-                            assert_eq!(s, 1);
-                        }
-                        1
-                    } else {
-                        0
-                    };
+                        register_function(id, name, global, handler);
+                        let s = (*context).exit.unwrap()(context);
+                        assert_eq!(s, 1);
+                    }
+                    1
+                } else {
+                    0
+                };
 
                 chromium::cef::cef_string_userfree_utf16_free(name);
                 return handled;
@@ -190,7 +192,7 @@ fn register_function(
     handler: &mut V8Handler,
 ) {
     // Add the "myfunc" function to the "window" object.
-    let handler_name = utils::cef_string(&format!("{}", id));
+    let handler_name = chromium::utils::cef_string(&format!("{}", id));
     let func =
         unsafe { chromium::cef::cef_v8value_create_function(&handler_name, handler.as_ptr()) };
     let s = unsafe {
@@ -215,14 +217,14 @@ unsafe fn handle_eval(
 
     let frame = (*browser).get_main_frame.unwrap()(browser);
     let context = (*frame).get_v8context.unwrap()(frame);
-    let url_cef = utils::cef_string("http://text/");
+    let url_cef = chromium::utils::cef_string("http://text/");
     let mut ret = ::std::ptr::null_mut();
     let mut ex = ::std::ptr::null_mut();
 
     let s = (*context).eval.unwrap()(context, code, &url_cef, 1, &mut ret, &mut ex);
     if s == 0 {
         let ret_str_cef = (*ex).get_message.unwrap()(ex);
-        let ret_str = utils::cstr_from_cef(ret_str_cef);
+        let ret_str = chromium::utils::cstr_from_cef(ret_str_cef);
         let ret_str = CStr::from_ptr(ret_str);
         socket::socket_client(port, ret_str.to_owned(), socket::ReturnType::Error);
         chromium::cef::cef_string_userfree_utf16_free(ret_str_cef);
@@ -258,8 +260,8 @@ unsafe fn convert_type(
         (ret_str, socket::ReturnType::Double)
     } else if (*ret).is_string.unwrap()(ret) == 1 {
         let ret_str_cef = (*ret).get_string_value.unwrap()(ret);
-        let ret_str = utils::cstr_from_cef(ret_str_cef);
-        let cstr = utils::str_from_c(ret_str);
+        let ret_str = chromium::utils::cstr_from_cef(ret_str_cef);
+        let cstr = chromium::utils::str_from_c(ret_str);
         (
             CString::new(cstr).expect("Failed to convert v8string to CString"),
             socket::ReturnType::Str,
@@ -325,10 +327,10 @@ impl V8Handler {
             let handler = self_ as *mut V8Handler;
             let browser = (*handler).browser;
 
-            let msg_name = utils::cef_string("function_call");
+            let msg_name = chromium::utils::cef_string("function_call");
             let msg = chromium::cef::cef_process_message_create(&msg_name);
             let args = (*msg).get_argument_list.unwrap()(msg);
-            let nm = utils::str_from_c(utils::cstr_from_cef(name));
+            let nm = chromium::utils::str_from_c(chromium::utils::cstr_from_cef(name));
             let s =
                 (*args).set_int.unwrap()(args, 1, nm.parse::<i32>().expect("failed to parse i32"));
             assert_eq!(s, 1);
@@ -342,7 +344,7 @@ impl V8Handler {
                     let s = (*args).set_int.unwrap()(args, 1 + i * 2 + 1, kind as i32);
                     assert_eq!(s, 1);
                     let rstr = cstr.into_string().expect("failed to convert string");
-                    let strval = utils::cef_string(&rstr);
+                    let strval = chromium::utils::cef_string(&rstr);
                     let s = (*args).set_string.unwrap()(args, 1 + i * 2 + 2, &strval);
                     assert_eq!(s, 1);
                 }
@@ -362,12 +364,12 @@ impl V8Handler {
                             *retval = v;
                         }
                         Err(e) => {
-                            *exception = utils::cef_string(e);
+                            *exception = chromium::utils::cef_string(e);
                         }
                     }
                 }
                 Err(_e) => {
-                    *exception = utils::cef_string("socket server panic");
+                    *exception = chromium::utils::cef_string("socket server panic");
                 }
             };
             1
@@ -395,7 +397,7 @@ unsafe fn map_type(
             Ok(chromium::cef::cef_v8value_create_double(double))
         }
         socket::ReturnType::Str => {
-            let str_cef = utils::cef_string(str_value);
+            let str_cef = chromium::utils::cef_string(str_value);
             Ok(chromium::cef::cef_v8value_create_string(&str_cef))
         }
         socket::ReturnType::Array => {

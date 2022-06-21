@@ -11,7 +11,7 @@
  * Contributors:
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
-package org.eclipse.set.browser;
+package org.eclipse.set.browser.swt;
 
 import java.util.Random;
 

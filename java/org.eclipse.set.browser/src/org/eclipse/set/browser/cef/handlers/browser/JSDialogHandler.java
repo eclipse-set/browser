@@ -8,68 +8,53 @@
  */
 package org.eclipse.set.browser.cef.handlers.browser;
 
-import java.lang.reflect.Type;
-
 import org.eclipse.set.browser.cef.Chromium;
-import org.eclipse.set.browser.lib.cef_jsdialog_handler_t;
-import org.eclipse.swt.internal.Callback;
+import org.eclipse.set.browser.lib.ChromiumLib;
 
 /**
  * Java Handler for cef_jsdialog_handler_t
  * 
  * @author Stuecker
  */
-public class JSDialogHandler
-		extends AbstractBrowserHandler<cef_jsdialog_handler_t> {
-
-	private final Callback on_before_unload_dialog_cb = new Callback(this,
-			"on_before_unload_dialog", int.class, new Type[] { long.class,
-					long.class, long.class, int.class, long.class });
-
-	private final Callback on_dialog_closed_cb = new Callback(this,
-			"on_dialog_closed", void.class,
-			new Type[] { long.class, long.class });
-
-	private final Callback on_jsdialog_cb = new Callback(this, "on_jsdialog",
-			int.class, new Type[] { long.class, long.class, long.class,
-					int.class, long.class, long.class, long.class, int.class });
+public class JSDialogHandler {
+	private final Chromium browser;
+	private final long cefJSDialogHandler = ChromiumLib
+			.allocate_cef_jsdialog_handler_t(this);
 
 	/**
 	 * @param browser
 	 *            the browser
 	 */
 	public JSDialogHandler(final Chromium browser) {
-		super(browser);
-
-		handler = new cef_jsdialog_handler_t();
-		handler.on_jsdialog = on_jsdialog_cb.getAddress();
-		handler.on_dialog_closed = on_dialog_closed_cb.getAddress();
-		handler.on_before_unload_dialog = on_before_unload_dialog_cb
-				.getAddress();
-
-		handler.allocate();
+		this.browser = browser;
 	}
 
-	@Override
+	/**
+	 * Disposes the handler
+	 */
 	public void dispose() {
-		super.dispose();
-		on_before_unload_dialog_cb.dispose();
-		on_dialog_closed_cb.dispose();
-		on_jsdialog_cb.dispose();
+		ChromiumLib.deallocate_cef_jsdialog_handler_t(cefJSDialogHandler);
 	}
 
-	@SuppressWarnings("unused") // JNI Call
+	/**
+	 * @return the cef_focus_handler_t pointer
+	 */
+	public long get() {
+		return cefJSDialogHandler;
+	}
+
+	@SuppressWarnings("unused") // Called from JNI
 	private int on_before_unload_dialog(final long self_, final long id,
 			final long msg, final int is_reload, final long callback) {
 		return browser.on_before_unload_dialog(msg, is_reload, callback);
 	}
 
-	@SuppressWarnings("unused") // JNI Call
+	@SuppressWarnings("unused") // Called from JNI
 	private void on_dialog_closed(final long self_, final long id) {
 		browser.on_dialog_closed();
 	}
 
-	@SuppressWarnings("unused") // JNI Call
+	@SuppressWarnings("unused") // Called from JNI
 	private int on_jsdialog(final long self_, final long id,
 			final long origin_url, final int dialog_type,
 			final long message_text, final long default_prompt_text,
