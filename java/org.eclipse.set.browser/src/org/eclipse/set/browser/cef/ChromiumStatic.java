@@ -84,10 +84,14 @@ public class ChromiumStatic {
 		}
 	}
 
+	private static String getBrowserLocale() {
+		return System.getProperty("org.eclipse.set.browser.locale", "en-US");
+	}
+
 	private static int getDebugPort() {
 		try {
 			return Integer.parseInt(System.getProperty(
-					"org.eclipse.swt.chromium.remote-debugging-port", "0"));
+					"org.eclipse.set.browser.remote-debugging-port", "0"));
 		} catch (final NumberFormatException e) {
 			return 0;
 		}
@@ -123,7 +127,8 @@ public class ChromiumStatic {
 
 			ChromiumLib.cefswt_init(app.get(),
 					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					CEFLibrary.getTempPath(), "de-DE", getDebugPort());
+					CEFLibrary.getTempPath(), getBrowserLocale(),
+					getDebugPort());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {
