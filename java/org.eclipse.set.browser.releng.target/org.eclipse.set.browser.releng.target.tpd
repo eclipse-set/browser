@@ -7,7 +7,7 @@ with source
  * 
  * Provides SWT
  */
-location "https://download.eclipse.org/releases/2022-03/" {
+location "https://download.eclipse.org/releases/2022-06/" {
 	org.eclipse.sdk.feature.group
 }
 

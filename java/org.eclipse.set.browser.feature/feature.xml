@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.eclipse.set.browser.feature" label="Eclipse SET Browser" version="1.0.16.qualifier" provider-name="Eclipse SET Project">
+<feature id="org.eclipse.set.browser.feature" label="Eclipse SET Browser" version="1.0.17.qualifier" provider-name="Eclipse SET Project">
 
    <description url="http://www.example.com/description">
       [Enter Feature Description here.]

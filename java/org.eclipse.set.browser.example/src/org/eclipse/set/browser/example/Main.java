@@ -13,8 +13,9 @@
  *******************************************************************************/
 package org.eclipse.set.browser.example;
 
+import java.nio.file.Path;
+
 import org.eclipse.set.browser.Browser;
-import org.eclipse.set.browser.cef.CEFResourceProvider;
 import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
@@ -44,7 +45,9 @@ public class Main {
 	 *            arguments
 	 */
 	public static void main(final String[] args) {
-		CEFLibrary.init(CEFResourceProvider.class);
+		// Init CEF Library
+		CEFLibrary.init(
+				Path.of(System.getProperty("org.eclipse.set.browser.cefpath")));
 
 		final Display display = new Display();
 		final Shell shell = new Shell(display);
