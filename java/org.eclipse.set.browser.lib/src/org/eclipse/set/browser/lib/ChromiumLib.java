@@ -17,64 +17,147 @@ import org.eclipse.swt.internal.C;
 
 @SuppressWarnings("javadoc")
 public class ChromiumLib extends C {
+	// Dialog types
 	public static final int JSDIALOGTYPE_ALERT = 0;
 	public static final int JSDIALOGTYPE_CONFIRM = 1;
 	public static final int JSDIALOGTYPE_PROMPT = 2;
 
 	/**
-	 * Creates a native cef_client_t object and sets up `handler` to handle
-	 * callbacks
+	 * Native handlers.
 	 * 
-	 * For each CEF callback in cef_client_t, the native code looks up whether a
-	 * method of the same name and a corresponding signature exists in
-	 * `handler`. If so, the handler is set up to call the Java method
+	 * The following functions create their corresponding CEF object and set up
+	 * `handler` to handle callbacks via JNI.
 	 * 
-	 * Note that this allocates memory which must be manually free'd with
-	 * deallocate_*
+	 * For each CEF callback in the native CEF object, the JNI code looks up
+	 * whether a method of the same name and a matching signature exists in the
+	 * class of the handler object. If so, the handler is set up to call the
+	 * Java method.
 	 * 
+	 * Returns a raw pointer to a native object to be passed to other methods
+	 * 
+	 * Note that the returned pointer must be free'd manually with
+	 * deallocate_cef_*_t
+	 */
+
+	/**
 	 * @param handler
 	 *            the handler for callbacks
 	 * 
-	 * @return a raw pointer to a cef_client_t to be passed to other methods
+	 * @return a raw pointer to the native object to be passed to other methods
 	 */
 	public static final native long allocate_cef_app_t(final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_browser_process_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_client_t(final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_context_menu_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_cookie_visitor_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_display_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_download_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_focus_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_jsdialog_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_life_span_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_load_handler_t(
 			final Object handler);
 
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
 	public static final native long allocate_cef_request_handler_t(
 			final Object handler);
 
+	/**
+	 * @return the size of cef_cookie_visitor_t in bytes
+	 */
 	public static final native int cef_cookie_visitor_t_sizeof();
 
+	/**
+	 * @return the size of cef_popup_features_t in bytes
+	 */
 	public static final native int cef_popup_features_t_sizeof();
 
+	/**
+	 * @return the size of cef_string_visitor_t in bytes
+	 */
 	public static final native int cef_string_visitor_t_sizeof();
 
 	/**

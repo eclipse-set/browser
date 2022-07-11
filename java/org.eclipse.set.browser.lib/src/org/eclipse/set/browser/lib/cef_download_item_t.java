@@ -9,6 +9,8 @@
 package org.eclipse.set.browser.lib;
 
 /**
+ * JNI Interface for cef_download_item_t-related functions
+ * 
  * @author Stuecker
  *
  */
