@@ -45,6 +45,12 @@ public class LifeSpanHandler {
 		return cefLifeSpanHandler;
 	}
 
+	@SuppressWarnings({ "unused", "static-method" }) // Called from JNI
+	private int do_close(final long plifeSpanHandler, final long id) {
+		// Return 1 (true) to indicate that we will close the window ourselves
+		return 1;
+	}
+
 	@SuppressWarnings("unused") // Called from JNI
 	private void on_after_created(final long self, final long id) {
 		if (id != 0) {
