@@ -23,6 +23,7 @@ pub fn cefswt_init(
     subp_path: *const c_char,
     cef_path: *const c_char,
     temp_path: *const c_char,
+    user_agent_product: *const c_char,
     locale: *const c_char,
     debug_port: c_int,
 ) {
@@ -76,7 +77,7 @@ pub fn cefswt_init(
         accept_language_list: chromium::utils::cef_string_empty(),
         main_bundle_path: chromium::utils::cef_string_empty(),
         chrome_runtime: 0,
-        user_agent_product: chromium::utils::cef_string_empty(),
+        user_agent_product: chromium::utils::cef_string_from_c(user_agent_product),
         cookieable_schemes_list: chromium::utils::cef_string_empty(),
         cookieable_schemes_exclude_defaults: 0,
     };
