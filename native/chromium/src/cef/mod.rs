@@ -1232,6 +1232,7 @@ pub enum cef_errorcode_t {
     ERR_QUIC_CERT_ROOT_NOT_KNOWN = -380,
     ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED = -381,
     ERR_TOO_MANY_ACCEPT_CH_RESTARTS = -382,
+    ERR_INCONSISTENT_IP_ADDRESS_SPACE = -383,
     ERR_CACHE_MISS = -400,
     ERR_CACHE_READ_FAILURE = -401,
     ERR_CACHE_WRITE_FAILURE = -402,
@@ -1283,6 +1284,7 @@ pub enum cef_errorcode_t {
     ERR_DNS_SECURE_RESOLVER_HOSTNAME_RESOLUTION_FAILED = -808,
     ERR_DNS_NAME_HTTPS_ONLY = -809,
     ERR_DNS_REQUEST_CANCELLED = -810,
+    ERR_DNS_NO_MACHING_SUPPORTED_ALPN = -811,
 }
 #[repr(i32)]
 #[doc = ""]
@@ -2159,6 +2161,18 @@ pub enum cef_context_menu_edit_state_flags_t {
 }
 #[repr(i32)]
 #[doc = ""]
+#[doc = " Supported quick menu state bit flags."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_quick_menu_edit_state_flags_t {
+    QM_EDITFLAG_NONE = 0,
+    QM_EDITFLAG_CAN_ELLIPSIS = 1,
+    QM_EDITFLAG_CAN_CUT = 2,
+    QM_EDITFLAG_CAN_COPY = 4,
+    QM_EDITFLAG_CAN_PASTE = 8,
+}
+#[repr(i32)]
+#[doc = ""]
 #[doc = " Key event types."]
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2315,19 +2329,6 @@ pub enum cef_file_dialog_mode_t {
     #[doc = " already exists."]
     #[doc = ""]
     FILE_DIALOG_SAVE = 3,
-    #[doc = ""]
-    #[doc = " General mask defining the bits used for the type values."]
-    #[doc = ""]
-    FILE_DIALOG_TYPE_MASK = 255,
-    #[doc = ""]
-    #[doc = " Prompt to overwrite if the user selects an existing file with the Save"]
-    #[doc = " dialog."]
-    #[doc = ""]
-    FILE_DIALOG_OVERWRITEPROMPT_FLAG = 16777216,
-    #[doc = ""]
-    #[doc = " Do not display read-only files."]
-    #[doc = ""]
-    FILE_DIALOG_HIDEREADONLY_FLAG = 33554432,
 }
 #[repr(i32)]
 #[doc = ""]
@@ -2664,6 +2665,25 @@ pub enum cef_alpha_type_t {
 }
 #[repr(i32)]
 #[doc = ""]
+#[doc = " Specifies the horizontal text alignment mode."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_horizontal_alignment_t {
+    #[doc = ""]
+    #[doc = " Align the text's left edge with that of its display area."]
+    #[doc = ""]
+    CEF_HORIZONTAL_ALIGNMENT_LEFT = 0,
+    #[doc = ""]
+    #[doc = " Align the text's center with that of its display area."]
+    #[doc = ""]
+    CEF_HORIZONTAL_ALIGNMENT_CENTER = 1,
+    #[doc = ""]
+    #[doc = " Align the text's right edge with that of its display area."]
+    #[doc = ""]
+    CEF_HORIZONTAL_ALIGNMENT_RIGHT = 2,
+}
+#[repr(i32)]
+#[doc = ""]
 #[doc = " Supported color types for menu items."]
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
@@ -2761,7 +2781,7 @@ pub struct _cef_composition_underline_t {
 pub type cef_composition_underline_t = _cef_composition_underline_t;
 impl cef_channel_layout_t {
     pub const CEF_CHANNEL_LAYOUT_MAX: cef_channel_layout_t =
-        cef_channel_layout_t::CEF_CHANNEL_LAYOUT_BITSTREAM;
+        cef_channel_layout_t::CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX;
 }
 #[repr(i32)]
 #[doc = ""]
@@ -2840,6 +2860,11 @@ pub enum cef_channel_layout_t {
     #[doc = " count is unknown at Chromium media pipeline level (useful for audio"]
     #[doc = " pass-through mode)."]
     CEF_CHANNEL_LAYOUT_BITSTREAM = 32,
+    #[doc = " Front L, Front R, Front C, LFE, Side L, Side R,"]
+    #[doc = " Front Height L, Front Height R, Rear Height L, Rear Height R"]
+    #[doc = " Will be represented as six channels (5.1) due to eight channel limit"]
+    #[doc = " kMaxConcurrentChannels"]
+    CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX = 33,
 }
 #[doc = ""]
 #[doc = " Structure representing the audio parameters for setting up the audio handler."]
@@ -2923,6 +2948,62 @@ pub struct _cef_media_sink_device_info_t {
     pub ip_address: cef_string_t,
     pub port: ::std::os::raw::c_int,
     pub model_name: cef_string_t,
+}
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_touch_handle_state_t {
+    #[doc = ""]
+    #[doc = " Touch handle id. Increments for each new touch handle."]
+    #[doc = ""]
+    pub touch_handle_id: ::std::os::raw::c_int,
+    #[doc = ""]
+    #[doc = " Combination of cef_touch_handle_state_flags_t values indicating what state"]
+    #[doc = " is set."]
+    #[doc = ""]
+    pub flags: uint32,
+    #[doc = ""]
+    #[doc = " Enabled state. Only set if |flags| contains CEF_THS_FLAG_ENABLED."]
+    #[doc = ""]
+    pub enabled: ::std::os::raw::c_int,
+    #[doc = ""]
+    #[doc = " Orientation state. Only set if |flags| contains CEF_THS_FLAG_ORIENTATION."]
+    #[doc = ""]
+    pub orientation: cef_horizontal_alignment_t,
+    pub mirror_vertical: ::std::os::raw::c_int,
+    pub mirror_horizontal: ::std::os::raw::c_int,
+    #[doc = ""]
+    #[doc = " Origin state. Only set if |flags| contains CEF_THS_FLAG_ORIGIN."]
+    #[doc = ""]
+    pub origin: cef_point_t,
+    #[doc = ""]
+    #[doc = " Alpha state. Only set if |flags| contains CEF_THS_FLAG_ALPHA."]
+    #[doc = ""]
+    pub alpha: f32,
+}
+#[repr(i32)]
+#[doc = ""]
+#[doc = " Permission request results."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_permission_request_result_t {
+    #[doc = ""]
+    #[doc = " Accept the permission request as an explicit user action."]
+    #[doc = ""]
+    CEF_PERMISSION_RESULT_ACCEPT = 0,
+    #[doc = ""]
+    #[doc = " Deny the permission request as an explicit user action."]
+    #[doc = ""]
+    CEF_PERMISSION_RESULT_DENY = 1,
+    #[doc = ""]
+    #[doc = " Dismiss the permission request as an explicit user action."]
+    #[doc = ""]
+    CEF_PERMISSION_RESULT_DISMISS = 2,
+    #[doc = ""]
+    #[doc = " Ignore the permission request. If the prompt remains unhandled (e.g."]
+    #[doc = " OnShowPermissionPrompt returns false and there is no default permissions"]
+    #[doc = " UI) then any related promises may remain unresolved."]
+    #[doc = ""]
+    CEF_PERMISSION_RESULT_IGNORE = 3,
 }
 #[doc = ""]
 #[doc = " CEF string maps are a set of key/value string pairs."]
@@ -5086,10 +5167,43 @@ pub struct _cef_domnode_t {
         unsafe extern "C" fn(self_: *mut _cef_domnode_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the bounds of the element."]
+    #[doc = " Returns the bounds of the element in device pixels. Use"]
+    #[doc = " \"window.devicePixelRatio\" to convert to/from CSS pixels."]
     #[doc = ""]
     pub get_element_bounds:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_domnode_t) -> cef_rect_t>,
+}
+#[doc = ""]
+#[doc = " Structure that wraps platform-dependent share memory region mapping."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_shared_memory_region_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Returns true (1) if the mapping is valid."]
+    #[doc = ""]
+    pub is_valid: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_shared_memory_region_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Returns the size of the mapping in bytes. Returns 0 for invalid instances."]
+    #[doc = ""]
+    pub size: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_shared_memory_region_t) -> usize,
+    >,
+    #[doc = ""]
+    #[doc = " Returns the pointer to the memory. Returns nullptr for invalid instances."]
+    #[doc = " The returned pointer is only valid for the life span of this object."]
+    #[doc = ""]
+    pub memory: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_shared_memory_region_t,
+        ) -> *const ::std::os::raw::c_void,
+    >,
 }
 #[doc = ""]
 #[doc = " Structure representing a message. Can be used on any process and thread."]
@@ -5116,7 +5230,8 @@ pub struct _cef_process_message_t {
         unsafe extern "C" fn(self_: *mut _cef_process_message_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns a writable copy of this object."]
+    #[doc = " Returns a writable copy of this object. Returns nullptr when message"]
+    #[doc = " contains a shared memory region."]
     #[doc = ""]
     pub copy: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_process_message_t) -> *mut _cef_process_message_t,
@@ -5129,10 +5244,20 @@ pub struct _cef_process_message_t {
         unsafe extern "C" fn(self_: *mut _cef_process_message_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the list of arguments."]
+    #[doc = " Returns the list of arguments. Returns nullptr when message contains a"]
+    #[doc = " shared memory region."]
     #[doc = ""]
     pub get_argument_list: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_process_message_t) -> *mut _cef_list_value_t,
+    >,
+    #[doc = ""]
+    #[doc = " Returns the shared memory region. Returns nullptr when message contains an"]
+    #[doc = " argument list."]
+    #[doc = ""]
+    pub get_shared_memory_region: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_process_message_t,
+        ) -> *mut _cef_shared_memory_region_t,
     >,
 }
 #[doc = ""]
@@ -7383,16 +7508,13 @@ pub struct _cef_run_file_dialog_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called asynchronously after the file dialog is dismissed."]
-    #[doc = " |selected_accept_filter| is the 0-based index of the value selected from"]
-    #[doc = " the accept filters array passed to cef_browser_host_t::RunFileDialog."]
-    #[doc = " |file_paths| will be a single value or a list of values depending on the"]
-    #[doc = " dialog mode. If the selection was cancelled |file_paths| will be NULL."]
+    #[doc = " Called asynchronously after the file dialog is dismissed. |file_paths| will"]
+    #[doc = " be a single value or a list of values depending on the dialog mode. If the"]
+    #[doc = " selection was cancelled |file_paths| will be NULL."]
     #[doc = ""]
     pub on_file_dialog_dismissed: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_run_file_dialog_callback_t,
-            selected_accept_filter: ::std::os::raw::c_int,
             file_paths: cef_string_list_t,
         ),
     >,
@@ -7585,11 +7707,10 @@ pub struct _cef_browser_host_t {
     #[doc = " selectable file types and may any combination of (a) valid lower-cased MIME"]
     #[doc = " types (e.g. \"text/*\" or \"image/*\"), (b) individual file extensions (e.g."]
     #[doc = " \".txt\" or \".png\"), or (c) combined description and file extension delimited"]
-    #[doc = " using \"|\" and \";\" (e.g. \"Image Types|.png;.gif;.jpg\")."]
-    #[doc = " |selected_accept_filter| is the 0-based index of the filter that will be"]
-    #[doc = " selected by default. |callback| will be executed after the dialog is"]
-    #[doc = " dismissed or immediately if another dialog is already pending. The dialog"]
-    #[doc = " will be initiated asynchronously on the UI thread."]
+    #[doc = " using \"|\" and \";\" (e.g. \"Image Types|.png;.gif;.jpg\"). |callback| will be"]
+    #[doc = " executed after the dialog is dismissed or immediately if another dialog is"]
+    #[doc = " already pending. The dialog will be initiated asynchronously on the UI"]
+    #[doc = " thread."]
     #[doc = ""]
     pub run_file_dialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7598,7 +7719,6 @@ pub struct _cef_browser_host_t {
             title: *const cef_string_t,
             default_file_path: *const cef_string_t,
             accept_filters: cef_string_list_t,
-            selected_accept_filter: ::std::os::raw::c_int,
             callback: *mut _cef_run_file_dialog_callback_t,
         ),
     >,
@@ -9228,6 +9348,33 @@ pub struct _cef_run_context_menu_callback_t {
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_run_context_menu_callback_t)>,
 }
 #[doc = ""]
+#[doc = " Callback structure used for continuation of custom quick menu display."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_run_quick_menu_callback_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Complete quick menu display by selecting the specified |command_id| and"]
+    #[doc = " |event_flags|."]
+    #[doc = ""]
+    pub cont: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_run_quick_menu_callback_t,
+            command_id: ::std::os::raw::c_int,
+            event_flags: cef_event_flags_t,
+        ),
+    >,
+    #[doc = ""]
+    #[doc = " Cancel quick menu display."]
+    #[doc = ""]
+    pub cancel:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_run_quick_menu_callback_t)>,
+}
+#[doc = ""]
 #[doc = " Implement this structure to handle context menu events. The functions of this"]
 #[doc = " structure will be called on the UI thread."]
 #[doc = ""]
@@ -9293,7 +9440,7 @@ pub struct _cef_context_menu_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called when the context menu is dismissed irregardless of whether the menu"]
-    #[doc = " was NULL or a command was selected."]
+    #[doc = " was canceled or a command was selected."]
     #[doc = ""]
     pub on_context_menu_dismissed: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9302,9 +9449,55 @@ pub struct _cef_context_menu_handler_t {
             frame: *mut _cef_frame_t,
         ),
     >,
+    #[doc = ""]
+    #[doc = " Called to allow custom display of the quick menu for a windowless browser."]
+    #[doc = " |location| is the top left corner of the selected region. |size| is the"]
+    #[doc = " size of the selected region. |edit_state_flags| is a combination of flags"]
+    #[doc = " that represent the state of the quick menu. Return true (1) if the menu"]
+    #[doc = " will be handled and execute |callback| either synchronously or"]
+    #[doc = " asynchronously with the selected command ID. Return false (0) to cancel the"]
+    #[doc = " menu."]
+    #[doc = ""]
+    pub run_quick_menu: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_context_menu_handler_t,
+            browser: *mut _cef_browser_t,
+            frame: *mut _cef_frame_t,
+            location: *const cef_point_t,
+            size: *const cef_size_t,
+            edit_state_flags: cef_quick_menu_edit_state_flags_t,
+            callback: *mut _cef_run_quick_menu_callback_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called to execute a command selected from the quick menu for a windowless"]
+    #[doc = " browser. Return true (1) if the command was handled or false (0) for the"]
+    #[doc = " default implementation. See cef_menu_id_t for command IDs that have default"]
+    #[doc = " implementations."]
+    #[doc = ""]
+    pub on_quick_menu_command: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_context_menu_handler_t,
+            browser: *mut _cef_browser_t,
+            frame: *mut _cef_frame_t,
+            command_id: ::std::os::raw::c_int,
+            event_flags: cef_event_flags_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called when the quick menu for a windowless browser is dismissed"]
+    #[doc = " irregardless of whether the menu was canceled or a command was selected."]
+    #[doc = ""]
+    pub on_quick_menu_dismissed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_context_menu_handler_t,
+            browser: *mut _cef_browser_t,
+            frame: *mut _cef_frame_t,
+        ),
+    >,
 }
 #[doc = ""]
-#[doc = " Provides information about the context menu state. The ethods of this"]
+#[doc = " Provides information about the context menu state. The functions of this"]
 #[doc = " structure can only be accessed on browser process the UI thread."]
 #[doc = ""]
 #[repr(C)]
@@ -9591,16 +9784,13 @@ pub struct _cef_file_dialog_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Continue the file selection. |selected_accept_filter| should be the 0-based"]
-    #[doc = " index of the value selected from the accept filters array passed to"]
-    #[doc = " cef_dialog_handler_t::OnFileDialog. |file_paths| should be a single value"]
-    #[doc = " or a list of values depending on the dialog mode. An NULL |file_paths|"]
-    #[doc = " value is treated the same as calling cancel()."]
+    #[doc = " Continue the file selection. |file_paths| should be a single value or a"]
+    #[doc = " list of values depending on the dialog mode. An NULL |file_paths| value is"]
+    #[doc = " treated the same as calling cancel()."]
     #[doc = ""]
     pub cont: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_file_dialog_callback_t,
-            selected_accept_filter: ::std::os::raw::c_int,
             file_paths: cef_string_list_t,
         ),
     >,
@@ -9631,10 +9821,9 @@ pub struct _cef_dialog_handler_t {
     #[doc = " (a) valid lower-cased MIME types (e.g. \"text/*\" or \"image/*\"), (b)"]
     #[doc = " individual file extensions (e.g. \".txt\" or \".png\"), or (c) combined"]
     #[doc = " description and file extension delimited using \"|\" and \";\" (e.g. \"Image"]
-    #[doc = " Types|.png;.gif;.jpg\"). |selected_accept_filter| is the 0-based index of"]
-    #[doc = " the filter that should be selected by default. To display a custom dialog"]
-    #[doc = " return true (1) and execute |callback| either inline or at a later time. To"]
-    #[doc = " display the default dialog return false (0)."]
+    #[doc = " Types|.png;.gif;.jpg\"). To display a custom dialog return true (1) and"]
+    #[doc = " execute |callback| either inline or at a later time. To display the default"]
+    #[doc = " dialog return false (0)."]
     #[doc = ""]
     pub on_file_dialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9644,7 +9833,6 @@ pub struct _cef_dialog_handler_t {
             title: *const cef_string_t,
             default_file_path: *const cef_string_t,
             accept_filters: cef_string_list_t,
-            selected_accept_filter: ::std::os::raw::c_int,
             callback: *mut _cef_file_dialog_callback_t,
         ) -> ::std::os::raw::c_int,
     >,
@@ -9783,6 +9971,18 @@ pub struct _cef_display_handler_t {
             type_: cef_cursor_type_t,
             custom_cursor_info: *const _cef_cursor_info_t,
         ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called when the browser's access to an audio and/or video source has"]
+    #[doc = " changed."]
+    #[doc = ""]
+    pub on_media_access_change: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_display_handler_t,
+            browser: *mut _cef_browser_t,
+            has_video_access: ::std::os::raw::c_int,
+            has_audio_access: ::std::os::raw::c_int,
+        ),
     >,
 }
 #[doc = ""]
@@ -10366,7 +10566,7 @@ pub struct _cef_jsdialog_handler_t {
         unsafe extern "C" fn(self_: *mut _cef_jsdialog_handler_t, browser: *mut _cef_browser_t),
     >,
     #[doc = ""]
-    #[doc = " Called when the default implementation dialog is closed."]
+    #[doc = " Called when the dialog is closed."]
     #[doc = ""]
     pub on_dialog_closed: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_jsdialog_handler_t, browser: *mut _cef_browser_t),
@@ -10673,6 +10873,126 @@ pub struct _cef_load_handler_t {
     >,
 }
 #[doc = ""]
+#[doc = " Callback structure used for asynchronous continuation of media access"]
+#[doc = " permission requests."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_media_access_callback_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Call to allow or deny media access. If this callback was initiated in"]
+    #[doc = " response to a getUserMedia (indicated by"]
+    #[doc = " CEF_MEDIA_PERMISSION_DEVICE_AUDIO_CAPTURE and/or"]
+    #[doc = " CEF_MEDIA_PERMISSION_DEVICE_VIDEO_CAPTURE being set) then"]
+    #[doc = " |allowed_permissions| must match |required_permissions| passed to"]
+    #[doc = " OnRequestMediaAccessPermission."]
+    #[doc = ""]
+    pub cont: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_media_access_callback_t, allowed_permissions: uint32),
+    >,
+    #[doc = ""]
+    #[doc = " Cancel the media access request."]
+    #[doc = ""]
+    pub cancel:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_media_access_callback_t)>,
+}
+#[doc = ""]
+#[doc = " Callback structure used for asynchronous continuation of permission prompts."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_permission_prompt_callback_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Complete the permissions request with the specified |result|."]
+    #[doc = ""]
+    pub cont: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_permission_prompt_callback_t,
+            result: cef_permission_request_result_t,
+        ),
+    >,
+}
+#[doc = ""]
+#[doc = " Implement this structure to handle events related to permission requests. The"]
+#[doc = " functions of this structure will be called on the browser process UI thread."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_permission_handler_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Called when a page requests permission to access media. |requesting_origin|"]
+    #[doc = " is the URL origin requesting permission. |requested_permissions| is a"]
+    #[doc = " combination of values from cef_media_access_permission_types_t that"]
+    #[doc = " represent the requested permissions. Return true (1) and call"]
+    #[doc = " cef_media_access_callback_t functions either in this function or at a later"]
+    #[doc = " time to continue or cancel the request. Return false (0) to proceed with"]
+    #[doc = " default handling. With the Chrome runtime, default handling will display"]
+    #[doc = " the permission request UI. With the Alloy runtime, default handling will"]
+    #[doc = " deny the request. This function will not be called if the \"--enable-media-"]
+    #[doc = " stream\" command-line switch is used to grant all permissions."]
+    #[doc = ""]
+    pub on_request_media_access_permission: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_permission_handler_t,
+            browser: *mut _cef_browser_t,
+            frame: *mut _cef_frame_t,
+            requesting_origin: *const cef_string_t,
+            requested_permissions: uint32,
+            callback: *mut _cef_media_access_callback_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called when a page should show a permission prompt. |prompt_id| uniquely"]
+    #[doc = " identifies the prompt. |requesting_origin| is the URL origin requesting"]
+    #[doc = " permission. |requested_permissions| is a combination of values from"]
+    #[doc = " cef_permission_request_types_t that represent the requested permissions."]
+    #[doc = " Return true (1) and call cef_permission_prompt_callback_t::Continue either"]
+    #[doc = " in this function or at a later time to continue or cancel the request."]
+    #[doc = " Return false (0) to proceed with default handling. With the Chrome runtime,"]
+    #[doc = " default handling will display the permission prompt UI. With the Alloy"]
+    #[doc = " runtime, default handling is CEF_PERMISSION_RESULT_IGNORE."]
+    #[doc = ""]
+    pub on_show_permission_prompt: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_permission_handler_t,
+            browser: *mut _cef_browser_t,
+            prompt_id: uint64,
+            requesting_origin: *const cef_string_t,
+            requested_permissions: uint32,
+            callback: *mut _cef_permission_prompt_callback_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called when a permission prompt handled via OnShowPermissionPrompt is"]
+    #[doc = " dismissed. |prompt_id| will match the value that was passed to"]
+    #[doc = " OnShowPermissionPrompt. |result| will be the value passed to"]
+    #[doc = " cef_permission_prompt_callback_t::Continue or CEF_PERMISSION_RESULT_IGNORE"]
+    #[doc = " if the dialog was dismissed for other reasons such as navigation, browser"]
+    #[doc = " closure, etc. This function will not be called if OnShowPermissionPrompt"]
+    #[doc = " returned false (0) for |prompt_id|."]
+    #[doc = ""]
+    pub on_dismiss_permission_prompt: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_permission_handler_t,
+            browser: *mut _cef_browser_t,
+            prompt_id: uint64,
+            result: cef_permission_request_result_t,
+        ),
+    >,
+}
+#[doc = ""]
 #[doc = " Implement this structure to receive accessibility notification when"]
 #[doc = " accessibility events have been registered. The functions of this structure"]
 #[doc = " will be called on the UI thread."]
@@ -10720,9 +11040,9 @@ pub struct _cef_render_handler_t {
         ) -> *mut _cef_accessibility_handler_t,
     >,
     #[doc = ""]
-    #[doc = " Called to retrieve the root window rectangle in screen coordinates. Return"]
-    #[doc = " true (1) if the rectangle was provided. If this function returns false (0)"]
-    #[doc = " the rectangle from GetViewRect will be used."]
+    #[doc = " Called to retrieve the root window rectangle in screen DIP coordinates."]
+    #[doc = " Return true (1) if the rectangle was provided. If this function returns"]
+    #[doc = " false (0) the rectangle from GetViewRect will be used."]
     #[doc = ""]
     pub get_root_screen_rect: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10732,8 +11052,8 @@ pub struct _cef_render_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called to retrieve the view rectangle which is relative to screen"]
-    #[doc = " coordinates. This function must always provide a non-NULL rectangle."]
+    #[doc = " Called to retrieve the view rectangle in screen DIP coordinates. This"]
+    #[doc = " function must always provide a non-NULL rectangle."]
     #[doc = ""]
     pub get_view_rect: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10743,8 +11063,10 @@ pub struct _cef_render_handler_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Called to retrieve the translation from view coordinates to actual screen"]
-    #[doc = " coordinates. Return true (1) if the screen coordinates were provided."]
+    #[doc = " Called to retrieve the translation from view DIP coordinates to screen"]
+    #[doc = " coordinates. Windows/Linux should provide screen device (pixel) coordinates"]
+    #[doc = " and MacOS should provide screen DIP coordinates. Return true (1) if the"]
+    #[doc = " requested coordinates were provided."]
     #[doc = ""]
     pub get_screen_point: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10834,6 +11156,29 @@ pub struct _cef_render_handler_t {
             dirtyRectsCount: usize,
             dirtyRects: *const cef_rect_t,
             shared_handle: *mut ::std::os::raw::c_void,
+        ),
+    >,
+    #[doc = ""]
+    #[doc = " Called to retrieve the size of the touch handle for the specified"]
+    #[doc = " |orientation|."]
+    #[doc = ""]
+    pub get_touch_handle_size: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_render_handler_t,
+            browser: *mut _cef_browser_t,
+            orientation: cef_horizontal_alignment_t,
+            size: *mut cef_size_t,
+        ),
+    >,
+    #[doc = ""]
+    #[doc = " Called when touch handle state is updated. The client is responsible for"]
+    #[doc = " rendering the touch handles."]
+    #[doc = ""]
+    pub on_touch_handle_state_changed: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_render_handler_t,
+            browser: *mut _cef_browser_t,
+            state: *const _cef_touch_handle_state_t,
         ),
     >,
     #[doc = ""]
@@ -11867,6 +12212,12 @@ pub struct _cef_client_t {
     #[doc = ""]
     pub get_frame_handler: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_frame_handler_t,
+    >,
+    #[doc = ""]
+    #[doc = " Return the handler for permission requests."]
+    #[doc = ""]
+    pub get_permission_handler: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_permission_handler_t,
     >,
     #[doc = ""]
     #[doc = " Return the handler for JavaScript dialogs. If no handler is provided the"]
