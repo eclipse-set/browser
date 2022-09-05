@@ -45,6 +45,12 @@ fn link() {
     cef_path.push(CEF_TARGET);
     println!("cargo:rustc-link-search={}", cef_path.display());
     println!("cargo:rustc-link-lib=libcef");
+
+    // Set up compiler flags to use the Windows subsystem & Windows CRT
+    #[cfg(target_env = "msvc")]
     println!("cargo:rustc-link-arg=/SUBSYSTEM:WINDOWS");
+    #[cfg(target_env = "msvc")]
     println!("cargo:rustc-link-arg=/ENTRY:mainCRTStartup");
+    #[cfg(target_env = "gnu")]
+    println!("cargo:rustc-link-arg=-Wl,-subsystem,windows");
 }
