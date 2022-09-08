@@ -11,17 +11,12 @@ pipeline {
   }
 
   stages {
-    stage('Build') {
+    stage('Build Rust') {
       steps {
         container('rust') {
           dir('cef/Release')
           {
-            script {
-              def version = sh (script: "grep -E -v ^# ../../CEF_VERSION.txt", returnStdout: true).trim()
-              sh (script: "curl -o 'cef.tar.bz2' https://cef-builds.spotifycdn.com/${version}.tar.bz2")
-              sh (script: "tar xf cef.tar.bz2 ${version}/Release/libcef.lib --strip-components 2")
-              sh (script: 'rm -rf cef.tar.bz2')
-            }
+            downloadCEF versionFile: '../../CEF_VERSION.txt', files: ['Release/libcef.lib']
           }
 
           sh 'rustup target add x86_64-pc-windows-gnu'
@@ -30,17 +25,26 @@ pipeline {
             sh 'cargo clean'
             sh 'cargo build --release --target x86_64-pc-windows-gnu'
           }
-        }
 
+          dir('native/target/x86_64-pc-windows-gnu/release')
+          {
+            stash name: 'rust_binaries', includes: 'chromium_subp.exe, chromium_jni.dll', useDefaultExcludes: false
+          }
+        }
+      }
+    }
+
+    stage('Build Java') {
+      steps {
         container('maven') {
-          // copy rust binaries to target location
-          sh 'mkdir -p java/org.eclipse.set.browser.lib/res'
-          sh 'cp -r native/target/x86_64-pc-windows-gnu/release/chromium_subp.exe java/org.eclipse.set.browser.lib/res/'
-          sh 'cp -r native/target/x86_64-pc-windows-gnu/release/chromium_jni.dll java/org.eclipse.set.browser.lib/res/'
+          dir('java/org.eclipse.set.browser.lib/res')
+          {
+            unstash 'rust_binaries'
+          }
 
           dir('java')
           {
-            sh "mvn -U -B clean integration-test"
+            mvn goal: 'clean integration-test'
           }
         }
       }
@@ -49,16 +53,14 @@ pipeline {
     stage('Deploy Snapshot')
     {
       when {
-        branch 'main'
-      }
-      steps {
-        container('jnlp') {
-          sshagent (['projects-storage.eclipse.org-bot-ssh']) {
-            sh 'ssh -o BatchMode=yes genie.set@projects-storage.eclipse.org rm -rf /home/data/httpd/download.eclipse.org/set/snapshots/browser'
-            sh 'ssh -o BatchMode=yes genie.set@projects-storage.eclipse.org mkdir -p /home/data/httpd/download.eclipse.org/set/snapshots/browser'
-            sh 'scp -o BatchMode=yes -r java/org.eclipse.set.browser.releng.repository/target/repository/* genie.set@projects-storage.eclipse.org:/home/data/httpd/download.eclipse.org/set/snapshots/browser'
-          }
+        anyOf {
+          buildingTag()
+          branch 'main'
         }
+      }
+
+      steps {
+        deployP2Site name: 'browser', path: 'java/bundles/org.eclipse.set.browser.releng.repository/target/repository' 
       }
     }
   }
