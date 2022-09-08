@@ -60,7 +60,7 @@ pipeline {
       }
 
       steps {
-        deployP2Site name: 'browser', path: 'java/bundles/org.eclipse.set.browser.releng.repository/target/repository' 
+        deployP2Site name: 'browser', path: 'java/org.eclipse.set.browser.releng.repository/target/repository' 
       }
     }
   }
