@@ -4,7 +4,7 @@
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>org.eclipse.set</groupId>
-	<artifactId>org.eclipse.set.browser.releng.repository</artifactId>
+	<artifactId>org.eclipse.set.browser.repository</artifactId>
 	<packaging>eclipse-repository</packaging>
 
 	<parent>
