@@ -25,7 +25,7 @@ spec:
           memory: "2Gi"
           cpu: "1"
     - name: rust
-      image: ghcr.io/sbx320/rust-amd64-pc-windows-gnu
+      image: sbx320/rust-x86_64-pc-windows-gnu
       command:
         - cat
       resources:
