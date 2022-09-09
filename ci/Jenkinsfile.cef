@@ -1,0 +1,51 @@
+pipeline {
+  agent {
+    kubernetes {
+      yamlFile 'ci/kubernetes.yaml'
+    }
+  }
+
+  options {
+    timeout(time: 20, unit: 'MINUTES')
+    buildDiscarder(logRotator(numToKeepStr: '10'))
+  }
+
+  stages {
+    stage('Build CEF') {
+      steps {
+        container('maven') {
+          dir('java-cef/org.eclipse.set.browser.cef.feature/res/bin/cef')
+          {
+            // Download CEF distribution
+            downloadCEF versionFile: '../../../../../CEF_VERSION.txt',
+              files: ['Resources'],
+              wildcards: [
+                'Release/*.dll',
+                'Release/*.bin'
+              ]
+            sh 'rm -rf .gitkeep'
+          }
+
+          dir('java-cef')
+          {
+            mvn goal: 'clean integration-test'
+          }
+        }
+      }
+    }
+
+    stage('Deploy Snapshot')
+    {
+      when {
+        anyOf {
+          buildingTag()
+          branch 'main'
+        }
+      }
+
+      steps {
+        deployP2Site name: 'browser-cef', path: 'java-cef/org.eclipse.set.browser.cef.releng.repository/target/repository' 
+      }
+    }
+  }
+}
