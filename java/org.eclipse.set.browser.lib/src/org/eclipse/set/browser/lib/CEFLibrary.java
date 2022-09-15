@@ -10,6 +10,7 @@ package org.eclipse.set.browser.lib;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
@@ -72,13 +73,9 @@ public class CEFLibrary {
 	 * Make sure to call init() beforehand
 	 */
 	public static void loadLibraries() {
-		try {
-			System.load(getCEFLibraryFile(CHROME_ELF).getAbsolutePath());
-			System.load(getCEFLibraryFile(LIBCEF).getAbsolutePath());
-			System.load(getLibraryFile(JNI_LIB).getAbsolutePath());
-		} catch (final URISyntaxException e) {
-			throw new RuntimeException(e);
-		}
+		System.load(getCEFLibraryFile(CHROME_ELF).getAbsolutePath());
+		System.load(getCEFLibraryFile(LIBCEF).getAbsolutePath());
+		System.load(getLibraryFile(JNI_LIB).getAbsolutePath());
 	}
 
 	private static File getCEFLibraryFile(final String library) {
@@ -86,14 +83,15 @@ public class CEFLibrary {
 		return cef_path.resolve(mapLibraryName).toFile();
 	}
 
-	private static File getLibraryFile(final String library)
-			throws URISyntaxException {
+	private static File getLibraryFile(final String library) {
 		final String mapLibraryName = System.mapLibraryName(library);
 		final URL libraryUrl = CEFLibrary.class.getClassLoader()
 				.getResource(mapLibraryName);
 		try {
-			return new File(FileLocator.toFileURL(libraryUrl).toURI());
-		} catch (final IOException e) {
+			final URL fileUrl = FileLocator.toFileURL(libraryUrl);
+			URI libraryUri = new URI(fileUrl.getProtocol(), fileUrl.getUserInfo(), fileUrl.getHost(), fileUrl.getPort(), fileUrl.getPath(), fileUrl.getQuery(), fileUrl.getRef());
+			return new File(libraryUri);
+		} catch (final IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
 	}
