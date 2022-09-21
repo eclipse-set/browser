@@ -41,14 +41,8 @@ public class CEFLibrary {
 	 * @return the path to the Chromium subprocess binary
 	 */
 	public static String getSubprocessExePath() {
-		try {
-			final URL url = CEFLibrary.class.getClassLoader()
-					.getResource(CHROMIUM_SUBPROCESS);
-			return Paths.get(FileLocator.toFileURL(url).toURI())
-					.toAbsolutePath().toString();
-		} catch (final URISyntaxException | IOException e) {
-			throw new RuntimeException(e);
-		}
+		final URI uri = getResourceFileURI(CHROMIUM_SUBPROCESS);
+		return Paths.get(uri).toAbsolutePath().toString();
 	}
 
 	/**
@@ -85,12 +79,20 @@ public class CEFLibrary {
 
 	private static File getLibraryFile(final String library) {
 		final String mapLibraryName = System.mapLibraryName(library);
-		final URL libraryUrl = CEFLibrary.class.getClassLoader()
-				.getResource(mapLibraryName);
+		return new File(getResourceFileURI(mapLibraryName));
+	}
+
+	private static URI getResourceFileURI(final String name) {
+		final URL url = CEFLibrary.class.getClassLoader().getResource(name);
 		try {
-			final URL fileUrl = FileLocator.toFileURL(libraryUrl);
-			URI libraryUri = new URI(fileUrl.getProtocol(), fileUrl.getUserInfo(), fileUrl.getHost(), fileUrl.getPort(), fileUrl.getPath(), fileUrl.getQuery(), fileUrl.getRef());
-			return new File(libraryUri);
+			// Ensure we have a file url (and not a bundle URL)
+			final URL fileUrl = FileLocator.toFileURL(url);
+			// Transform into URI. Avoid using URL#toURI() as it does not handle
+			// special characters correctly
+			return new URI(fileUrl.getProtocol(), fileUrl.getUserInfo(),
+					fileUrl.getHost(), fileUrl.getPort(), fileUrl.getPath(),
+					fileUrl.getQuery(), fileUrl.getRef());
+
 		} catch (final IOException | URISyntaxException e) {
 			throw new RuntimeException(e);
 		}
