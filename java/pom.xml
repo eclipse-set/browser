@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>2.7.0</tycho-version>
-		<tycho-extras-version>2.7.0</tycho-extras-version>
+		<tycho-version>2.7.3</tycho-version>
+		<tycho-extras-version>2.7.3</tycho-extras-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd_HHmmssZ</maven.build.timestamp.format>
 	</properties>
@@ -68,26 +68,20 @@
 			</plugin>
 			<plugin>
 				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-p2-publisher-plugin</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+					<profiles>JavaSE-17</profiles>
+				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
 				<artifactId>tycho-packaging-plugin</artifactId>
 				<version>${tycho-version}</version>
 				<configuration>
 					<updatePomFile>false</updatePomFile>
 					<skipPomGeneration>true</skipPomGeneration>
 				</configuration>
-			</plugin>
-
-			<plugin>
-				<groupId>org.eclipse.tycho</groupId>
-				<artifactId>tycho-source-plugin</artifactId>
-				<version>${tycho-version}</version>
-				<executions>
-					<execution>
-						<id>plugin-source</id>
-						<goals>
-							<goal>plugin-source</goal>
-						</goals>
-					</execution>
-				</executions>
 			</plugin>
 
 			<!-- Erzeuge ein source-Feature für die Source-Bundles -->
@@ -101,6 +95,12 @@
 						<phase>package</phase>
 						<goals>
 							<goal>feature-source</goal>
+						</goals>
+					</execution>
+                    	<execution>
+						<id>plugin-source</id>
+						<goals>
+							<goal>plugin-source</goal>
 						</goals>
 					</execution>
 				</executions>
