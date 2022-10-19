@@ -100,7 +100,7 @@ public class ChromiumStatic {
 	private static int getDebugPort() {
 		try {
 			return Integer.parseInt(System.getProperty(
-					"org.eclipse.set.browser.remote-debugging-port", "9999"));
+					"org.eclipse.set.browser.remote-debugging-port", "0"));
 		} catch (final NumberFormatException e) {
 			return 0;
 		}
