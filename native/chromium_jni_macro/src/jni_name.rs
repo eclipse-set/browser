@@ -18,9 +18,9 @@ use syn::{
     parse_macro_input, Result, Token,
 };
 
-struct JNIName {
-    namespace: String,
-    suffix: String,
+pub struct JNIName {
+    pub namespace: String,
+    pub suffix: String,
 }
 
 fn get_type_name(ty: syn::Type) -> String {
@@ -56,7 +56,7 @@ pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
 
     // Rename function to use the JNI required name
     function.sig.ident = syn::Ident::new(
-        &create_fn_name(&namespace, &function.sig.ident.to_string(), &suffix),
+        &create_jni_fn_name(&namespace, &function.sig.ident.to_string(), &suffix),
         function.sig.ident.span(),
     );
 
@@ -72,7 +72,8 @@ pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
     function.into_token_stream().into()
 }
 
-fn create_fn_name(namespace: &str, name: &str, suffix: &str) -> String {
+// Constructs a JNI function name from full class name, function name and an optional suffix
+pub fn create_jni_fn_name(namespace: &str, name: &str, suffix: &str) -> String {
     let namespace = namespace.replace('_', "_1").replace('.', "_");
     let name = name.replace('_', "_1");
     let suffix = suffix.replace('_', "_1");

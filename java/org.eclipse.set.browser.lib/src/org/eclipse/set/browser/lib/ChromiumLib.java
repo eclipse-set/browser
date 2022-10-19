@@ -146,19 +146,36 @@ public class ChromiumLib extends C {
 			final Object handler);
 
 	/**
-	 * @return the size of cef_cookie_visitor_t in bytes
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
 	 */
-	public static final native int cef_cookie_visitor_t_sizeof();
+	public static final native long allocate_cef_resource_handler_t(
+			final Object handler);
+
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
+	public static final native long allocate_cef_scheme_handler_factory_t(
+			Object handler);
+
+	/**
+	 * @param handler
+	 *            the handler for callbacks
+	 * 
+	 * @return a raw pointer to the native object to be passed to other methods
+	 */
+	public static final native long allocate_cef_string_visitor_t(
+			Object handler);
 
 	/**
 	 * @return the size of cef_popup_features_t in bytes
 	 */
 	public static final native int cef_popup_features_t_sizeof();
-
-	/**
-	 * @return the size of cef_string_visitor_t in bytes
-	 */
-	public static final native int cef_string_visitor_t_sizeof();
 
 	/**
 	 * @param callback
@@ -171,23 +188,10 @@ public class ChromiumLib extends C {
 	public static final native String cefswt_cefstring_to_java(long string);
 
 	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_close_browser(long browser,
-			int force);
-
-	/**
 	 * @param callback
 	 *            cast=(void *)
 	 */
 	public static final native void cefswt_context_menu_cancel(long callback);
-
-	/** @method flags=no_gen */
-	public static final native String cefswt_cookie_to_java(long cookie);
-
-	/** @method flags=no_gen */
-	public static final native String cefswt_cookie_value(long cookie);
 
 	/**
 	 * @param hwnd
@@ -201,8 +205,6 @@ public class ChromiumLib extends C {
 	/** @method flags=no_gen */
 	public static final native String cefswt_cstring_to_java(long string);
 
-	public static final native void cefswt_delete_cookies();
-
 	/**
 	 * @param callback
 	 *            cast=(void *)
@@ -213,34 +215,6 @@ public class ChromiumLib extends C {
 			long default_prompt_text);
 
 	public static final native int cefswt_do_message_loop_work();
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 * @param callback
-	 *            cast=(void *)
-	 */
-	public static final native boolean cefswt_eval(long browser, String script,
-			int id, long callback);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_execute(long browser, String script);
-
-	/**
-	 * @param bs
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_free(long bs);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native boolean cefswt_function(long browser,
-			String name, int id);
 
 	/**
 	 * @param msg
@@ -268,33 +242,6 @@ public class ChromiumLib extends C {
 			int id, int port, int returnType, String ret);
 
 	/**
-	 * @param visitor
-	 *            cast=(void *)
-	 */
-	public static final native boolean cefswt_get_cookie(String url,
-			long visitor);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native int cefswt_get_id(long browser);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 * @param visitor
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_get_text(long browser, long visitor);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native long cefswt_get_url(long browser);
-
-	/**
 	 * @param browser
 	 *            cast=(void *)
 	 */
@@ -311,7 +258,8 @@ public class ChromiumLib extends C {
 	 *            cast=(void *)
 	 */
 	public static final native void cefswt_init(long app, String subprocessPath,
-			String cefPath, String tempPath, String userAgentProduct, String locale, int debugPort);
+			String cefPath, String tempPath, String userAgentProduct,
+			String locale, int debugPort);
 
 	/**
 	 * @param frame
@@ -327,41 +275,14 @@ public class ChromiumLib extends C {
 	 */
 	public static final native boolean cefswt_is_same(long browser, long that);
 
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_load_url(long browser, String url,
-			byte[] bytes, int length, String headers, int length2);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_reload(long browser);
+	public static final native void cefswt_register_http_host(String name,
+			long factory);
 
 	/** @method flags=no_gen */
 	public static final native String cefswt_request_to_java(long request);
 
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_resized(long browser, int width,
-			int height);
-
-	public static final native boolean cefswt_set_cookie(String url,
-			String name, String value, String domain, String path, int secure,
-			int httpOnly, double maxAge);
-
-	/**
-	 * @param browser
-	 *            cast=(void *)
-	 * @param shell_hwnd
-	 *            cast=(void *)
-	 */
-	public static final native void cefswt_set_focus(long browser,
-			boolean focus, long shell_hwnd);
+	public static final native void cefswt_set_intptr(long handle_request_ptr,
+			int value);
 
 	/**
 	 * @param windowInfo
@@ -383,7 +304,6 @@ public class ChromiumLib extends C {
 	 * @param browser
 	 *            cast=(void *)
 	 */
-	public static final native void cefswt_stop(long browser);
 
 	/**
 	 * Deallocates memory
@@ -497,6 +417,35 @@ public class ChromiumLib extends C {
 			final long object);
 
 	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_resource_handler_t
+	 */
+	public static final native long deallocate_cef_resource_handler_t(
+			final long object);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by
+	 *            allocate_cef_scheme_handler_factory_t
+	 */
+	public static final native void deallocate_cef_scheme_handler_factory_t(
+			long cefSchemeHandlerFactory);
+
+	/**
+	 * Deallocates memory
+	 * 
+	 * @param object
+	 *            the memory address allocated by allocate_cef_string_visitor_t
+	 */
+	public static final native void deallocate_cef_string_visitor_t(
+			long cefSchemeHandlerFactory);
+
+	/**
 	 * @param dest
 	 *            cast=(void *)
 	 * @param src
@@ -504,22 +453,4 @@ public class ChromiumLib extends C {
 	 */
 	public static final native void memmove(cef_popup_features_t dest,
 			long src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_cookie_visitor_t src);
-
-	/**
-	 * @param dest
-	 *            cast=(void *)
-	 * @param src
-	 *            cast=(const void *),flags=no_out
-	 */
-	public static final native void memmove(long dest,
-			cef_string_visitor_t src);
 }

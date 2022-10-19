@@ -5,20 +5,20 @@
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 #![allow(unused_imports)]
+use crate::ToJava;
 use chromium_jni_macro::FromJava;
+use chromium_jni_macro::JNICEFCallback;
+use chromium_jni_utils::jni_unwrap;
 use chromium_jni_utils::FromJava;
 use chromium_jni_utils::FromJavaMember;
-use chromium_jni_macro::JNICEFCallback;
 use chromium_jni_utils::JNICEFCallback;
 use chromium_jni_utils::JNIWrapperType;
-use jni::JNIEnv;
-use crate::ToJava;
 use jni::objects::GlobalRef;
 use jni::objects::JObject;
-use chromium_jni_utils::jni_unwrap;
+use jni::JNIEnv;
 pub mod win;
-pub use self::win::_cef_window_info_t;
 pub use self::win::_cef_main_args_t;
+pub use self::win::_cef_window_info_t;
 pub type wchar_t = u16;
 pub type char16 = u16;
 pub type time_t = i64;
@@ -5625,7 +5625,7 @@ extern "C" {
 #[doc = " Implement this structure to receive string values asynchronously."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, FromJava, JNICEFCallback)]
 pub struct _cef_string_visitor_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -6281,7 +6281,7 @@ extern "C" {
 #[doc = " structure will always be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava)]
+#[derive(Debug, Copy, Clone, FromJava, JNICEFCallback)]
 pub struct _cef_cookie_visitor_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -11484,7 +11484,7 @@ pub struct _cef_resource_read_callback_t {
 #[doc = " of this structure will be called on the IO thread unless otherwise indicated."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_resource_handler_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -14002,7 +14002,7 @@ pub struct _cef_scheme_registrar_t {
 #[doc = " thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_scheme_handler_factory_t {
     #[doc = ""]
     #[doc = " Base structure."]

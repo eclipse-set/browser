@@ -10,8 +10,6 @@ package org.eclipse.set.browser.lib;
 
 /**
  * JNI Interface for cef_download_item_t-related functions
- * 
- * @author Stuecker
  *
  */
 public class cef_download_item_t {
@@ -25,6 +23,17 @@ public class cef_download_item_t {
 	 */
 	public static native void before_download_callback(final long callback,
 			final String path);
+
+	/**
+	 * @param data_out
+	 *            handle to a byte array
+	 * @param bytes
+	 *            bytes to copy
+	 * @param length
+	 *            number of bytes to copy
+	 */
+	public static final native void cefswt_copy_bytes(long data_out,
+			byte[] bytes, long length);
 
 	/**
 	 * @param download_item
@@ -53,4 +62,5 @@ public class cef_download_item_t {
 	 * @return whether the download was completed
 	 */
 	public static native boolean is_complete(final long download_item);
+
 }

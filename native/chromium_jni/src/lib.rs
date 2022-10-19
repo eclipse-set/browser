@@ -9,7 +9,4 @@
 extern crate chromium_swt;
 
 pub mod allocate;
-pub mod cef_download_item;
-pub mod memmove;
-pub mod sizeof;
 pub mod swt_wrapper;

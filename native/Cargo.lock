@@ -138,7 +138,9 @@ name = "chromium_swt"
 version = "1.0.0"
 dependencies = [
  "chromium",
+ "chromium_jni_macro",
  "chromium_subp",
+ "jni",
  "winapi",
 ]
 

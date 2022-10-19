@@ -24,6 +24,7 @@ import org.eclipse.set.browser.cef.handlers.AppHandler;
 import org.eclipse.set.browser.cef.handlers.CookieVisitor;
 import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.set.browser.lib.ChromiumLib;
+import org.eclipse.set.browser.lib.cef_cookie_visitor_t;
 import org.eclipse.set.browser.swt.WebBrowser;
 import org.eclipse.swt.widgets.Display;
 
@@ -57,12 +58,20 @@ public class ChromiumStatic {
 	private static CookieVisitor cookieVisitor;
 
 	private static MessageLoop messageLoop = new MessageLoop();
+	private static CEFSchemeHandlerFactory schemeHandlerFactory = new CEFSchemeHandlerFactory();
 
 	/**
 	 * @return the message loop
 	 */
 	public static MessageLoop getMessageLoop() {
 		return messageLoop;
+	}
+
+	/**
+	 * @return the schemeHandlerFactory
+	 */
+	public static CEFSchemeHandlerFactory getSchemeHandlerFactory() {
+		return schemeHandlerFactory;
 	}
 
 	/**
@@ -84,34 +93,40 @@ public class ChromiumStatic {
 		}
 	}
 
-	private static String getUserAgentProduct() {
-		return System.getProperty("org.eclipse.set.browser.user-agent-product", "Eclipse SET");
-	}
-
 	private static String getBrowserLocale() {
 		return System.getProperty("org.eclipse.set.browser.locale", "en-US");
 	}
 
 	private static int getDebugPort() {
 		try {
-			return Integer.parseInt(System.getProperty("org.eclipse.set.browser.remote-debugging-port", "0"));
+			return Integer.parseInt(System.getProperty(
+					"org.eclipse.set.browser.remote-debugging-port", "9999"));
 		} catch (final NumberFormatException e) {
 			return 0;
 		}
 	}
 
+	private static String getUserAgentProduct() {
+		return System.getProperty("org.eclipse.set.browser.user-agent-product",
+				"Eclipse SET");
+	}
+
 	private static void setupCookies() {
-		WebBrowser.NativeClearSessions = ChromiumLib::cefswt_delete_cookies;
+		WebBrowser.NativeClearSessions = cef_cookie_visitor_t::cefswt_delete_cookies;
 		WebBrowser.NativeSetCookie = () -> {
-			final List<HttpCookie> cookies = HttpCookie.parse(WebBrowser.CookieValue);
+			final List<HttpCookie> cookies = HttpCookie
+					.parse(WebBrowser.CookieValue);
 			for (final HttpCookie cookie : cookies) {
 				long age = cookie.getMaxAge();
 				if (age != -1) {
 					age = Instant.now().plusSeconds(age).getEpochSecond();
 				}
-				WebBrowser.CookieResult = ChromiumLib.cefswt_set_cookie(WebBrowser.CookieUrl, cookie.getName(),
-						cookie.getValue(), cookie.getDomain(), cookie.getPath(), cookie.getSecure() ? 1 : 0,
-						cookie.isHttpOnly() ? 1 : 0, age);
+				WebBrowser.CookieResult = cef_cookie_visitor_t
+						.cefswt_set_cookie(WebBrowser.CookieUrl,
+								cookie.getName(), cookie.getValue(),
+								cookie.getDomain(), cookie.getPath(),
+								cookie.getSecure() ? 1 : 0,
+								cookie.isHttpOnly() ? 1 : 0, age);
 				break;
 			}
 		};
@@ -125,8 +140,10 @@ public class ChromiumStatic {
 			app = new AppHandler();
 			cookieVisitor = new CookieVisitor();
 
-			ChromiumLib.cefswt_init(app.get(), CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					CEFLibrary.getTempPath(), getUserAgentProduct(), getBrowserLocale(), getDebugPort());
+			ChromiumLib.cefswt_init(app.get(),
+					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
+					CEFLibrary.getTempPath(), getUserAgentProduct(),
+					getBrowserLocale(), getDebugPort());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {

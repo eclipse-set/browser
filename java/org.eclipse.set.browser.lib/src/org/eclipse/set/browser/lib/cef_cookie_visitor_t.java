@@ -13,38 +13,18 @@
  */
 package org.eclipse.set.browser.lib;
 
-import org.eclipse.swt.internal.C;
-
-///
-/// Structure to implement for visiting cookie values. The functions of this
-/// structure will always be called on the IO thread.
-///
 @SuppressWarnings("javadoc")
-public class cef_cookie_visitor_t extends CStruct {
-	public static final int sizeof = ChromiumLib.cef_cookie_visitor_t_sizeof();
-	///
-	/// Base structure.
-	///
-	public cef_base_ref_counted_t base;
+public class cef_cookie_visitor_t {
+	public static final native String cefswt_cookie_to_java(long cookie);
 
-	///
-	/// Method that will be called once for each cookie. |count| is the 0-based
-	/// index for the current cookie. |total| is the total number of cookies.
-	/// Set
-	/// |deleteCookie| to true (1) to delete the cookie currently being visited.
-	/// Return false (0) to stop visiting cookies. This function may never be
-	/// called if no cookies are found.
-	///
-	/** @field cast=(void*) */
-	public long visit;
+	public static final native String cefswt_cookie_value(long cookie);
 
-	public cef_cookie_visitor_t() {
-		base = new cef_base_ref_counted_t(sizeof);
-	}
+	public static final native void cefswt_delete_cookies();
 
-	@Override
-	public void allocate() {
-		ptr = C.malloc(sizeof);
-		ChromiumLib.memmove(ptr, this);
-	}
+	public static final native boolean cefswt_get_cookie(String url,
+			long visitor);
+
+	public static final native boolean cefswt_set_cookie(String url,
+			String name, String value, String domain, String path, int secure,
+			int httpOnly, double maxAge);
 }

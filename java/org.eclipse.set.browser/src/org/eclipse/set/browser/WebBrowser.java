@@ -9,6 +9,7 @@
 package org.eclipse.set.browser;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.Optional;
 
 /**
@@ -33,6 +34,8 @@ public abstract class WebBrowser
 			// Do nothing
 		}
 	};
+	protected HashMap<String, RequestHandler> requestHandlers = new HashMap<>();
+
 	DownloadListener downloadListener = defaultDownloadListener;
 
 	/**
@@ -41,6 +44,17 @@ public abstract class WebBrowser
 	public DownloadListener getDownloadListener() {
 		return downloadListener;
 	}
+
+	/**
+	 * Registers a request handler to handle https://hostname requests.
+	 * 
+	 * @param hostname
+	 *            the hostname to handle queries for
+	 * @param handler
+	 *            the handler
+	 */
+	public abstract void registerRequestHandler(final String hostname,
+			final RequestHandler handler);
 
 	/**
 	 * @param listener

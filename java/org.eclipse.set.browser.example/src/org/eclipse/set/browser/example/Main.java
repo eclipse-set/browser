@@ -98,6 +98,22 @@ public class Main {
 		data.grabExcessVerticalSpace = true;
 		browser.setLayoutData(data);
 
+		// Example for host handlers
+		browser.registerRequestHandler("toolbox", (request, response) -> {
+			response.setMimeType("text/html");
+			if (request.getURL().endsWith("home")) {
+				response.setResponseData(
+						"""
+								Hello from host handler!
+								<br/>
+								<a href="https://projects.eclipse.org/projects/technology.set">Eclipse SET Project</a>
+								""");
+			} else {
+				response.setResponseData("404 - Page not found!");
+			}
+
+		});
+
 		final Label status = new Label(shell, SWT.NONE);
 		data = new GridData(GridData.FILL_HORIZONTAL);
 		data.horizontalSpan = 2;
@@ -154,7 +170,7 @@ public class Main {
 				e -> browser.setUrl(location.getText()));
 
 		shell.open();
-		browser.setUrl("http://eclipse.org");
+		browser.setUrl("http://toolbox/home");
 
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch()) {

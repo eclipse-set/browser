@@ -35,11 +35,23 @@ public class Browser extends org.eclipse.set.browser.swt.Browser {
 	}
 
 	/**
+	 * Registers a request handler to handle https://hostname requests.
+	 * 
+	 * @param hostname
+	 *            the hostname to handle queries for
+	 * @param handler
+	 *            the handler
+	 */
+	public void registerRequestHandler(final String hostname,
+			final RequestHandler handler) {
+		webBrowser.registerRequestHandler(hostname, handler);
+	}
+
+	/**
 	 * @param listener
 	 *            the new download listener
 	 */
 	public void setDownloadListener(final DownloadListener listener) {
 		webBrowser.setDownloadListener(listener);
 	}
-
 }

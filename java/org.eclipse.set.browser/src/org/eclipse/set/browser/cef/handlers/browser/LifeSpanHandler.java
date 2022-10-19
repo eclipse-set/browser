@@ -12,6 +12,7 @@ import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.cef.ChromiumStatic;
 import org.eclipse.set.browser.cef.MessageLoop;
 import org.eclipse.set.browser.lib.ChromiumLib;
+import org.eclipse.set.browser.lib.cef_browser_t;
 
 /**
  * Java Handler for cef_life_span_handler_t
@@ -56,7 +57,6 @@ public class LifeSpanHandler {
 		if (id != 0) {
 			ChromiumStatic.browsers.incrementAndGet();
 		}
-
 		browser.on_after_created(id);
 	}
 
@@ -67,11 +67,11 @@ public class LifeSpanHandler {
 			final long browser) {
 		try {
 
-			final int id = ChromiumLib.cefswt_get_id(browser);
+			final int id = cef_browser_t.cefswt_get_id(browser);
 			ChromiumStatic.instances.remove(id).on_before_close(browser);
 			final int decrementAndGet = ChromiumStatic.browsers
 					.decrementAndGet();
-			ChromiumLib.cefswt_free(browser);
+			cef_browser_t.cefswt_free(browser);
 			ChromiumStatic.disposingAny--;
 			if (decrementAndGet == 0 && ChromiumStatic.shuttingDown) {
 				ChromiumStatic.shutdown();

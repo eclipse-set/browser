@@ -15,12 +15,6 @@ mod jni_name;
 mod jni_wrap_impl;
 mod utils;
 
-/// See jni_wrap_impl.rs
-#[proc_macro]
-pub fn jni_wrap(tokens: TokenStream) -> TokenStream {
-    jni_wrap_impl::jni_wrap_impl(tokens)
-}
-
 /// See derive_from_java_impl.rs
 #[proc_macro_derive(FromJava)]
 pub fn from_java_derive(tokens: TokenStream) -> TokenStream {
@@ -36,4 +30,9 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
 #[proc_macro_attribute]
 pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
     jni_name::jni_name(attr.into(), item.into()).into()
+}
+
+#[proc_macro_attribute]
+pub fn jni_wrapper(attr: TokenStream, item: TokenStream) -> TokenStream {
+    jni_wrap_impl::jni_wrap_attr_impl(attr.into(), item.into()).into()
 }

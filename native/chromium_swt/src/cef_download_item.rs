@@ -7,12 +7,15 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 use chromium_jni_macro::jni_name;
+use chromium_jni_macro::jni_wrapper;
 use jni::objects::JClass;
 use jni::objects::JString;
 use jni::sys::jboolean;
 use jni::sys::jstring;
 use jni::JNIEnv;
+use std::ffi::c_void;
 use std::ffi::CStr;
+use std::os::raw::c_char;
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn get_full_path(
@@ -22,7 +25,7 @@ pub unsafe extern "C" fn get_full_path(
 ) -> jstring {
     let path = (*item).get_full_path.unwrap()(item);
 
-    let value = CStr::from_ptr(chromium_swt::cefswt_cefstring_to_java(path));
+    let value = CStr::from_ptr(crate::cefswt_cefstring_to_java(path));
     return env
         .new_string(value.to_str().unwrap())
         .unwrap()
@@ -54,7 +57,7 @@ pub unsafe extern "C" fn get_url(
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jstring {
     let url = (*item).get_url.unwrap()(item);
-    let value = CStr::from_ptr(chromium_swt::cefswt_cefstring_to_java(url));
+    let value = CStr::from_ptr(crate::cefswt_cefstring_to_java(url));
     return env
         .new_string(value.to_str().unwrap())
         .unwrap()
@@ -76,4 +79,18 @@ pub unsafe extern "C" fn before_download_callback(
     (*callback).cont.unwrap()(callback, &path, 0);
 
     _env.release_string_utf_chars(jpath, rpath).unwrap();
+}
+
+#[jni_wrapper("org.eclipse.set.browser.lib.cef_download_item_t")]
+pub fn cefswt_copy_bytes(destination: *mut i8, source: *const c_void, count: usize) {
+    unsafe {
+        std::ptr::copy(source as *const c_char, destination, count);
+    }
+}
+
+#[jni_wrapper("org.eclipse.set.browser.lib.cef_download_item_t")]
+pub fn cefswt_response_set_status_code(response: *mut chromium::cef::cef_response_t, status: i32) {
+    unsafe {
+        (*response).set_status.unwrap()(response, status);
+    }
 }

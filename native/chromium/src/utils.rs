@@ -77,3 +77,16 @@ pub fn cstr_from_cef(cefstring: *const cef::cef_string_t) -> *mut c_char {
     unsafe { cef::cef_string_utf16_to_utf8((*cefstring).str_, (*cefstring).length, utf8) };
     unsafe { (*utf8).str_ }
 }
+
+pub fn str_from_cef(cefstring: *const cef::cef_string_t) -> String {
+    if cefstring.is_null() {
+        return "".to_string();
+    }
+    let utf8 = unsafe { cef::cef_string_userfree_utf8_alloc() };
+    unsafe { cef::cef_string_utf16_to_utf8((*cefstring).str_, (*cefstring).length, utf8) };
+    let str = unsafe { CStr::from_ptr((*utf8).str_).to_str().unwrap().to_owned() };
+    unsafe {
+        cef::cef_string_userfree_utf8_free(utf8);
+    }
+    return str;
+}

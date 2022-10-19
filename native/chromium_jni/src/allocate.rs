@@ -15,7 +15,7 @@ use jni::sys::jlong;
 use jni::JNIEnv;
 
 /// Implements a JNI function allocate_[typename] which allocates a type on the heap and returns its
-/// address. Must be freed manually!
+/// address. Must be freed manually (via jni_deallocate)!
 macro_rules! jni_allocate {
     ($name:tt, $type:ty) => {
         #[jni_name($name, $type)]
@@ -60,3 +60,7 @@ jni_structure!(chromium::cef::_cef_load_handler_t);
 jni_structure!(chromium::cef::_cef_request_handler_t);
 jni_structure!(chromium::cef::_cef_display_handler_t);
 jni_structure!(chromium::cef::_cef_download_handler_t);
+jni_structure!(chromium::cef::_cef_resource_handler_t);
+jni_structure!(chromium::cef::_cef_scheme_handler_factory_t);
+jni_structure!(chromium::cef::_cef_cookie_visitor_t);
+jni_structure!(chromium::cef::_cef_string_visitor_t);

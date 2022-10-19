@@ -129,19 +129,17 @@ impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
             "_cef_client_t",
             "_cef_browser_process_handler_t",
             "_cef_download_handler_t",
+            "_cef_string_visitor_t",
+            "_cef_cookie_visitor_t",
+            "_cef_resource_handler_t",
+            "_cef_scheme_handler_factory_t",
         ]
         .contains(&name)
         {
             return vec!["JNICEFCallback".into()];
         }
 
-        if vec![
-            "_cef_string_visitor_t",
-            "_cef_cookie_visitor_t",
-            "_cef_base_ref_counted_t",
-        ]
-        .contains(&name)
-        {
+        if vec!["_cef_base_ref_counted_t"].contains(&name) {
             return vec!["FromJava".into()];
         }
 
