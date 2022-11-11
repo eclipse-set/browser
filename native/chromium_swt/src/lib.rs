@@ -285,9 +285,11 @@ pub fn cefswt_register_http_host(
     factory: *mut cef::_cef_scheme_handler_factory_t,
 ) {
     unsafe {
-        let http = chromium::utils::cef_string("https");
+        let https = chromium::utils::cef_string("https");
+        let http = chromium::utils::cef_string("http");
         let name = chromium::utils::cef_string_from_c(name);
         cef::cef_register_scheme_handler_factory(&http, &name, factory);
+        cef::cef_register_scheme_handler_factory(&https, &name, factory);
     }
 }
 

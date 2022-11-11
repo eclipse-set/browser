@@ -52,8 +52,8 @@ public class ResourceHandler {
 		@Override
 		public void setHeader(final String headerName,
 				final String headerValue) {
-			// TODO Auto-generated method stub
-
+			cef_response_t.cefswt_response_set_header(cefResponse, headerName,
+					headerValue);
 		}
 
 		@Override

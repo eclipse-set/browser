@@ -33,3 +33,20 @@ pub fn cefswt_response_set_status_code(response: *mut chromium::cef::cef_respons
         (*response).set_status.unwrap()(response, status);
     }
 }
+
+#[jni_wrapper("org.eclipse.set.browser.lib.cef_response_t")]
+pub fn cefswt_response_set_header(
+    response: *mut chromium::cef::cef_response_t,
+    name: *const c_char,
+    value: *const c_char,
+) {
+    unsafe {
+        let name = chromium::utils::str_from_c(name);
+        let name = chromium::utils::cef_string(name);
+
+        let value = chromium::utils::str_from_c(value);
+        let value = chromium::utils::cef_string(value);
+
+        (*response).set_header_by_name.unwrap()(response, &name, &value, 1);
+    }
+}

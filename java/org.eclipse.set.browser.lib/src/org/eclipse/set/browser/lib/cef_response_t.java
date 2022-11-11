@@ -14,6 +14,17 @@ package org.eclipse.set.browser.lib;
  */
 public class cef_response_t {
 	/**
+	 * @param response
+	 *            response handle
+	 * @param name
+	 *            header name
+	 * @param value
+	 *            header value
+	 */
+	public static final native void cefswt_response_set_header(long response,
+			String name, String value);
+
+	/**
 	 * @param cef_response
 	 *            response handle
 	 * @param mime
@@ -30,5 +41,4 @@ public class cef_response_t {
 	 */
 	public static final native void cefswt_response_set_status_code(
 			long response, int status);
-
 }
