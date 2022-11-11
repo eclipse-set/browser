@@ -1,6 +1,6 @@
 # Eclipse SET Browser Component
 
-This repository contains the embedded browser component for the Eclipse Signalling Engineering Toolbox (Eclipse SET) based on the Chromium Embedded Framework. This component is based upon an older component which was formerly integrated into the [Eclipse Platform](https://projects.eclipse.org/projects/eclipse.platform). It provides a simple to use and modern (Chromium 104+) embedded web browser component for SWT. 
+This repository contains the embedded browser component for the Eclipse Signalling Engineering Toolbox (Eclipse SET) based on the Chromium Embedded Framework. This component is based upon an older component which was formerly integrated into the [Eclipse Platform](https://projects.eclipse.org/projects/eclipse.platform). It provides a simple to use and modern (Chromium 107+) embedded web browser component for SWT. 
 
 ## Usage within Eclipse SET
 
@@ -25,7 +25,11 @@ After doing so, you can use the `org.eclipse.set.browser.Browser` class to creat
 
 **Note**: While we attempt to keep the browser up to date as much as possible, there may be delays towards getting a new CEF/Chromium version into this component. As a result we highly suggest to not use this browser component with untrusted websites (e.g. the internet). 
 
-The current CEF/Chromium version can be found in `CEF_VERSION.txt`. 
+The CEF/Chromium version being used can be found in `CEF_VERSION.txt`.
+
+### Supported Platforms
+
+Currently only Windows x64 is supported.
 
 ## Build Instructions
 
