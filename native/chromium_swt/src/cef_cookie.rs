@@ -74,8 +74,12 @@ pub fn cefswt_set_cookie(
         millisecond: 0,
     };
 
-    if max_age == -1.0 {
-        unsafe { chromium::cef::cef_time_from_doublet(max_age, &mut expires) };
+    let mut expires_bt = chromium::cef::cef_basetime_t { val: 0 };
+    if max_age != -1.0 {
+        unsafe {
+            chromium::cef::cef_time_from_doublet(max_age, &mut expires);
+            chromium::cef::cef_time_to_basetime(&expires, &mut expires_bt);
+        };
     }
 
     let cookie = chromium::cef::_cef_cookie_t {
@@ -85,10 +89,16 @@ pub fn cefswt_set_cookie(
         path,
         secure,
         httponly,
+        creation: chromium::cef::cef_basetime_t {
+            val: expires_bt.val,
+        },
+        last_access: chromium::cef::cef_basetime_t {
+            val: expires_bt.val,
+        },
         has_expires,
-        expires,
-        creation: expires,
-        last_access: expires,
+        expires: chromium::cef::cef_basetime_t {
+            val: expires_bt.val,
+        },
         same_site: chromium::cef::cef_cookie_same_site_t::CEF_COOKIE_SAME_SITE_NO_RESTRICTION,
         priority: chromium::cef::cef_cookie_priority_t::CEF_COOKIE_PRIORITY_MEDIUM,
     };

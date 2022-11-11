@@ -5,20 +5,20 @@
 #![allow(non_camel_case_types)]
 #![allow(non_upper_case_globals)]
 #![allow(unused_imports)]
-use crate::ToJava;
 use chromium_jni_macro::FromJava;
-use chromium_jni_macro::JNICEFCallback;
-use chromium_jni_utils::jni_unwrap;
 use chromium_jni_utils::FromJava;
 use chromium_jni_utils::FromJavaMember;
+use chromium_jni_macro::JNICEFCallback;
 use chromium_jni_utils::JNICEFCallback;
 use chromium_jni_utils::JNIWrapperType;
+use jni::JNIEnv;
+use crate::ToJava;
 use jni::objects::GlobalRef;
 use jni::objects::JObject;
-use jni::JNIEnv;
+use chromium_jni_utils::jni_unwrap;
 pub mod win;
-pub use self::win::_cef_main_args_t;
 pub use self::win::_cef_window_info_t;
+pub use self::win::_cef_main_args_t;
 pub type wchar_t = u16;
 pub type char16 = u16;
 pub type time_t = i64;
@@ -27,12 +27,14 @@ pub type uint64 = ::std::os::raw::c_ulonglong;
 
 pub type int32 = ::std::os::raw::c_int;
 pub type uint32 = ::std::os::raw::c_uint;
+#[doc = ""]
 #[doc = " CEF string type definitions. Whomever allocates |str| is responsible for"]
 #[doc = " providing an appropriate |dtor| implementation that will free the string in"]
 #[doc = " the same memory space. When reusing an existing string structure make sure"]
 #[doc = " to call |dtor| for the old value before assigning new |str| and |dtor|"]
 #[doc = " values. Static strings will have a NULL |dtor| value. Using the below"]
 #[doc = " functions if you want this managed for you."]
+#[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_string_wide_t {
@@ -40,12 +42,14 @@ pub struct _cef_string_wide_t {
     pub length: usize,
     pub dtor: ::std::option::Option<unsafe extern "C" fn(str_: *mut wchar_t)>,
 }
+#[doc = ""]
 #[doc = " CEF string type definitions. Whomever allocates |str| is responsible for"]
 #[doc = " providing an appropriate |dtor| implementation that will free the string in"]
 #[doc = " the same memory space. When reusing an existing string structure make sure"]
 #[doc = " to call |dtor| for the old value before assigning new |str| and |dtor|"]
 #[doc = " values. Static strings will have a NULL |dtor| value. Using the below"]
 #[doc = " functions if you want this managed for you."]
+#[doc = ""]
 pub type cef_string_wide_t = _cef_string_wide_t;
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -175,8 +179,8 @@ extern "C" {
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " These functions convert an ASCII string, typically a hardcoded constant, to a"]
-    #[doc = " Wide/UTF16 string. Use instead of the UTF8 conversion routines if you know"]
+    #[doc = " These functions convert an ASCII string, typically a hardcoded constant, to"]
+    #[doc = " a Wide/UTF16 string. Use instead of the UTF8 conversion routines if you know"]
     #[doc = " the string is ASCII."]
     #[doc = ""]
     pub fn cef_string_ascii_to_wide(
@@ -288,6 +292,10 @@ pub struct _cef_size_t {
 #[doc = ""]
 pub type cef_size_t = _cef_size_t;
 #[doc = ""]
+#[doc = " Structure representing CefExecuteProcess arguments."]
+#[doc = ""]
+pub type cef_main_args_t = _cef_main_args_t;
+#[doc = ""]
 #[doc = " Structure representing window information."]
 #[doc = ""]
 pub type cef_window_info_t = _cef_window_info_t;
@@ -343,28 +351,63 @@ extern "C" {
     pub fn cef_string_list_copy(list: cef_string_list_t) -> cef_string_list_t;
 }
 #[doc = ""]
+#[doc = " Represents a wall clock time in UTC. Values are not guaranteed to be"]
+#[doc = " monotonically non-decreasing and are subject to large amounts of skew."]
+#[doc = " Time is stored internally as microseconds since the Windows epoch (1601)."]
+#[doc = ""]
+#[doc = " This is equivalent of Chromium `base::Time` (see base/time/time.h)."]
+#[doc = ""]
+#[repr(C)]
+pub struct _cef_basetime_t {
+    pub val: int64,
+}
+#[doc = ""]
+#[doc = " Represents a wall clock time in UTC. Values are not guaranteed to be"]
+#[doc = " monotonically non-decreasing and are subject to large amounts of skew."]
+#[doc = " Time is stored internally as microseconds since the Windows epoch (1601)."]
+#[doc = ""]
+#[doc = " This is equivalent of Chromium `base::Time` (see base/time/time.h)."]
+#[doc = ""]
+pub type cef_basetime_t = _cef_basetime_t;
+#[doc = ""]
 #[doc = " Time information. Values should always be in UTC."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_time_t {
-    #[doc = " Four or five digit year \"2007\" (1601 to 30827 on"]
-    #[doc = "   Windows, 1970 to 2038 on 32-bit POSIX)"]
+    #[doc = ""]
+    #[doc = " Four or five digit year \"2007\" (1601 to 30827 on Windows, 1970 to 2038 on"]
+    #[doc = " 32-bit POSIX)"]
+    #[doc = ""]
     pub year: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " 1-based month (values 1 = January, etc.)"]
+    #[doc = ""]
     pub month: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " 0-based day of week (0 = Sunday, etc.)"]
+    #[doc = ""]
     pub day_of_week: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " 1-based day of month (1-31)"]
+    #[doc = ""]
     pub day_of_month: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " Hour within the current day (0-23)"]
+    #[doc = ""]
     pub hour: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " Minute within the current hour (0-59)"]
+    #[doc = ""]
     pub minute: ::std::os::raw::c_int,
-    #[doc = " Second within the current minute (0-59 plus leap"]
-    #[doc = "   seconds which may take it up to 60)."]
+    #[doc = ""]
+    #[doc = " Second within the current minute (0-59 plus leap seconds which may take"]
+    #[doc = " it up to 60)."]
+    #[doc = ""]
     pub second: ::std::os::raw::c_int,
+    #[doc = ""]
     #[doc = " Milliseconds within the current second (0-999)"]
+    #[doc = ""]
     pub millisecond: ::std::os::raw::c_int,
 }
 #[doc = ""]
@@ -373,8 +416,8 @@ pub struct _cef_time_t {
 pub type cef_time_t = _cef_time_t;
 extern "C" {
     #[doc = ""]
-    #[doc = " Converts cef_time_t to/from time_t. Returns true (1) on success and false (0)"]
-    #[doc = " on failure."]
+    #[doc = " Converts cef_time_t to/from time_t. Returns true (1) on success and false"]
+    #[doc = " (0) on failure."]
     #[doc = ""]
     pub fn cef_time_to_timet(
         cef_time: *const cef_time_t,
@@ -401,18 +444,46 @@ extern "C" {
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " Retrieve the current system time."]
+    #[doc = " Retrieve the current system time. Returns true (1) on success and false (0)"]
+    #[doc = " on failure."]
     #[doc = ""]
     pub fn cef_time_now(cef_time: *mut cef_time_t) -> ::std::os::raw::c_int;
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " Retrieve the delta in milliseconds between two time values."]
+    #[doc = " Retrieve the current system time."]
+    #[doc = ""]
+    pub fn cef_basetime_now() -> cef_basetime_t;
+}
+extern "C" {
+    #[doc = ""]
+    #[doc = " Retrieve the delta in milliseconds between two time values. Returns true (1)"]
+    #[doc = " on success and false (0) on failure."]
     #[doc = ""]
     pub fn cef_time_delta(
         cef_time1: *const cef_time_t,
         cef_time2: *const cef_time_t,
         delta: *mut ::std::os::raw::c_longlong,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[doc = ""]
+    #[doc = " Converts cef_time_t to cef_basetime_t. Returns true (1) on success and"]
+    #[doc = " false (0) on failure."]
+    #[doc = ""]
+    pub fn cef_time_to_basetime(
+        from: *const cef_time_t,
+        to: *mut cef_basetime_t,
+    ) -> ::std::os::raw::c_int;
+}
+extern "C" {
+    #[doc = ""]
+    #[doc = " Converts cef_basetime_t to cef_time_t. Returns true (1) on success and"]
+    #[doc = " false (0) on failure."]
+    #[doc = ""]
+    pub fn cef_time_from_basetime(
+        from: cef_basetime_t,
+        to: *mut cef_time_t,
     ) -> ::std::os::raw::c_int;
 }
 #[doc = " 32-bit ARGB color value, not premultiplied. The color components are always"]
@@ -496,12 +567,13 @@ pub struct _cef_settings_t {
     pub no_sandbox: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " The path to a separate executable that will be launched for sub-processes."]
-    #[doc = " If this value is empty on Windows or Linux then the main process executable"]
-    #[doc = " will be used. If this value is empty on macOS then a helper executable must"]
-    #[doc = " exist at \"Contents/Frameworks/<app> Helper.app/Contents/MacOS/<app> Helper\""]
-    #[doc = " in the top-level app bundle. See the comments on CefExecuteProcess() for"]
-    #[doc = " details. If this value is non-empty then it must be an absolute path. Also"]
-    #[doc = " configurable using the \"browser-subprocess-path\" command-line switch."]
+    #[doc = " If this value is empty on Windows or Linux then the main process"]
+    #[doc = " executable will be used. If this value is empty on macOS then a helper"]
+    #[doc = " executable must exist at \"Contents/Frameworks/<app>"]
+    #[doc = " Helper.app/Contents/MacOS/<app> Helper\" in the top-level app bundle. See"]
+    #[doc = " the comments on CefExecuteProcess() for details. If this value is"]
+    #[doc = " non-empty then it must be an absolute path. Also configurable using the"]
+    #[doc = " \"browser-subprocess-path\" command-line switch."]
     #[doc = ""]
     pub browser_subprocess_path: cef_string_t,
     #[doc = ""]
@@ -520,33 +592,34 @@ pub struct _cef_settings_t {
     #[doc = ""]
     pub main_bundle_path: cef_string_t,
     #[doc = ""]
-    #[doc = " Set to true (1) to enable use of the Chrome runtime in CEF. This feature is"]
-    #[doc = " considered experimental and is not recommended for most users at this time."]
-    #[doc = " See issue #2969 for details."]
+    #[doc = " Set to true (1) to enable use of the Chrome runtime in CEF. This feature"]
+    #[doc = " is considered experimental and is not recommended for most users at this"]
+    #[doc = " time. See issue #2969 for details."]
     #[doc = ""]
     pub chrome_runtime: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " Set to true (1) to have the browser process message loop run in a separate"]
     #[doc = " thread. If false (0) then the CefDoMessageLoopWork() function must be"]
-    #[doc = " called from your application message loop. This option is only supported on"]
-    #[doc = " Windows and Linux."]
+    #[doc = " called from your application message loop. This option is only supported"]
+    #[doc = " on Windows and Linux."]
     #[doc = ""]
     pub multi_threaded_message_loop: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " Set to true (1) to control browser process main (UI) thread message pump"]
     #[doc = " scheduling via the CefBrowserProcessHandler::OnScheduleMessagePumpWork()"]
     #[doc = " callback. This option is recommended for use in combination with the"]
-    #[doc = " CefDoMessageLoopWork() function in cases where the CEF message loop must be"]
-    #[doc = " integrated into an existing application message loop (see additional"]
-    #[doc = " comments and warnings on CefDoMessageLoopWork). Enabling this option is not"]
-    #[doc = " recommended for most users; leave this option disabled and use either the"]
-    #[doc = " CefRunMessageLoop() function or multi_threaded_message_loop if possible."]
+    #[doc = " CefDoMessageLoopWork() function in cases where the CEF message loop must"]
+    #[doc = " be integrated into an existing application message loop (see additional"]
+    #[doc = " comments and warnings on CefDoMessageLoopWork). Enabling this option is"]
+    #[doc = " not recommended for most users; leave this option disabled and use either"]
+    #[doc = " the CefRunMessageLoop() function or multi_threaded_message_loop if"]
+    #[doc = " possible."]
     #[doc = ""]
     pub external_message_pump: ::std::os::raw::c_int,
     #[doc = ""]
-    #[doc = " Set to true (1) to enable windowless (off-screen) rendering support. Do not"]
-    #[doc = " enable this value if the application does not use windowless rendering as"]
-    #[doc = " it may reduce rendering performance on some systems."]
+    #[doc = " Set to true (1) to enable windowless (off-screen) rendering support. Do"]
+    #[doc = " not enable this value if the application does not use windowless rendering"]
+    #[doc = " as it may reduce rendering performance on some systems."]
     #[doc = ""]
     pub windowless_rendering_enabled: ::std::os::raw::c_int,
     #[doc = ""]
@@ -560,13 +633,13 @@ pub struct _cef_settings_t {
     #[doc = " The location where data for the global browser cache will be stored on"]
     #[doc = " disk. If this value is non-empty then it must be an absolute path that is"]
     #[doc = " either equal to or a child directory of CefSettings.root_cache_path. If"]
-    #[doc = " this value is empty then browsers will be created in \"incognito mode\" where"]
-    #[doc = " in-memory caches are used for storage and no data is persisted to disk."]
-    #[doc = " HTML5 databases such as localStorage will only persist across sessions if a"]
-    #[doc = " cache path is specified. Can be overridden for individual CefRequestContext"]
-    #[doc = " instances via the CefRequestContextSettings.cache_path value. When using"]
-    #[doc = " the Chrome runtime the \"default\" profile will be used if |cache_path| and"]
-    #[doc = " |root_cache_path| have the same value."]
+    #[doc = " this value is empty then browsers will be created in \"incognito mode\""]
+    #[doc = " where in-memory caches are used for storage and no data is persisted to"]
+    #[doc = " disk. HTML5 databases such as localStorage will only persist across"]
+    #[doc = " sessions if a cache path is specified. Can be overridden for individual"]
+    #[doc = " CefRequestContext instances via the CefRequestContextSettings.cache_path"]
+    #[doc = " value. When using the Chrome runtime the \"default\" profile will be used if"]
+    #[doc = " |cache_path| and |root_cache_path| have the same value."]
     #[doc = ""]
     pub cache_path: cef_string_t,
     #[doc = ""]
@@ -592,9 +665,9 @@ pub struct _cef_settings_t {
     pub user_data_path: cef_string_t,
     #[doc = ""]
     #[doc = " To persist session cookies (cookies without an expiry date or validity"]
-    #[doc = " interval) by default when using the global cookie manager set this value to"]
-    #[doc = " true (1). Session cookies are generally intended to be transient and most"]
-    #[doc = " Web browsers do not persist them. A |cache_path| value must also be"]
+    #[doc = " interval) by default when using the global cookie manager set this value"]
+    #[doc = " to true (1). Session cookies are generally intended to be transient and"]
+    #[doc = " most Web browsers do not persist them. A |cache_path| value must also be"]
     #[doc = " specified to enable this feature. Also configurable using the"]
     #[doc = " \"persist-session-cookies\" command-line switch. Can be overridden for"]
     #[doc = " individual CefRequestContext instances via the"]
@@ -625,19 +698,19 @@ pub struct _cef_settings_t {
     pub user_agent_product: cef_string_t,
     #[doc = ""]
     #[doc = " The locale string that will be passed to WebKit. If empty the default"]
-    #[doc = " locale of \"en-US\" will be used. This value is ignored on Linux where locale"]
-    #[doc = " is determined using environment variable parsing with the precedence order:"]
-    #[doc = " LANGUAGE, LC_ALL, LC_MESSAGES and LANG. Also configurable using the \"lang\""]
-    #[doc = " command-line switch."]
+    #[doc = " locale of \"en-US\" will be used. This value is ignored on Linux where"]
+    #[doc = " locale is determined using environment variable parsing with the"]
+    #[doc = " precedence order: LANGUAGE, LC_ALL, LC_MESSAGES and LANG. Also"]
+    #[doc = " configurable using the \"lang\" command-line switch."]
     #[doc = ""]
     pub locale: cef_string_t,
     #[doc = ""]
     #[doc = " The directory and file name to use for the debug log. If empty a default"]
-    #[doc = " log file name and location will be used. On Windows and Linux a \"debug.log\""]
-    #[doc = " file will be written in the main executable directory. On MacOS a"]
-    #[doc = " \"~/Library/Logs/<app name>_debug.log\" file will be written where <app name>"]
-    #[doc = " is the name of the main app executable. Also configurable using the"]
-    #[doc = " \"log-file\" command-line switch."]
+    #[doc = " log file name and location will be used. On Windows and Linux a"]
+    #[doc = " \"debug.log\" file will be written in the main executable directory. On"]
+    #[doc = " MacOS a \"~/Library/Logs/[app name]_debug.log\" file will be written where"]
+    #[doc = " [app name] is the name of the main app executable. Also configurable using"]
+    #[doc = " the \"log-file\" command-line switch."]
     #[doc = ""]
     pub log_file: cef_string_t,
     #[doc = ""]
@@ -672,11 +745,11 @@ pub struct _cef_settings_t {
     #[doc = ""]
     pub locales_dir_path: cef_string_t,
     #[doc = ""]
-    #[doc = " Set to true (1) to disable loading of pack files for resources and locales."]
-    #[doc = " A resource bundle handler must be provided for the browser and render"]
-    #[doc = " processes via CefApp::GetResourceBundleHandler() if loading of pack files"]
-    #[doc = " is disabled. Also configurable using the \"disable-pack-loading\" command-"]
-    #[doc = " line switch."]
+    #[doc = " Set to true (1) to disable loading of pack files for resources and"]
+    #[doc = " locales. A resource bundle handler must be provided for the browser and"]
+    #[doc = " render processes via CefApp::GetResourceBundleHandler() if loading of pack"]
+    #[doc = " files is disabled. Also configurable using the \"disable-pack-loading\""]
+    #[doc = " command- line switch."]
     #[doc = ""]
     pub pack_loading_disabled: ::std::os::raw::c_int,
     #[doc = ""]
@@ -690,21 +763,22 @@ pub struct _cef_settings_t {
     pub remote_debugging_port: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " The number of stack trace frames to capture for uncaught exceptions."]
-    #[doc = " Specify a positive value to enable the CefRenderProcessHandler::"]
-    #[doc = " OnUncaughtException() callback. Specify 0 (default value) and"]
-    #[doc = " OnUncaughtException() will not be called. Also configurable using the"]
-    #[doc = " \"uncaught-exception-stack-size\" command-line switch."]
+    #[doc = " Specify a positive value to enable the"]
+    #[doc = " CefRenderProcessHandler::OnUncaughtException() callback. Specify 0"]
+    #[doc = " (default value) and OnUncaughtException() will not be called. Also"]
+    #[doc = " configurable using the \"uncaught-exception-stack-size\" command-line"]
+    #[doc = " switch."]
     #[doc = ""]
     pub uncaught_exception_stack_size: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " Background color used for the browser before a document is loaded and when"]
     #[doc = " no document color is specified. The alpha component must be either fully"]
     #[doc = " opaque (0xFF) or fully transparent (0x00). If the alpha component is fully"]
-    #[doc = " opaque then the RGB components will be used as the background color. If the"]
-    #[doc = " alpha component is fully transparent for a windowed browser then the"]
+    #[doc = " opaque then the RGB components will be used as the background color. If"]
+    #[doc = " the alpha component is fully transparent for a windowed browser then the"]
     #[doc = " default value of opaque white be used. If the alpha component is fully"]
-    #[doc = " transparent for a windowless (off-screen) browser then transparent painting"]
-    #[doc = " will be enabled."]
+    #[doc = " transparent for a windowless (off-screen) browser then transparent"]
+    #[doc = " painting will be enabled."]
     #[doc = ""]
     pub background_color: cef_color_t,
     #[doc = ""]
@@ -718,9 +792,9 @@ pub struct _cef_settings_t {
     pub accept_language_list: cef_string_t,
     #[doc = ""]
     #[doc = " Comma delimited list of schemes supported by the associated"]
-    #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0) the"]
-    #[doc = " default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be supported."]
-    #[doc = " Specifying a |cookieable_schemes_list| value and setting"]
+    #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0)"]
+    #[doc = " the default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be"]
+    #[doc = " supported. Specifying a |cookieable_schemes_list| value and setting"]
     #[doc = " |cookieable_schemes_exclude_defaults| to true (1) will disable all loading"]
     #[doc = " and saving of cookies for this manager. Can be overridden"]
     #[doc = " for individual CefRequestContext instances via the"]
@@ -745,18 +819,19 @@ pub struct _cef_request_context_settings_t {
     #[doc = " The location where cache data for this request context will be stored on"]
     #[doc = " disk. If this value is non-empty then it must be an absolute path that is"]
     #[doc = " either equal to or a child directory of CefSettings.root_cache_path. If"]
-    #[doc = " this value is empty then browsers will be created in \"incognito mode\" where"]
-    #[doc = " in-memory caches are used for storage and no data is persisted to disk."]
-    #[doc = " HTML5 databases such as localStorage will only persist across sessions if a"]
-    #[doc = " cache path is specified. To share the global browser cache and related"]
-    #[doc = " configuration set this value to match the CefSettings.cache_path value."]
+    #[doc = " this value is empty then browsers will be created in \"incognito mode\""]
+    #[doc = " where in-memory caches are used for storage and no data is persisted to"]
+    #[doc = " disk. HTML5 databases such as localStorage will only persist across"]
+    #[doc = " sessions if a cache path is specified. To share the global browser cache"]
+    #[doc = " and related configuration set this value to match the"]
+    #[doc = " CefSettings.cache_path value."]
     #[doc = ""]
     pub cache_path: cef_string_t,
     #[doc = ""]
     #[doc = " To persist session cookies (cookies without an expiry date or validity"]
-    #[doc = " interval) by default when using the global cookie manager set this value to"]
-    #[doc = " true (1). Session cookies are generally intended to be transient and most"]
-    #[doc = " Web browsers do not persist them. Can be set globally using the"]
+    #[doc = " interval) by default when using the global cookie manager set this value"]
+    #[doc = " to true (1). Session cookies are generally intended to be transient and"]
+    #[doc = " most Web browsers do not persist them. Can be set globally using the"]
     #[doc = " CefSettings.persist_session_cookies value. This value will be ignored if"]
     #[doc = " |cache_path| is empty or if it matches the CefSettings.cache_path value."]
     #[doc = ""]
@@ -779,9 +854,9 @@ pub struct _cef_request_context_settings_t {
     pub accept_language_list: cef_string_t,
     #[doc = ""]
     #[doc = " Comma delimited list of schemes supported by the associated"]
-    #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0) the"]
-    #[doc = " default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be supported."]
-    #[doc = " Specifying a |cookieable_schemes_list| value and setting"]
+    #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0)"]
+    #[doc = " the default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be"]
+    #[doc = " supported. Specifying a |cookieable_schemes_list| value and setting"]
     #[doc = " |cookieable_schemes_exclude_defaults| to true (1) will disable all loading"]
     #[doc = " and saving of cookies for this manager. These values will be ignored if"]
     #[doc = " |cache_path| matches the CefSettings.cache_path value."]
@@ -806,8 +881,8 @@ pub struct _cef_browser_settings_t {
     #[doc = " The maximum rate in frames per second (fps) that CefRenderHandler::OnPaint"]
     #[doc = " will be called for a windowless browser. The actual fps may be lower if"]
     #[doc = " the browser cannot generate frames at the requested rate. The minimum"]
-    #[doc = " value is 1 and the maximum value is 60 (default 30). This value can also be"]
-    #[doc = " changed dynamically via CefBrowserHost::SetWindowlessFrameRate."]
+    #[doc = " value is 1 and the maximum value is 60 (default 30). This value can also"]
+    #[doc = " be changed dynamically via CefBrowserHost::SetWindowlessFrameRate."]
     #[doc = ""]
     pub windowless_frame_rate: ::std::os::raw::c_int,
     #[doc = ""]
@@ -859,8 +934,8 @@ pub struct _cef_browser_settings_t {
     #[doc = ""]
     pub javascript_dom_paste: cef_state_t,
     #[doc = ""]
-    #[doc = " Controls whether image URLs will be loaded from the network. A cached image"]
-    #[doc = " will still be rendered if requested. Also configurable using the"]
+    #[doc = " Controls whether image URLs will be loaded from the network. A cached"]
+    #[doc = " image will still be rendered if requested. Also configurable using the"]
     #[doc = " \"disable-image-loading\" command-line switch."]
     #[doc = ""]
     pub image_loading: cef_state_t,
@@ -900,8 +975,8 @@ pub struct _cef_browser_settings_t {
     #[doc = " Background color used for the browser before a document is loaded and when"]
     #[doc = " no document color is specified. The alpha component must be either fully"]
     #[doc = " opaque (0xFF) or fully transparent (0x00). If the alpha component is fully"]
-    #[doc = " opaque then the RGB components will be used as the background color. If the"]
-    #[doc = " alpha component is fully transparent for a windowed browser then the"]
+    #[doc = " opaque then the RGB components will be used as the background color. If"]
+    #[doc = " the alpha component is fully transparent for a windowed browser then the"]
     #[doc = " CefSettings.background_color value will be used. If the alpha component is"]
     #[doc = " fully transparent for a windowless (off-screen) browser then transparent"]
     #[doc = " painting will be enabled."]
@@ -915,8 +990,8 @@ pub struct _cef_browser_settings_t {
     #[doc = ""]
     pub accept_language_list: cef_string_t,
     #[doc = ""]
-    #[doc = " Controls whether the Chrome status bubble will be used. Only supported with"]
-    #[doc = " the Chrome runtime. For details about the status bubble see"]
+    #[doc = " Controls whether the Chrome status bubble will be used. Only supported"]
+    #[doc = " with the Chrome runtime. For details about the status bubble see"]
     #[doc = " https://www.chromium.org/user-experience/status-bubble/"]
     #[doc = ""]
     pub chrome_status_bubble: cef_state_t,
@@ -965,7 +1040,6 @@ pub enum cef_cookie_same_site_t {
 #[doc = " Cookie information."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone)]
 pub struct _cef_cookie_t {
     #[doc = ""]
     #[doc = " The cookie name."]
@@ -998,17 +1072,17 @@ pub struct _cef_cookie_t {
     #[doc = " The cookie creation date. This is automatically populated by the system on"]
     #[doc = " cookie creation."]
     #[doc = ""]
-    pub creation: cef_time_t,
+    pub creation: cef_basetime_t,
     #[doc = ""]
     #[doc = " The cookie last access date. This is automatically populated by the system"]
     #[doc = " on access."]
     #[doc = ""]
-    pub last_access: cef_time_t,
+    pub last_access: cef_basetime_t,
     #[doc = ""]
     #[doc = " The cookie expiration date is only valid if |has_expires| is true."]
     #[doc = ""]
     pub has_expires: ::std::os::raw::c_int,
-    pub expires: cef_time_t,
+    pub expires: cef_basetime_t,
     #[doc = ""]
     #[doc = " Same site."]
     #[doc = ""]
@@ -1043,7 +1117,8 @@ pub enum cef_termination_status_t {
 }
 #[repr(i32)]
 #[doc = ""]
-#[doc = " Supported error code values."]
+#[doc = " Supported error code values. For the complete list of error values see"]
+#[doc = " \"include/base/internal/cef_net_error_list.h\"."]
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_errorcode_t {
@@ -1233,6 +1308,7 @@ pub enum cef_errorcode_t {
     ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED = -381,
     ERR_TOO_MANY_ACCEPT_CH_RESTARTS = -382,
     ERR_INCONSISTENT_IP_ADDRESS_SPACE = -383,
+    ERR_CACHED_IP_ADDRESS_SPACE_BLOCKED_BY_PRIVATE_NETWORK_ACCESS_POLICY = -384,
     ERR_CACHE_MISS = -400,
     ERR_CACHE_READ_FAILURE = -401,
     ERR_CACHE_WRITE_FAILURE = -402,
@@ -1442,14 +1518,21 @@ pub enum cef_v8_accesscontrol_t {
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_v8_propertyattribute_t {
-    #[doc = " Writeable, Enumerable,"]
-    #[doc = "   Configurable"]
+    #[doc = ""]
+    #[doc = " Writeable, Enumerable, Configurable"]
+    #[doc = ""]
     V8_PROPERTY_ATTRIBUTE_NONE = 0,
+    #[doc = ""]
     #[doc = " Not writeable"]
+    #[doc = ""]
     V8_PROPERTY_ATTRIBUTE_READONLY = 1,
+    #[doc = ""]
     #[doc = " Not enumerable"]
+    #[doc = ""]
     V8_PROPERTY_ATTRIBUTE_DONTENUM = 2,
+    #[doc = ""]
     #[doc = " Not configurable"]
+    #[doc = ""]
     V8_PROPERTY_ATTRIBUTE_DONTDELETE = 4,
 }
 #[repr(i32)]
@@ -1527,7 +1610,7 @@ pub enum cef_resource_type_t {
     #[doc = ""]
     RT_XHR = 13,
     #[doc = ""]
-    #[doc = " A request for a <ping>"]
+    #[doc = " A request for a \"<ping>\"."]
     #[doc = ""]
     RT_PING = 14,
     #[doc = ""]
@@ -1566,7 +1649,8 @@ pub enum cef_transition_type_t {
     TT_LINK = 0,
     #[doc = ""]
     #[doc = " Source is some other \"explicit\" navigation. This is the default value for"]
-    #[doc = " navigations where the actual type is unknown. See also TT_DIRECT_LOAD_FLAG."]
+    #[doc = " navigations where the actual type is unknown. See also"]
+    #[doc = " TT_DIRECT_LOAD_FLAG."]
     #[doc = ""]
     TT_EXPLICIT = 1,
     #[doc = ""]
@@ -1624,11 +1708,11 @@ pub enum cef_transition_type_t {
     #[doc = " search provider. If the user types a keyword (which also applies to"]
     #[doc = " tab-to-search) in the omnibox this qualifier is applied to the transition"]
     #[doc = " type of the generated url. TemplateURLModel then may generate an"]
-    #[doc = " additional visit with a transition type of TT_KEYWORD_GENERATED against the"]
-    #[doc = " url 'http://' + keyword. For example, if you do a tab-to-search against"]
-    #[doc = " wikipedia the generated url has a transition qualifer of TT_KEYWORD, and"]
-    #[doc = " TemplateURLModel generates a visit for 'wikipedia.org' with a transition"]
-    #[doc = " type of TT_KEYWORD_GENERATED. Chrome runtime only."]
+    #[doc = " additional visit with a transition type of TT_KEYWORD_GENERATED against"]
+    #[doc = " the url 'http://' + keyword. For example, if you do a tab-to-search"]
+    #[doc = " against wikipedia the generated url has a transition qualifer of"]
+    #[doc = " TT_KEYWORD, and TemplateURLModel generates a visit for 'wikipedia.org'"]
+    #[doc = " with a transition type of TT_KEYWORD_GENERATED. Chrome runtime only."]
     #[doc = ""]
     TT_KEYWORD = 9,
     #[doc = ""]
@@ -1764,14 +1848,14 @@ pub enum cef_thread_id_t {
     #[doc = ""]
     TID_UI = 0,
     #[doc = ""]
-    #[doc = " Used for blocking tasks (e.g. file system access) where the user won't"]
+    #[doc = " Used for blocking tasks like file system access where the user won't"]
     #[doc = " notice if the task takes an arbitrarily long time to complete. All tasks"]
     #[doc = " posted after CefBrowserProcessHandler::OnContextInitialized() and before"]
     #[doc = " CefShutdown() are guaranteed to run."]
     #[doc = ""]
     TID_FILE_BACKGROUND = 1,
     #[doc = ""]
-    #[doc = " Used for blocking tasks (e.g. file system access) that affect UI or"]
+    #[doc = " Used for blocking tasks like file system access that affect UI or"]
     #[doc = " responsiveness of future user interactions. Do not use if an immediate"]
     #[doc = " response to a user interaction is expected. All tasks posted after"]
     #[doc = " CefBrowserProcessHandler::OnContextInitialized() and before CefShutdown()"]
@@ -1783,7 +1867,7 @@ pub enum cef_thread_id_t {
     #[doc = ""]
     TID_FILE_USER_VISIBLE = 2,
     #[doc = ""]
-    #[doc = " Used for blocking tasks (e.g. file system access) that affect UI"]
+    #[doc = " Used for blocking tasks like file system access that affect UI"]
     #[doc = " immediately after a user interaction. All tasks posted after"]
     #[doc = " CefBrowserProcessHandler::OnContextInitialized() and before CefShutdown()"]
     #[doc = " are guaranteed to run."]
@@ -1805,8 +1889,8 @@ pub enum cef_thread_id_t {
     #[doc = " The main thread in the renderer. Used for all WebKit and V8 interaction."]
     #[doc = " Tasks may be posted to this thread after"]
     #[doc = " CefRenderProcessHandler::OnWebKitInitialized but are not guaranteed to"]
-    #[doc = " run before sub-process termination (sub-processes may be killed at any time"]
-    #[doc = " without warning)."]
+    #[doc = " run before sub-process termination (sub-processes may be killed at any"]
+    #[doc = " time without warning)."]
     #[doc = ""]
     TID_RENDERER = 6,
 }
@@ -1838,8 +1922,8 @@ pub enum cef_jsdialog_type_t {
 }
 #[doc = ""]
 #[doc = " Screen information used when window rendering is disabled. This structure is"]
-#[doc = " passed as a parameter to CefRenderHandler::GetScreenInfo and should be filled"]
-#[doc = " in by the client."]
+#[doc = " passed as a parameter to CefRenderHandler::GetScreenInfo and should be"]
+#[doc = " filled in by the client."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -1888,6 +1972,12 @@ pub struct _cef_screen_info_t {
     #[doc = ""]
     pub available_rect: cef_rect_t,
 }
+#[doc = ""]
+#[doc = " Screen information used when window rendering is disabled. This structure is"]
+#[doc = " passed as a parameter to CefRenderHandler::GetScreenInfo and should be"]
+#[doc = " filled in by the client."]
+#[doc = ""]
+pub type cef_screen_info_t = _cef_screen_info_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Mouse button types."]
@@ -1918,6 +2008,10 @@ pub struct _cef_mouse_event_t {
     #[doc = ""]
     pub modifiers: uint32,
 }
+#[doc = ""]
+#[doc = " Structure representing mouse event information."]
+#[doc = ""]
+pub type cef_mouse_event_t = _cef_mouse_event_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Touch points states types."]
@@ -1948,8 +2042,8 @@ pub enum cef_pointer_type_t {
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_touch_event_t {
     #[doc = ""]
-    #[doc = " Id of a touch point. Must be unique per touch, can be any number except -1."]
-    #[doc = " Note that a maximum of 16 concurrent touches will be tracked; touches"]
+    #[doc = " Id of a touch point. Must be unique per touch, can be any number except"]
+    #[doc = " -1. Note that a maximum of 16 concurrent touches will be tracked; touches"]
     #[doc = " beyond that will be ignored."]
     #[doc = ""]
     pub id: ::std::os::raw::c_int,
@@ -1995,6 +2089,10 @@ pub struct _cef_touch_event_t {
     #[doc = ""]
     pub pointer_type: cef_pointer_type_t,
 }
+#[doc = ""]
+#[doc = " Structure representing touch event information."]
+#[doc = ""]
+pub type cef_touch_event_t = _cef_touch_event_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Paint element types."]
@@ -2244,6 +2342,10 @@ pub struct _cef_key_event_t {
     #[doc = ""]
     pub focus_on_editable_field: ::std::os::raw::c_int,
 }
+#[doc = ""]
+#[doc = " Structure representing keyboard event information."]
+#[doc = ""]
+pub type cef_key_event_t = _cef_key_event_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Focus sources."]
@@ -2278,6 +2380,10 @@ pub struct _cef_popup_features_t {
     pub toolBarVisible: ::std::os::raw::c_int,
     pub scrollbarsVisible: ::std::os::raw::c_int,
 }
+#[doc = ""]
+#[doc = " Popup window features."]
+#[doc = ""]
+pub type cef_popup_features_t = _cef_popup_features_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " DOM document types."]
@@ -2449,6 +2555,12 @@ pub struct _cef_cursor_info_t {
     pub buffer: *mut ::std::os::raw::c_void,
     pub size: cef_size_t,
 }
+#[doc = ""]
+#[doc = " Structure representing cursor information. |buffer| will be"]
+#[doc = " |size.width|*|size.height|*4 bytes in size and represents a BGRA image with"]
+#[doc = " an upper-left origin."]
+#[doc = ""]
+pub type cef_cursor_info_t = _cef_cursor_info_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Margin type for PDF printing."]
@@ -2560,10 +2672,10 @@ impl cef_referrer_policy_t {
 }
 #[repr(i32)]
 #[doc = ""]
-#[doc = " Policy for how the Referrer HTTP header value will be sent during navigation."]
-#[doc = " If the `--no-referrers` command-line flag is specified then the policy value"]
-#[doc = " will be ignored and the Referrer value will never be sent."]
-#[doc = " Must be kept synchronized with net::URLRequest::ReferrerPolicy from Chromium."]
+#[doc = " Policy for how the Referrer HTTP header value will be sent during"]
+#[doc = " navigation. If the `--no-referrers` command-line flag is specified then the"]
+#[doc = " policy value will be ignored and the Referrer value will never be sent. Must"]
+#[doc = " be kept synchronized with net::URLRequest::ReferrerPolicy from Chromium."]
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_referrer_policy_t {
@@ -2867,7 +2979,8 @@ pub enum cef_channel_layout_t {
     CEF_CHANNEL_LAYOUT_5_1_4_DOWNMIX = 33,
 }
 #[doc = ""]
-#[doc = " Structure representing the audio parameters for setting up the audio handler."]
+#[doc = " Structure representing the audio parameters for setting up the audio"]
+#[doc = " handler."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -2886,13 +2999,14 @@ pub struct _cef_audio_parameters_t {
     pub frames_per_buffer: ::std::os::raw::c_int,
 }
 #[doc = ""]
-#[doc = " Structure representing the audio parameters for setting up the audio handler."]
+#[doc = " Structure representing the audio parameters for setting up the audio"]
+#[doc = " handler."]
 #[doc = ""]
 pub type cef_audio_parameters_t = _cef_audio_parameters_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Result codes for CefMediaRouter::CreateRoute. Should be kept in sync with"]
-#[doc = " Chromium's media_router::RouteRequestResult::ResultCode type."]
+#[doc = " Chromium's media_router::mojom::RouteRequestResultCode type."]
 #[doc = ""]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_media_route_create_result_t {
@@ -2906,8 +3020,6 @@ pub enum cef_media_route_create_result_t {
     CEF_MRCR_CANCELLED = 8,
     CEF_MRCR_ROUTE_ALREADY_EXISTS = 9,
     CEF_MRCR_ROUTE_ALREADY_TERMINATED = 11,
-    #[doc = " The total number of values."]
-    CEF_MRCR_TOTAL_COUNT = 12,
 }
 #[repr(i32)]
 #[doc = ""]
@@ -2980,6 +3092,7 @@ pub struct _cef_touch_handle_state_t {
     #[doc = ""]
     pub alpha: f32,
 }
+pub type cef_touch_handle_state_t = _cef_touch_handle_state_t;
 #[repr(i32)]
 #[doc = ""]
 #[doc = " Permission request results."]
@@ -3226,10 +3339,10 @@ pub struct _cef_value_t {
     #[doc = ""]
     #[doc = " Returns true (1) if the underlying data is valid. This will always be true"]
     #[doc = " (1) for simple types. For complex types (binary, dictionary and list) the"]
-    #[doc = " underlying data may become invalid if owned by another object (e.g. list or"]
-    #[doc = " dictionary) and that other object is then modified or destroyed. This value"]
-    #[doc = " object can be re-used by calling Set*() even if the underlying data is"]
-    #[doc = " invalid."]
+    #[doc = " underlying data may become invalid if owned by another object (e.g. list"]
+    #[doc = " or dictionary) and that other object is then modified or destroyed. This"]
+    #[doc = " value object can be re-used by calling Set*() even if the underlying data"]
+    #[doc = " is invalid."]
     #[doc = ""]
     pub is_valid: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_value_t) -> ::std::os::raw::c_int,
@@ -3304,21 +3417,21 @@ pub struct _cef_value_t {
     #[doc = ""]
     #[doc = " Returns the underlying value as type binary. The returned reference may"]
     #[doc = " become invalid if the value is owned by another object or if ownership is"]
-    #[doc = " transferred to another object in the future. To maintain a reference to the"]
-    #[doc = " value after assigning ownership to a dictionary or list pass this object to"]
-    #[doc = " the set_value() function instead of passing the returned reference to"]
-    #[doc = " set_binary()."]
+    #[doc = " transferred to another object in the future. To maintain a reference to"]
+    #[doc = " the value after assigning ownership to a dictionary or list pass this"]
+    #[doc = " object to the set_value() function instead of passing the returned"]
+    #[doc = " reference to set_binary()."]
     #[doc = ""]
     pub get_binary: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_value_t) -> *mut _cef_binary_value_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the underlying value as type dictionary. The returned reference may"]
-    #[doc = " become invalid if the value is owned by another object or if ownership is"]
-    #[doc = " transferred to another object in the future. To maintain a reference to the"]
-    #[doc = " value after assigning ownership to a dictionary or list pass this object to"]
-    #[doc = " the set_value() function instead of passing the returned reference to"]
-    #[doc = " set_dictionary()."]
+    #[doc = " Returns the underlying value as type dictionary. The returned reference"]
+    #[doc = " may become invalid if the value is owned by another object or if ownership"]
+    #[doc = " is transferred to another object in the future. To maintain a reference to"]
+    #[doc = " the value after assigning ownership to a dictionary or list pass this"]
+    #[doc = " object to the set_value() function instead of passing the returned"]
+    #[doc = " reference to set_dictionary()."]
     #[doc = ""]
     pub get_dictionary: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_value_t) -> *mut _cef_dictionary_value_t,
@@ -3326,10 +3439,10 @@ pub struct _cef_value_t {
     #[doc = ""]
     #[doc = " Returns the underlying value as type list. The returned reference may"]
     #[doc = " become invalid if the value is owned by another object or if ownership is"]
-    #[doc = " transferred to another object in the future. To maintain a reference to the"]
-    #[doc = " value after assigning ownership to a dictionary or list pass this object to"]
-    #[doc = " the set_value() function instead of passing the returned reference to"]
-    #[doc = " set_list()."]
+    #[doc = " transferred to another object in the future. To maintain a reference to"]
+    #[doc = " the value after assigning ownership to a dictionary or list pass this"]
+    #[doc = " object to the set_value() function instead of passing the returned"]
+    #[doc = " reference to set_list()."]
     #[doc = ""]
     pub get_list: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_value_t) -> *mut _cef_list_value_t,
@@ -3362,15 +3475,15 @@ pub struct _cef_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the underlying value as type double. Returns true (1) if the value was"]
-    #[doc = " set successfully."]
+    #[doc = " Sets the underlying value as type double. Returns true (1) if the value"]
+    #[doc = " was set successfully."]
     #[doc = ""]
     pub set_double: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_value_t, value: f64) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the underlying value as type string. Returns true (1) if the value was"]
-    #[doc = " set successfully."]
+    #[doc = " Sets the underlying value as type string. Returns true (1) if the value"]
+    #[doc = " was set successfully."]
     #[doc = ""]
     pub set_string: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3379,9 +3492,9 @@ pub struct _cef_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the underlying value as type binary. Returns true (1) if the value was"]
-    #[doc = " set successfully. This object keeps a reference to |value| and ownership of"]
-    #[doc = " the underlying data remains unchanged."]
+    #[doc = " Sets the underlying value as type binary. Returns true (1) if the value"]
+    #[doc = " was set successfully. This object keeps a reference to |value| and"]
+    #[doc = " ownership of the underlying data remains unchanged."]
     #[doc = ""]
     pub set_binary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3391,8 +3504,8 @@ pub struct _cef_value_t {
     >,
     #[doc = ""]
     #[doc = " Sets the underlying value as type dict. Returns true (1) if the value was"]
-    #[doc = " set successfully. This object keeps a reference to |value| and ownership of"]
-    #[doc = " the underlying data remains unchanged."]
+    #[doc = " set successfully. This object keeps a reference to |value| and ownership"]
+    #[doc = " of the underlying data remains unchanged."]
     #[doc = ""]
     pub set_dictionary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3402,8 +3515,8 @@ pub struct _cef_value_t {
     >,
     #[doc = ""]
     #[doc = " Sets the underlying value as type list. Returns true (1) if the value was"]
-    #[doc = " set successfully. This object keeps a reference to |value| and ownership of"]
-    #[doc = " the underlying data remains unchanged."]
+    #[doc = " set successfully. This object keeps a reference to |value| and ownership"]
+    #[doc = " of the underlying data remains unchanged."]
     #[doc = ""]
     pub set_list: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3425,7 +3538,8 @@ extern "C" {
     pub fn cef_value_create() -> *mut cef_value_t;
 }
 #[doc = ""]
-#[doc = " Structure representing a binary value. Can be used on any process and thread."]
+#[doc = " Structure representing a binary value. Can be used on any process and"]
+#[doc = " thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -3435,10 +3549,10 @@ pub struct _cef_binary_value_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Returns true (1) if this object is valid. This object may become invalid if"]
-    #[doc = " the underlying data is owned by another object (e.g. list or dictionary)"]
-    #[doc = " and that other object is then modified or destroyed. Do not call any other"]
-    #[doc = " functions if this function returns false (0)."]
+    #[doc = " Returns true (1) if this object is valid. This object may become invalid"]
+    #[doc = " if the underlying data is owned by another object (e.g. list or"]
+    #[doc = " dictionary) and that other object is then modified or destroyed. Do not"]
+    #[doc = " call any other functions if this function returns false (0)."]
     #[doc = ""]
     pub is_valid: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_binary_value_t) -> ::std::os::raw::c_int,
@@ -3470,7 +3584,8 @@ pub struct _cef_binary_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns a copy of this object. The data in this object will also be copied."]
+    #[doc = " Returns a copy of this object. The data in this object will also be"]
+    #[doc = " copied."]
     #[doc = ""]
     pub copy: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_binary_value_t) -> *mut _cef_binary_value_t,
@@ -3494,7 +3609,8 @@ pub struct _cef_binary_value_t {
     >,
 }
 #[doc = ""]
-#[doc = " Structure representing a binary value. Can be used on any process and thread."]
+#[doc = " Structure representing a binary value. Can be used on any process and"]
+#[doc = " thread."]
 #[doc = ""]
 pub type cef_binary_value_t = _cef_binary_value_t;
 extern "C" {
@@ -3519,10 +3635,10 @@ pub struct _cef_dictionary_value_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Returns true (1) if this object is valid. This object may become invalid if"]
-    #[doc = " the underlying data is owned by another object (e.g. list or dictionary)"]
-    #[doc = " and that other object is then modified or destroyed. Do not call any other"]
-    #[doc = " functions if this function returns false (0)."]
+    #[doc = " Returns true (1) if this object is valid. This object may become invalid"]
+    #[doc = " if the underlying data is owned by another object (e.g. list or"]
+    #[doc = " dictionary) and that other object is then modified or destroyed. Do not"]
+    #[doc = " call any other functions if this function returns false (0)."]
     #[doc = ""]
     pub is_valid: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_dictionary_value_t) -> ::std::os::raw::c_int,
@@ -3620,11 +3736,11 @@ pub struct _cef_dictionary_value_t {
         ) -> cef_value_type_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the value at the specified key. For simple types the returned value"]
-    #[doc = " will copy existing data and modifications to the value will not modify this"]
-    #[doc = " object. For complex types (binary, dictionary and list) the returned value"]
-    #[doc = " will reference existing data and modifications to the value will modify"]
-    #[doc = " this object."]
+    #[doc = " Returns the value at the specified key. For simple types the returned"]
+    #[doc = " value will copy existing data and modifications to the value will not"]
+    #[doc = " modify this object. For complex types (binary, dictionary and list) the"]
+    #[doc = " returned value will reference existing data and modifications to the value"]
+    #[doc = " will modify this object."]
     #[doc = ""]
     pub get_value: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3701,10 +3817,10 @@ pub struct _cef_dictionary_value_t {
     #[doc = ""]
     #[doc = " Sets the value at the specified key. Returns true (1) if the value was set"]
     #[doc = " successfully. If |value| represents simple data then the underlying data"]
-    #[doc = " will be copied and modifications to |value| will not modify this object. If"]
-    #[doc = " |value| represents complex data (binary, dictionary or list) then the"]
-    #[doc = " underlying data will be referenced and modifications to |value| will modify"]
-    #[doc = " this object."]
+    #[doc = " will be copied and modifications to |value| will not modify this object."]
+    #[doc = " If |value| represents complex data (binary, dictionary or list) then the"]
+    #[doc = " underlying data will be referenced and modifications to |value| will"]
+    #[doc = " modify this object."]
     #[doc = ""]
     pub set_value: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3746,8 +3862,8 @@ pub struct _cef_dictionary_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified key as type double. Returns true (1) if the"]
-    #[doc = " value was set successfully."]
+    #[doc = " Sets the value at the specified key as type double. Returns true (1) if"]
+    #[doc = " the value was set successfully."]
     #[doc = ""]
     pub set_double: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3757,8 +3873,8 @@ pub struct _cef_dictionary_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified key as type string. Returns true (1) if the"]
-    #[doc = " value was set successfully."]
+    #[doc = " Sets the value at the specified key as type string. Returns true (1) if"]
+    #[doc = " the value was set successfully."]
     #[doc = ""]
     pub set_string: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3768,11 +3884,11 @@ pub struct _cef_dictionary_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified key as type binary. Returns true (1) if the"]
-    #[doc = " value was set successfully. If |value| is currently owned by another object"]
-    #[doc = " then the value will be copied and the |value| reference will not change."]
-    #[doc = " Otherwise, ownership will be transferred to this object and the |value|"]
-    #[doc = " reference will be invalidated."]
+    #[doc = " Sets the value at the specified key as type binary. Returns true (1) if"]
+    #[doc = " the value was set successfully. If |value| is currently owned by another"]
+    #[doc = " object then the value will be copied and the |value| reference will not"]
+    #[doc = " change. Otherwise, ownership will be transferred to this object and the"]
+    #[doc = " |value| reference will be invalidated."]
     #[doc = ""]
     pub set_binary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3783,10 +3899,10 @@ pub struct _cef_dictionary_value_t {
     >,
     #[doc = ""]
     #[doc = " Sets the value at the specified key as type dict. Returns true (1) if the"]
-    #[doc = " value was set successfully. If |value| is currently owned by another object"]
-    #[doc = " then the value will be copied and the |value| reference will not change."]
-    #[doc = " Otherwise, ownership will be transferred to this object and the |value|"]
-    #[doc = " reference will be invalidated."]
+    #[doc = " value was set successfully. If |value| is currently owned by another"]
+    #[doc = " object then the value will be copied and the |value| reference will not"]
+    #[doc = " change. Otherwise, ownership will be transferred to this object and the"]
+    #[doc = " |value| reference will be invalidated."]
     #[doc = ""]
     pub set_dictionary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3797,10 +3913,10 @@ pub struct _cef_dictionary_value_t {
     >,
     #[doc = ""]
     #[doc = " Sets the value at the specified key as type list. Returns true (1) if the"]
-    #[doc = " value was set successfully. If |value| is currently owned by another object"]
-    #[doc = " then the value will be copied and the |value| reference will not change."]
-    #[doc = " Otherwise, ownership will be transferred to this object and the |value|"]
-    #[doc = " reference will be invalidated."]
+    #[doc = " value was set successfully. If |value| is currently owned by another"]
+    #[doc = " object then the value will be copied and the |value| reference will not"]
+    #[doc = " change. Otherwise, ownership will be transferred to this object and the"]
+    #[doc = " |value| reference will be invalidated."]
     #[doc = ""]
     pub set_list: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3832,10 +3948,10 @@ pub struct _cef_list_value_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Returns true (1) if this object is valid. This object may become invalid if"]
-    #[doc = " the underlying data is owned by another object (e.g. list or dictionary)"]
-    #[doc = " and that other object is then modified or destroyed. Do not call any other"]
-    #[doc = " functions if this function returns false (0)."]
+    #[doc = " Returns true (1) if this object is valid. This object may become invalid"]
+    #[doc = " if the underlying data is owned by another object (e.g. list or"]
+    #[doc = " dictionary) and that other object is then modified or destroyed. Do not"]
+    #[doc = " call any other functions if this function returns false (0)."]
     #[doc = ""]
     pub is_valid: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_list_value_t) -> ::std::os::raw::c_int,
@@ -3946,8 +4062,8 @@ pub struct _cef_list_value_t {
         unsafe extern "C" fn(self_: *mut _cef_list_value_t, index: usize) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the value at the specified index as type binary. The returned value"]
-    #[doc = " will reference existing data."]
+    #[doc = " Returns the value at the specified index as type binary. The returned"]
+    #[doc = " value will reference existing data."]
     #[doc = ""]
     pub get_binary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -3990,15 +4106,15 @@ pub struct _cef_list_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified index as type null. Returns true (1) if the"]
-    #[doc = " value was set successfully."]
+    #[doc = " Sets the value at the specified index as type null. Returns true (1) if"]
+    #[doc = " the value was set successfully."]
     #[doc = ""]
     pub set_null: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_list_value_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified index as type bool. Returns true (1) if the"]
-    #[doc = " value was set successfully."]
+    #[doc = " Sets the value at the specified index as type bool. Returns true (1) if"]
+    #[doc = " the value was set successfully."]
     #[doc = ""]
     pub set_bool: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4055,11 +4171,11 @@ pub struct _cef_list_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified index as type dict. Returns true (1) if the"]
-    #[doc = " value was set successfully. If |value| is currently owned by another object"]
-    #[doc = " then the value will be copied and the |value| reference will not change."]
-    #[doc = " Otherwise, ownership will be transferred to this object and the |value|"]
-    #[doc = " reference will be invalidated."]
+    #[doc = " Sets the value at the specified index as type dict. Returns true (1) if"]
+    #[doc = " the value was set successfully. If |value| is currently owned by another"]
+    #[doc = " object then the value will be copied and the |value| reference will not"]
+    #[doc = " change. Otherwise, ownership will be transferred to this object and the"]
+    #[doc = " |value| reference will be invalidated."]
     #[doc = ""]
     pub set_dictionary: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4069,11 +4185,11 @@ pub struct _cef_list_value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the value at the specified index as type list. Returns true (1) if the"]
-    #[doc = " value was set successfully. If |value| is currently owned by another object"]
-    #[doc = " then the value will be copied and the |value| reference will not change."]
-    #[doc = " Otherwise, ownership will be transferred to this object and the |value|"]
-    #[doc = " reference will be invalidated."]
+    #[doc = " Sets the value at the specified index as type list. Returns true (1) if"]
+    #[doc = " the value was set successfully. If |value| is currently owned by another"]
+    #[doc = " object then the value will be copied and the |value| reference will not"]
+    #[doc = " change. Otherwise, ownership will be transferred to this object and the"]
+    #[doc = " |value| reference will be invalidated."]
     #[doc = ""]
     pub set_list: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4108,22 +4224,23 @@ pub struct _cef_dev_tools_message_observer_t {
     #[doc = " Method that will be called on receipt of a DevTools protocol message."]
     #[doc = " |browser| is the originating browser instance. |message| is a UTF8-encoded"]
     #[doc = " JSON dictionary representing either a function result or an event."]
-    #[doc = " |message| is only valid for the scope of this callback and should be copied"]
-    #[doc = " if necessary. Return true (1) if the message was handled or false (0) if"]
-    #[doc = " the message should be further processed and passed to the"]
+    #[doc = " |message| is only valid for the scope of this callback and should be"]
+    #[doc = " copied if necessary. Return true (1) if the message was handled or false"]
+    #[doc = " (0) if the message should be further processed and passed to the"]
     #[doc = " OnDevToolsMethodResult or OnDevToolsEvent functions as appropriate."]
     #[doc = ""]
     #[doc = " Method result dictionaries include an \"id\" (int) value that identifies the"]
-    #[doc = " orginating function call sent from cef_browser_host_t::SendDevToolsMessage,"]
-    #[doc = " and optionally either a \"result\" (dictionary) or \"error\" (dictionary)"]
-    #[doc = " value. The \"error\" dictionary will contain \"code\" (int) and \"message\""]
-    #[doc = " (string) values. Event dictionaries include a \"function\" (string) value and"]
-    #[doc = " optionally a \"params\" (dictionary) value. See the DevTools protocol"]
-    #[doc = " documentation at https://chromedevtools.github.io/devtools-protocol/ for"]
-    #[doc = " details of supported function calls and the expected \"result\" or \"params\""]
-    #[doc = " dictionary contents. JSON dictionaries can be parsed using the CefParseJSON"]
-    #[doc = " function if desired, however be aware of performance considerations when"]
-    #[doc = " parsing large messages (some of which may exceed 1MB in size)."]
+    #[doc = " orginating function call sent from"]
+    #[doc = " cef_browser_host_t::SendDevToolsMessage, and optionally either a \"result\""]
+    #[doc = " (dictionary) or \"error\" (dictionary) value. The \"error\" dictionary will"]
+    #[doc = " contain \"code\" (int) and \"message\" (string) values. Event dictionaries"]
+    #[doc = " include a \"function\" (string) value and optionally a \"params\" (dictionary)"]
+    #[doc = " value. See the DevTools protocol documentation at"]
+    #[doc = " https://chromedevtools.github.io/devtools-protocol/ for details of"]
+    #[doc = " supported function calls and the expected \"result\" or \"params\" dictionary"]
+    #[doc = " contents. JSON dictionaries can be parsed using the CefParseJSON function"]
+    #[doc = " if desired, however be aware of performance considerations when parsing"]
+    #[doc = " large messages (some of which may exceed 1MB in size)."]
     #[doc = ""]
     pub on_dev_tools_message: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4134,16 +4251,16 @@ pub struct _cef_dev_tools_message_observer_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Method that will be called after attempted execution of a DevTools protocol"]
-    #[doc = " function. |browser| is the originating browser instance. |message_id| is"]
-    #[doc = " the \"id\" value that identifies the originating function call message. If"]
-    #[doc = " the function succeeded |success| will be true (1) and |result| will be the"]
-    #[doc = " UTF8-encoded JSON \"result\" dictionary value (which may be NULL). If the"]
-    #[doc = " function failed |success| will be false (0) and |result| will be the"]
-    #[doc = " UTF8-encoded JSON \"error\" dictionary value. |result| is only valid for the"]
-    #[doc = " scope of this callback and should be copied if necessary. See the"]
-    #[doc = " OnDevToolsMessage documentation for additional details on |result|"]
-    #[doc = " contents."]
+    #[doc = " Method that will be called after attempted execution of a DevTools"]
+    #[doc = " protocol function. |browser| is the originating browser instance."]
+    #[doc = " |message_id| is the \"id\" value that identifies the originating function"]
+    #[doc = " call message. If the function succeeded |success| will be true (1) and"]
+    #[doc = " |result| will be the UTF8-encoded JSON \"result\" dictionary value (which"]
+    #[doc = " may be NULL). If the function failed |success| will be false (0) and"]
+    #[doc = " |result| will be the UTF8-encoded JSON \"error\" dictionary value. |result|"]
+    #[doc = " is only valid for the scope of this callback and should be copied if"]
+    #[doc = " necessary. See the OnDevToolsMessage documentation for additional details"]
+    #[doc = " on |result| contents."]
     #[doc = ""]
     pub on_dev_tools_method_result: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4157,11 +4274,11 @@ pub struct _cef_dev_tools_message_observer_t {
     >,
     #[doc = ""]
     #[doc = " Method that will be called on receipt of a DevTools protocol event."]
-    #[doc = " |browser| is the originating browser instance. |function| is the \"function\""]
-    #[doc = " value. |params| is the UTF8-encoded JSON \"params\" dictionary value (which"]
-    #[doc = " may be NULL). |params| is only valid for the scope of this callback and"]
-    #[doc = " should be copied if necessary. See the OnDevToolsMessage documentation for"]
-    #[doc = " additional details on |params| contents."]
+    #[doc = " |browser| is the originating browser instance. |function| is the"]
+    #[doc = " \"function\" value. |params| is the UTF8-encoded JSON \"params\" dictionary"]
+    #[doc = " value (which may be NULL). |params| is only valid for the scope of this"]
+    #[doc = " callback and should be copied if necessary. See the OnDevToolsMessage"]
+    #[doc = " documentation for additional details on |params| contents."]
     #[doc = ""]
     pub on_dev_tools_event: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4185,9 +4302,9 @@ pub struct _cef_dev_tools_message_observer_t {
     >,
     #[doc = ""]
     #[doc = " Method that will be called when the DevTools agent has detached. |browser|"]
-    #[doc = " is the originating browser instance. Any function results that were pending"]
-    #[doc = " before the agent became detached will not be delivered, and any active"]
-    #[doc = " event subscriptions will be canceled."]
+    #[doc = " is the originating browser instance. Any function results that were"]
+    #[doc = " pending before the agent became detached will not be delivered, and any"]
+    #[doc = " active event subscriptions will be canceled."]
     #[doc = ""]
     pub on_dev_tools_agent_detached: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4228,11 +4345,11 @@ pub struct _cef_image_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Add a bitmap image representation for |scale_factor|. Only 32-bit RGBA/BGRA"]
-    #[doc = " formats are supported. |pixel_width| and |pixel_height| are the bitmap"]
-    #[doc = " representation size in pixel coordinates. |pixel_data| is the array of"]
-    #[doc = " pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in size."]
-    #[doc = " |color_type| and |alpha_type| values specify the pixel format."]
+    #[doc = " Add a bitmap image representation for |scale_factor|. Only 32-bit"]
+    #[doc = " RGBA/BGRA formats are supported. |pixel_width| and |pixel_height| are the"]
+    #[doc = " bitmap representation size in pixel coordinates. |pixel_data| is the array"]
+    #[doc = " of pixel data and should be |pixel_width| x |pixel_height| x 4 bytes in"]
+    #[doc = " size. |color_type| and |alpha_type| values specify the pixel format."]
     #[doc = ""]
     pub add_bitmap: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4288,7 +4405,8 @@ pub struct _cef_image_t {
         unsafe extern "C" fn(self_: *mut _cef_image_t, scale_factor: f32) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Removes the representation for |scale_factor|. Returns true (1) on success."]
+    #[doc = " Removes the representation for |scale_factor|. Returns true (1) on"]
+    #[doc = " success."]
     #[doc = ""]
     pub remove_representation: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_image_t, scale_factor: f32) -> ::std::os::raw::c_int,
@@ -4309,12 +4427,12 @@ pub struct _cef_image_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns the bitmap representation that most closely matches |scale_factor|."]
-    #[doc = " Only 32-bit RGBA/BGRA formats are supported. |color_type| and |alpha_type|"]
-    #[doc = " values specify the desired output pixel format. |pixel_width| and"]
-    #[doc = " |pixel_height| are the output representation size in pixel coordinates."]
-    #[doc = " Returns a cef_binary_value_t containing the pixel data on success or NULL"]
-    #[doc = " on failure."]
+    #[doc = " Returns the bitmap representation that most closely matches"]
+    #[doc = " |scale_factor|. Only 32-bit RGBA/BGRA formats are supported. |color_type|"]
+    #[doc = " and |alpha_type| values specify the desired output pixel format."]
+    #[doc = " |pixel_width| and |pixel_height| are the output representation size in"]
+    #[doc = " pixel coordinates. Returns a cef_binary_value_t containing the pixel data"]
+    #[doc = " on success or NULL on failure."]
     #[doc = ""]
     pub get_as_bitmap: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4327,12 +4445,12 @@ pub struct _cef_image_t {
         ) -> *mut _cef_binary_value_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the PNG representation that most closely matches |scale_factor|. If"]
-    #[doc = " |with_transparency| is true (1) any alpha transparency in the image will be"]
-    #[doc = " represented in the resulting PNG data. |pixel_width| and |pixel_height| are"]
-    #[doc = " the output representation size in pixel coordinates. Returns a"]
-    #[doc = " cef_binary_value_t containing the PNG image data on success or NULL on"]
-    #[doc = " failure."]
+    #[doc = " Returns the PNG representation that most closely matches |scale_factor|."]
+    #[doc = " If |with_transparency| is true (1) any alpha transparency in the image"]
+    #[doc = " will be represented in the resulting PNG data. |pixel_width| and"]
+    #[doc = " |pixel_height| are the output representation size in pixel coordinates."]
+    #[doc = " Returns a cef_binary_value_t containing the PNG image data on success or"]
+    #[doc = " NULL on failure."]
     #[doc = ""]
     pub get_as_png: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4373,8 +4491,8 @@ pub struct _cef_image_t {
 pub type cef_image_t = _cef_image_t;
 extern "C" {
     #[doc = ""]
-    #[doc = " Create a new cef_image_t. It will initially be NULL. Use the Add*() functions"]
-    #[doc = " to add representations at different scale factors."]
+    #[doc = " Create a new cef_image_t. It will initially be NULL. Use the Add*()"]
+    #[doc = " functions to add representations at different scale factors."]
     #[doc = ""]
     pub fn cef_image_create() -> *mut cef_image_t;
 }
@@ -4401,8 +4519,9 @@ pub struct _cef_read_handler_t {
         ) -> usize,
     >,
     #[doc = ""]
-    #[doc = " Seek to the specified offset position. |whence| may be any one of SEEK_CUR,"]
-    #[doc = " SEEK_END or SEEK_SET. Return zero on success and non-zero on failure."]
+    #[doc = " Seek to the specified offset position. |whence| may be any one of"]
+    #[doc = " SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on"]
+    #[doc = " failure."]
     #[doc = ""]
     pub seek: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4423,8 +4542,8 @@ pub struct _cef_read_handler_t {
     >,
     #[doc = ""]
     #[doc = " Return true (1) if this handler performs work like accessing the file"]
-    #[doc = " system which may block. Used as a hint for determining the thread to access"]
-    #[doc = " the handler from."]
+    #[doc = " system which may block. Used as a hint for determining the thread to"]
+    #[doc = " access the handler from."]
     #[doc = ""]
     pub may_block: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_read_handler_t) -> ::std::os::raw::c_int,
@@ -4458,8 +4577,9 @@ pub struct _cef_stream_reader_t {
         ) -> usize,
     >,
     #[doc = ""]
-    #[doc = " Seek to the specified offset position. |whence| may be any one of SEEK_CUR,"]
-    #[doc = " SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure."]
+    #[doc = " Seek to the specified offset position. |whence| may be any one of"]
+    #[doc = " SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on"]
+    #[doc = " failure."]
     #[doc = ""]
     pub seek: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4481,8 +4601,8 @@ pub struct _cef_stream_reader_t {
     >,
     #[doc = ""]
     #[doc = " Returns true (1) if this reader performs work like accessing the file"]
-    #[doc = " system which may block. Used as a hint for determining the thread to access"]
-    #[doc = " the reader from."]
+    #[doc = " system which may block. Used as a hint for determining the thread to"]
+    #[doc = " access the reader from."]
     #[doc = ""]
     pub may_block: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_stream_reader_t) -> ::std::os::raw::c_int,
@@ -4541,8 +4661,9 @@ pub struct _cef_write_handler_t {
         ) -> usize,
     >,
     #[doc = ""]
-    #[doc = " Seek to the specified offset position. |whence| may be any one of SEEK_CUR,"]
-    #[doc = " SEEK_END or SEEK_SET. Return zero on success and non-zero on failure."]
+    #[doc = " Seek to the specified offset position. |whence| may be any one of"]
+    #[doc = " SEEK_CUR, SEEK_END or SEEK_SET. Return zero on success and non-zero on"]
+    #[doc = " failure."]
     #[doc = ""]
     pub seek: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4564,8 +4685,8 @@ pub struct _cef_write_handler_t {
     >,
     #[doc = ""]
     #[doc = " Return true (1) if this handler performs work like accessing the file"]
-    #[doc = " system which may block. Used as a hint for determining the thread to access"]
-    #[doc = " the handler from."]
+    #[doc = " system which may block. Used as a hint for determining the thread to"]
+    #[doc = " access the handler from."]
     #[doc = ""]
     pub may_block: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_write_handler_t) -> ::std::os::raw::c_int,
@@ -4577,8 +4698,8 @@ pub struct _cef_write_handler_t {
 #[doc = ""]
 pub type cef_write_handler_t = _cef_write_handler_t;
 #[doc = ""]
-#[doc = " Structure used to write data to a stream. The functions of this structure may"]
-#[doc = " be called on any thread."]
+#[doc = " Structure used to write data to a stream. The functions of this structure"]
+#[doc = " may be called on any thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -4599,8 +4720,9 @@ pub struct _cef_stream_writer_t {
         ) -> usize,
     >,
     #[doc = ""]
-    #[doc = " Seek to the specified offset position. |whence| may be any one of SEEK_CUR,"]
-    #[doc = " SEEK_END or SEEK_SET. Returns zero on success and non-zero on failure."]
+    #[doc = " Seek to the specified offset position. |whence| may be any one of"]
+    #[doc = " SEEK_CUR, SEEK_END or SEEK_SET. Returns zero on success and non-zero on"]
+    #[doc = " failure."]
     #[doc = ""]
     pub seek: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4622,16 +4744,16 @@ pub struct _cef_stream_writer_t {
     >,
     #[doc = ""]
     #[doc = " Returns true (1) if this writer performs work like accessing the file"]
-    #[doc = " system which may block. Used as a hint for determining the thread to access"]
-    #[doc = " the writer from."]
+    #[doc = " system which may block. Used as a hint for determining the thread to"]
+    #[doc = " access the writer from."]
     #[doc = ""]
     pub may_block: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_stream_writer_t) -> ::std::os::raw::c_int,
     >,
 }
 #[doc = ""]
-#[doc = " Structure used to write data to a stream. The functions of this structure may"]
-#[doc = " be called on any thread."]
+#[doc = " Structure used to write data to a stream. The functions of this structure"]
+#[doc = " may be called on any thread."]
 #[doc = ""]
 pub type cef_stream_writer_t = _cef_stream_writer_t;
 extern "C" {
@@ -4651,8 +4773,8 @@ extern "C" {
     ) -> *mut cef_stream_writer_t;
 }
 #[doc = ""]
-#[doc = " Structure used to represent drag data. The functions of this structure may be"]
-#[doc = " called on any thread."]
+#[doc = " Structure used to represent drag data. The functions of this structure may"]
+#[doc = " be called on any thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -4743,9 +4865,9 @@ pub struct _cef_drag_data_t {
     >,
     #[doc = ""]
     #[doc = " Write the contents of the file being dragged out of the web view into"]
-    #[doc = " |writer|. Returns the number of bytes sent to |writer|. If |writer| is NULL"]
-    #[doc = " this function will return the size of the file contents in bytes. Call"]
-    #[doc = " get_file_name() to get a suggested name for the file."]
+    #[doc = " |writer|. Returns the number of bytes sent to |writer|. If |writer| is"]
+    #[doc = " NULL this function will return the size of the file contents in bytes."]
+    #[doc = " Call get_file_name() to get a suggested name for the file."]
     #[doc = ""]
     pub get_file_contents: ::std::option::Option<
         unsafe extern "C" fn(
@@ -4840,8 +4962,8 @@ pub struct _cef_drag_data_t {
     >,
 }
 #[doc = ""]
-#[doc = " Structure used to represent drag data. The functions of this structure may be"]
-#[doc = " called on any thread."]
+#[doc = " Structure used to represent drag data. The functions of this structure may"]
+#[doc = " be called on any thread."]
 #[doc = ""]
 pub type cef_drag_data_t = _cef_drag_data_t;
 extern "C" {
@@ -4864,9 +4986,9 @@ pub struct _cef_domvisitor_t {
     #[doc = ""]
     #[doc = " Method executed for visiting the DOM. The document object passed to this"]
     #[doc = " function represents a snapshot of the DOM at the time this function is"]
-    #[doc = " executed. DOM objects are only valid for the scope of this function. Do not"]
-    #[doc = " keep references to or attempt to access any DOM objects outside the scope"]
-    #[doc = " of this function."]
+    #[doc = " executed. DOM objects are only valid for the scope of this function. Do"]
+    #[doc = " not keep references to or attempt to access any DOM objects outside the"]
+    #[doc = " scope of this function."]
     #[doc = ""]
     pub visit: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_domvisitor_t, document: *mut _cef_domdocument_t),
@@ -5315,9 +5437,9 @@ pub struct _cef_request_t {
         unsafe extern "C" fn(self_: *mut _cef_request_t, method: *const cef_string_t),
     >,
     #[doc = ""]
-    #[doc = " Set the referrer URL and policy. If non-NULL the referrer URL must be fully"]
-    #[doc = " qualified with an HTTP or HTTPS scheme component. Any username, password or"]
-    #[doc = " ref component will be removed."]
+    #[doc = " Set the referrer URL and policy. If non-NULL the referrer URL must be"]
+    #[doc = " fully qualified with an HTTP or HTTPS scheme component. Any username,"]
+    #[doc = " password or ref component will be removed."]
     #[doc = ""]
     pub set_referrer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -5378,9 +5500,9 @@ pub struct _cef_request_t {
     >,
     #[doc = ""]
     #[doc = " Set the header |name| to |value|. If |overwrite| is true (1) any existing"]
-    #[doc = " values will be replaced with the new value. If |overwrite| is false (0) any"]
-    #[doc = " existing values will not be overwritten. The Referer value cannot be set"]
-    #[doc = " using this function."]
+    #[doc = " values will be replaced with the new value. If |overwrite| is false (0)"]
+    #[doc = " any existing values will not be overwritten. The Referer value cannot be"]
+    #[doc = " set using this function."]
     #[doc = ""]
     pub set_header_by_name: ::std::option::Option<
         unsafe extern "C" fn(
@@ -5448,8 +5570,9 @@ pub struct _cef_request_t {
     >,
     #[doc = ""]
     #[doc = " Returns the globally unique identifier for this request or 0 if not"]
-    #[doc = " specified. Can be used by cef_resource_request_handler_t implementations in"]
-    #[doc = " the browser process to track a single request across multiple callbacks."]
+    #[doc = " specified. Can be used by cef_resource_request_handler_t implementations"]
+    #[doc = " in the browser process to track a single request across multiple"]
+    #[doc = " callbacks."]
     #[doc = ""]
     pub get_identifier:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_request_t) -> uint64>,
@@ -5483,10 +5606,10 @@ pub struct _cef_post_data_t {
         unsafe extern "C" fn(self_: *mut _cef_post_data_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns true (1) if the underlying POST data includes elements that are not"]
-    #[doc = " represented by this cef_post_data_t object (for example, multi-part file"]
-    #[doc = " upload data). Modifying cef_post_data_t objects with excluded elements may"]
-    #[doc = " result in the request failing."]
+    #[doc = " Returns true (1) if the underlying POST data includes elements that are"]
+    #[doc = " not represented by this cef_post_data_t object (for example, multi-part"]
+    #[doc = " file upload data). Modifying cef_post_data_t objects with excluded"]
+    #[doc = " elements may result in the request failing."]
     #[doc = ""]
     pub has_excluded_elements: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_post_data_t) -> ::std::os::raw::c_int,
@@ -5517,7 +5640,8 @@ pub struct _cef_post_data_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Add the specified post data element.  Returns true (1) if the add succeeds."]
+    #[doc = " Add the specified post data element.  Returns true (1) if the add"]
+    #[doc = " succeeds."]
     #[doc = ""]
     pub add_element: ::std::option::Option<
         unsafe extern "C" fn(
@@ -5625,7 +5749,7 @@ extern "C" {
 #[doc = " Implement this structure to receive string values asynchronously."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava, JNICEFCallback)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_string_visitor_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -5687,8 +5811,8 @@ pub struct _cef_frame_t {
     pub select_all: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_frame_t)>,
     #[doc = ""]
     #[doc = " Save this frame's HTML source to a temporary file and open it in the"]
-    #[doc = " default text viewing application. This function can only be called from the"]
-    #[doc = " browser process."]
+    #[doc = " default text viewing application. This function can only be called from"]
+    #[doc = " the browser process."]
     #[doc = ""]
     pub view_source: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_frame_t)>,
     #[doc = ""]
@@ -5723,10 +5847,10 @@ pub struct _cef_frame_t {
     >,
     #[doc = ""]
     #[doc = " Execute a string of JavaScript code in this frame. The |script_url|"]
-    #[doc = " parameter is the URL where the script in question can be found, if any. The"]
-    #[doc = " renderer may request this URL to show the developer the source of the"]
-    #[doc = " error.  The |start_line| parameter is the base line number to use for error"]
-    #[doc = " reporting."]
+    #[doc = " parameter is the URL where the script in question can be found, if any."]
+    #[doc = " The renderer may request this URL to show the developer the source of the"]
+    #[doc = " error.  The |start_line| parameter is the base line number to use for"]
+    #[doc = " error reporting."]
     #[doc = ""]
     pub execute_java_script: ::std::option::Option<
         unsafe extern "C" fn(
@@ -5802,20 +5926,21 @@ pub struct _cef_frame_t {
     #[doc = " Create a new URL request that will be treated as originating from this"]
     #[doc = " frame and the associated browser. This request may be intercepted by the"]
     #[doc = " client via cef_resource_request_handler_t or cef_scheme_handler_factory_t."]
-    #[doc = " Use cef_urlrequest_t::Create instead if you do not want the request to have"]
-    #[doc = " this association, in which case it may be handled differently (see"]
+    #[doc = " Use cef_urlrequest_t::Create instead if you do not want the request to"]
+    #[doc = " have this association, in which case it may be handled differently (see"]
     #[doc = " documentation on that function). Requests may originate from both the"]
     #[doc = " browser process and the render process."]
     #[doc = ""]
     #[doc = " For requests originating from the browser process:"]
     #[doc = "   - POST data may only contain a single element of type PDE_TYPE_FILE or"]
     #[doc = "     PDE_TYPE_BYTES."]
+    #[doc = ""]
     #[doc = " For requests originating from the render process:"]
     #[doc = "   - POST data may only contain a single element of type PDE_TYPE_BYTES."]
-    #[doc = "   - If the response contains Content-Disposition or Mime-Type header values"]
-    #[doc = "     that would not normally be rendered then the response may receive"]
-    #[doc = "     special handling inside the browser (for example, via the file download"]
-    #[doc = "     code path instead of the URL request code path)."]
+    #[doc = "   - If the response contains Content-Disposition or Mime-Type header"]
+    #[doc = "     values that would not normally be rendered then the response may"]
+    #[doc = "     receive special handling inside the browser (for example, via the"]
+    #[doc = "     file download code path instead of the URL request code path)."]
     #[doc = ""]
     #[doc = " The |request| object will be marked as read-only after calling this"]
     #[doc = " function."]
@@ -5855,8 +5980,8 @@ pub struct _cef_x509cert_principal_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Returns a name that can be used to represent the issuer. It tries in this"]
-    #[doc = " order: Common Name (CN), Organization Name (O) and Organizational Unit Name"]
-    #[doc = " (OU) and returns the first non-NULL one found."]
+    #[doc = " order: Common Name (CN), Organization Name (O) and Organizational Unit"]
+    #[doc = " Name (OU) and returns the first non-NULL one found."]
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_display_name: ::std::option::Option<
@@ -5926,9 +6051,9 @@ pub struct _cef_x509certificate_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Returns the subject of the X.509 certificate. For HTTPS server certificates"]
-    #[doc = " this represents the web server.  The common name of the subject should"]
-    #[doc = " match the host name of the web server."]
+    #[doc = " Returns the subject of the X.509 certificate. For HTTPS server"]
+    #[doc = " certificates this represents the web server.  The common name of the"]
+    #[doc = " subject should match the host name of the web server."]
     #[doc = ""]
     pub get_subject: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> *mut _cef_x509cert_principal_t,
@@ -5948,17 +6073,17 @@ pub struct _cef_x509certificate_t {
     >,
     #[doc = ""]
     #[doc = " Returns the date before which the X.509 certificate is invalid."]
-    #[doc = " CefTime.GetTimeT() will return 0 if no date was specified."]
+    #[doc = " CefBaseTime.GetTimeT() will return 0 if no date was specified."]
     #[doc = ""]
     pub get_valid_start: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> cef_time_t,
+        unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> cef_basetime_t,
     >,
     #[doc = ""]
     #[doc = " Returns the date after which the X.509 certificate is invalid."]
-    #[doc = " CefTime.GetTimeT() will return 0 if no date was specified."]
+    #[doc = " CefBaseTime.GetTimeT() will return 0 if no date was specified."]
     #[doc = ""]
     pub get_valid_expiry: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> cef_time_t,
+        unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> cef_basetime_t,
     >,
     #[doc = ""]
     #[doc = " Returns the DER encoded data for the X.509 certificate."]
@@ -5979,9 +6104,9 @@ pub struct _cef_x509certificate_t {
     pub get_issuer_chain_size:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_x509certificate_t) -> usize>,
     #[doc = ""]
-    #[doc = " Returns the DER encoded data for the certificate issuer chain. If we failed"]
-    #[doc = " to encode a certificate in the chain it is still present in the array but"]
-    #[doc = " is an NULL string."]
+    #[doc = " Returns the DER encoded data for the certificate issuer chain. If we"]
+    #[doc = " failed to encode a certificate in the chain it is still present in the"]
+    #[doc = " array but is an NULL string."]
     #[doc = ""]
     pub get_derencoded_issuer_chain: ::std::option::Option<
         unsafe extern "C" fn(
@@ -5991,9 +6116,9 @@ pub struct _cef_x509certificate_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Returns the PEM encoded data for the certificate issuer chain. If we failed"]
-    #[doc = " to encode a certificate in the chain it is still present in the array but"]
-    #[doc = " is an NULL string."]
+    #[doc = " Returns the PEM encoded data for the certificate issuer chain. If we"]
+    #[doc = " failed to encode a certificate in the chain it is still present in the"]
+    #[doc = " array but is an NULL string."]
     #[doc = ""]
     pub get_pemencoded_issuer_chain: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6063,8 +6188,8 @@ pub struct _cef_navigation_entry_t {
         unsafe extern "C" fn(self_: *mut _cef_navigation_entry_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns the actual URL of the page. For some pages this may be data: URL or"]
-    #[doc = " similar. Use get_display_url() to return a display-friendly version."]
+    #[doc = " Returns the actual URL of the page. For some pages this may be data: URL"]
+    #[doc = " or similar. Use get_display_url() to return a display-friendly version."]
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_url: ::std::option::Option<
@@ -6078,7 +6203,8 @@ pub struct _cef_navigation_entry_t {
         unsafe extern "C" fn(self_: *mut _cef_navigation_entry_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the original URL that was entered by the user before any redirects."]
+    #[doc = " Returns the original URL that was entered by the user before any"]
+    #[doc = " redirects."]
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_original_url: ::std::option::Option<
@@ -6110,7 +6236,7 @@ pub struct _cef_navigation_entry_t {
     #[doc = " 0 if the navigation has not yet completed."]
     #[doc = ""]
     pub get_completion_time: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_navigation_entry_t) -> cef_time_t,
+        unsafe extern "C" fn(self_: *mut _cef_navigation_entry_t) -> cef_basetime_t,
     >,
     #[doc = ""]
     #[doc = " Returns the HTTP status code for the last known successful navigation"]
@@ -6196,9 +6322,9 @@ pub struct _cef_cookie_manager_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Visit a subset of cookies on the UI thread. The results are filtered by the"]
-    #[doc = " given url scheme, host, domain and path. If |includeHttpOnly| is true (1)"]
-    #[doc = " HTTP-only cookies will also be included in the results. The returned"]
+    #[doc = " Visit a subset of cookies on the UI thread. The results are filtered by"]
+    #[doc = " the given url scheme, host, domain and path. If |includeHttpOnly| is true"]
+    #[doc = " (1) HTTP-only cookies will also be included in the results. The returned"]
     #[doc = " cookies are ordered by longest path, then by earliest creation date."]
     #[doc = " Returns false (0) if cookies cannot be accessed."]
     #[doc = ""]
@@ -6212,8 +6338,8 @@ pub struct _cef_cookie_manager_t {
     >,
     #[doc = ""]
     #[doc = " Sets a cookie given a valid URL and explicit user-provided cookie"]
-    #[doc = " attributes. This function expects each attribute to be well-formed. It will"]
-    #[doc = " check for disallowed characters (e.g. the ';' character is disallowed"]
+    #[doc = " attributes. This function expects each attribute to be well-formed. It"]
+    #[doc = " will check for disallowed characters (e.g. the ';' character is disallowed"]
     #[doc = " within the cookie value attribute) and fail without setting the cookie if"]
     #[doc = " such characters are found. If |callback| is non-NULL it will be executed"]
     #[doc = " asnychronously on the UI thread after the cookie has been set. Returns"]
@@ -6234,9 +6360,9 @@ pub struct _cef_cookie_manager_t {
     #[doc = " domain cookies) irrespective of path will be deleted. If |url| is NULL all"]
     #[doc = " cookies for all hosts and domains will be deleted. If |callback| is non-"]
     #[doc = " NULL it will be executed asnychronously on the UI thread after the cookies"]
-    #[doc = " have been deleted. Returns false (0) if a non-NULL invalid URL is specified"]
-    #[doc = " or if cookies cannot be accessed. Cookies can alternately be deleted using"]
-    #[doc = " the Visit*Cookies() functions."]
+    #[doc = " have been deleted. Returns false (0) if a non-NULL invalid URL is"]
+    #[doc = " specified or if cookies cannot be accessed. Cookies can alternately be"]
+    #[doc = " deleted using the Visit*Cookies() functions."]
     #[doc = ""]
     pub delete_cookies: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6247,9 +6373,9 @@ pub struct _cef_cookie_manager_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Flush the backing store (if any) to disk. If |callback| is non-NULL it will"]
-    #[doc = " be executed asnychronously on the UI thread after the flush is complete."]
-    #[doc = " Returns false (0) if cookies cannot be accessed."]
+    #[doc = " Flush the backing store (if any) to disk. If |callback| is non-NULL it"]
+    #[doc = " will be executed asnychronously on the UI thread after the flush is"]
+    #[doc = " complete. Returns false (0) if cookies cannot be accessed."]
     #[doc = ""]
     pub flush_store: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6266,11 +6392,11 @@ pub type cef_cookie_manager_t = _cef_cookie_manager_t;
 extern "C" {
     #[doc = ""]
     #[doc = " Returns the global cookie manager. By default data will be stored at"]
-    #[doc = " CefSettings.cache_path if specified or in memory otherwise. If |callback| is"]
-    #[doc = " non-NULL it will be executed asnychronously on the UI thread after the"]
+    #[doc = " cef_settings_t.cache_path if specified or in memory otherwise. If |callback|"]
+    #[doc = " is non-NULL it will be executed asnychronously on the UI thread after the"]
     #[doc = " manager's storage has been initialized. Using this function is equivalent to"]
-    #[doc = " calling cef_request_context_t::cef_request_context_get_global_context()->GetD"]
-    #[doc = " efaultCookieManager()."]
+    #[doc = " calling cef_request_context_t::cef_request_context_get_global_context()->Get"]
+    #[doc = " DefaultCookieManager()."]
     #[doc = ""]
     pub fn cef_cookie_manager_get_global_manager(
         callback: *mut _cef_completion_callback_t,
@@ -6281,7 +6407,7 @@ extern "C" {
 #[doc = " structure will always be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
-#[derive(Debug, Copy, Clone, FromJava, JNICEFCallback)]
+#[derive(Debug, Copy, Clone, JNICEFCallback)]
 pub struct _cef_cookie_visitor_t {
     #[doc = ""]
     #[doc = " Base structure."]
@@ -6378,8 +6504,8 @@ pub struct _cef_extension_t {
         unsafe extern "C" fn(self_: *mut _cef_extension_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the extension manifest contents as a cef_dictionary_value_t object."]
-    #[doc = " See https://developer.chrome.com/extensions/manifest for details."]
+    #[doc = " Returns the extension manifest contents as a cef_dictionary_value_t"]
+    #[doc = " object. See https://developer.chrome.com/extensions/manifest for details."]
     #[doc = ""]
     pub get_manifest: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_extension_t) -> *mut _cef_dictionary_value_t,
@@ -6456,7 +6582,8 @@ pub struct _cef_get_extension_resource_callback_t {
 #[doc = ""]
 #[doc = " Implement this structure to handle events related to browser extensions. The"]
 #[doc = " functions of this structure will be called on the UI thread. See"]
-#[doc = " cef_request_context_t::LoadExtension for information about extension loading."]
+#[doc = " cef_request_context_t::LoadExtension for information about extension"]
+#[doc = " loading."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6497,14 +6624,14 @@ pub struct _cef_extension_handler_t {
     #[doc = " visible window and cannot be displayed. |extension| is the extension that"]
     #[doc = " is loading the background script. |url| is an internally generated"]
     #[doc = " reference to an HTML page that will be used to load the background script"]
-    #[doc = " via a <script> src attribute. To allow creation of the browser optionally"]
-    #[doc = " modify |client| and |settings| and return false (0). To cancel creation of"]
-    #[doc = " the browser (and consequently cancel load of the background script) return"]
-    #[doc = " true (1). Successful creation will be indicated by a call to"]
-    #[doc = " cef_life_span_handler_t::OnAfterCreated, and"]
-    #[doc = " cef_browser_host_t::IsBackgroundHost will return true (1) for the resulting"]
-    #[doc = " browser. See https://developer.chrome.com/extensions/event_pages for more"]
-    #[doc = " information about extension background script usage."]
+    #[doc = " via a \"<script>\" src attribute. To allow creation of the browser"]
+    #[doc = " optionally modify |client| and |settings| and return false (0). To cancel"]
+    #[doc = " creation of the browser (and consequently cancel load of the background"]
+    #[doc = " script) return true (1). Successful creation will be indicated by a call"]
+    #[doc = " to cef_life_span_handler_t::OnAfterCreated, and"]
+    #[doc = " cef_browser_host_t::IsBackgroundHost will return true (1) for the"]
+    #[doc = " resulting browser. See https://developer.chrome.com/extensions/event_pages"]
+    #[doc = " for more information about extension background script usage."]
     #[doc = ""]
     pub on_before_background_browser: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6516,19 +6643,19 @@ pub struct _cef_extension_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called when an extension API (e.g. chrome.tabs.create) requests creation of"]
-    #[doc = " a new browser. |extension| and |browser| are the source of the API call."]
-    #[doc = " |active_browser| may optionally be specified via the windowId property or"]
-    #[doc = " returned via the get_active_browser() callback and provides the default"]
-    #[doc = " |client| and |settings| values for the new browser. |index| is the position"]
-    #[doc = " value optionally specified via the index property. |url| is the URL that"]
-    #[doc = " will be loaded in the browser. |active| is true (1) if the new browser"]
-    #[doc = " should be active when opened.  To allow creation of the browser optionally"]
-    #[doc = " modify |windowInfo|, |client| and |settings| and return false (0). To"]
-    #[doc = " cancel creation of the browser return true (1). Successful creation will be"]
-    #[doc = " indicated by a call to cef_life_span_handler_t::OnAfterCreated. Any"]
-    #[doc = " modifications to |windowInfo| will be ignored if |active_browser| is"]
-    #[doc = " wrapped in a cef_browser_view_t."]
+    #[doc = " Called when an extension API (e.g. chrome.tabs.create) requests creation"]
+    #[doc = " of a new browser. |extension| and |browser| are the source of the API"]
+    #[doc = " call. |active_browser| may optionally be specified via the windowId"]
+    #[doc = " property or returned via the get_active_browser() callback and provides"]
+    #[doc = " the default |client| and |settings| values for the new browser. |index| is"]
+    #[doc = " the position value optionally specified via the index property. |url| is"]
+    #[doc = " the URL that will be loaded in the browser. |active| is true (1) if the"]
+    #[doc = " new browser should be active when opened.  To allow creation of the"]
+    #[doc = " browser optionally modify |windowInfo|, |client| and |settings| and return"]
+    #[doc = " false (0). To cancel creation of the browser return true (1). Successful"]
+    #[doc = " creation will be indicated by a call to"]
+    #[doc = " cef_life_span_handler_t::OnAfterCreated. Any modifications to |windowInfo|"]
+    #[doc = " will be ignored if |active_browser| is wrapped in a cef_browser_view_t."]
     #[doc = ""]
     pub on_before_browser: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6547,11 +6674,11 @@ pub struct _cef_extension_handler_t {
     #[doc = ""]
     #[doc = " Called when no tabId is specified to an extension API call that accepts a"]
     #[doc = " tabId parameter (e.g. chrome.tabs.*). |extension| and |browser| are the"]
-    #[doc = " source of the API call. Return the browser that will be acted on by the API"]
-    #[doc = " call or return NULL to act on |browser|. The returned browser must share"]
-    #[doc = " the same cef_request_context_t as |browser|. Incognito browsers should not"]
-    #[doc = " be considered unless the source extension has incognito access enabled, in"]
-    #[doc = " which case |include_incognito| will be true (1)."]
+    #[doc = " source of the API call. Return the browser that will be acted on by the"]
+    #[doc = " API call or return NULL to act on |browser|. The returned browser must"]
+    #[doc = " share the same cef_request_context_t as |browser|. Incognito browsers"]
+    #[doc = " should not be considered unless the source extension has incognito access"]
+    #[doc = " enabled, in which case |include_incognito| will be true (1)."]
     #[doc = ""]
     pub get_active_browser: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6579,14 +6706,15 @@ pub struct _cef_extension_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called to retrieve an extension resource that would normally be loaded from"]
-    #[doc = " disk (e.g. if a file parameter is specified to chrome.tabs.executeScript)."]
-    #[doc = " |extension| and |browser| are the source of the resource request. |file| is"]
-    #[doc = " the requested relative file path. To handle the resource request return"]
-    #[doc = " true (1) and execute |callback| either synchronously or asynchronously. For"]
-    #[doc = " the default behavior which reads the resource from the extension directory"]
-    #[doc = " on disk return false (0). Localization substitutions will not be applied to"]
-    #[doc = " resources handled via this function."]
+    #[doc = " Called to retrieve an extension resource that would normally be loaded"]
+    #[doc = " from disk (e.g. if a file parameter is specified to"]
+    #[doc = " chrome.tabs.executeScript). |extension| and |browser| are the source of"]
+    #[doc = " the resource request. |file| is the requested relative file path. To"]
+    #[doc = " handle the resource request return true (1) and execute |callback| either"]
+    #[doc = " synchronously or asynchronously. For the default behavior which reads the"]
+    #[doc = " resource from the extension directory on disk return false (0)."]
+    #[doc = " Localization substitutions will not be applied to resources handled via"]
+    #[doc = " this function."]
     #[doc = ""]
     pub get_extension_resource: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6611,8 +6739,8 @@ pub struct _cef_media_router_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Add an observer for MediaRouter events. The observer will remain registered"]
-    #[doc = " until the returned Registration object is destroyed."]
+    #[doc = " Add an observer for MediaRouter events. The observer will remain"]
+    #[doc = " registered until the returned Registration object is destroyed."]
     #[doc = ""]
     pub add_observer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -6640,8 +6768,8 @@ pub struct _cef_media_router_t {
     #[doc = ""]
     #[doc = " Create a new route between |source| and |sink|. Source and sink must be"]
     #[doc = " valid, compatible (as reported by cef_media_sink_t::IsCompatibleWith), and"]
-    #[doc = " a route between them must not already exist. |callback| will be executed on"]
-    #[doc = " success or failure. If route creation succeeds it will also trigger an"]
+    #[doc = " a route between them must not already exist. |callback| will be executed"]
+    #[doc = " on success or failure. If route creation succeeds it will also trigger an"]
     #[doc = " asynchronous call to cef_media_observer_t::OnRoutes on all registered"]
     #[doc = " observers."]
     #[doc = ""]
@@ -6668,11 +6796,11 @@ pub struct _cef_media_router_t {
 pub type cef_media_router_t = _cef_media_router_t;
 extern "C" {
     #[doc = ""]
-    #[doc = " Returns the MediaRouter object associated with the global request context. If"]
-    #[doc = " |callback| is non-NULL it will be executed asnychronously on the UI thread"]
-    #[doc = " after the manager's storage has been initialized. Equivalent to calling cef_r"]
-    #[doc = " equest_context_t::cef_request_context_get_global_context()->get_media_router("]
-    #[doc = " )."]
+    #[doc = " Returns the MediaRouter object associated with the global request context."]
+    #[doc = " If |callback| is non-NULL it will be executed asnychronously on the UI"]
+    #[doc = " thread after the manager's storage has been initialized. Equivalent to"]
+    #[doc = " calling cef_request_context_t::cef_request_context_get_global_context()->get"]
+    #[doc = " _media_router()."]
     #[doc = ""]
     pub fn cef_media_router_get_global(
         callback: *mut _cef_completion_callback_t,
@@ -6738,9 +6866,9 @@ pub struct _cef_media_observer_t {
 #[doc = ""]
 #[doc = " Represents the route between a media source and sink. Instances of this"]
 #[doc = " object are created via cef_media_router_t::CreateRoute and retrieved via"]
-#[doc = " cef_media_observer_t::OnRoutes. Contains the status and metadata of a routing"]
-#[doc = " operation. The functions of this structure may be called on any browser"]
-#[doc = " process thread unless otherwise indicated."]
+#[doc = " cef_media_observer_t::OnRoutes. Contains the status and metadata of a"]
+#[doc = " routing operation. The functions of this structure may be called on any"]
+#[doc = " browser process thread unless otherwise indicated."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6785,8 +6913,8 @@ pub struct _cef_media_route_t {
     pub terminate: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_media_route_t)>,
 }
 #[doc = ""]
-#[doc = " Callback structure for cef_media_router_t::CreateRoute. The functions of this"]
-#[doc = " structure will be called on the browser process UI thread."]
+#[doc = " Callback structure for cef_media_router_t::CreateRoute. The functions of"]
+#[doc = " this structure will be called on the browser process UI thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6796,9 +6924,9 @@ pub struct _cef_media_route_create_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Method that will be executed when the route creation has finished. |result|"]
-    #[doc = " will be CEF_MRCR_OK if the route creation succeeded. |error| will be a"]
-    #[doc = " description of the error if the route creation failed. |route| is the"]
+    #[doc = " Method that will be executed when the route creation has finished."]
+    #[doc = " |result| will be CEF_MRCR_OK if the route creation succeeded. |error| will"]
+    #[doc = " be a description of the error if the route creation failed. |route| is the"]
     #[doc = " resulting route, or NULL if the route creation failed."]
     #[doc = ""]
     pub on_media_route_create_finished: ::std::option::Option<
@@ -6881,8 +7009,8 @@ pub struct _cef_media_sink_t {
     >,
 }
 #[doc = ""]
-#[doc = " Callback structure for cef_media_sink_t::GetDeviceInfo. The functions of this"]
-#[doc = " structure will be called on the browser process UI thread."]
+#[doc = " Callback structure for cef_media_sink_t::GetDeviceInfo. The functions of"]
+#[doc = " this structure will be called on the browser process UI thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -6892,8 +7020,8 @@ pub struct _cef_media_sink_device_info_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Method that will be executed asyncronously once device information has been"]
-    #[doc = " retrieved."]
+    #[doc = " Method that will be executed asyncronously once device information has"]
+    #[doc = " been retrieved."]
     #[doc = ""]
     pub on_media_sink_device_info: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7051,8 +7179,8 @@ pub struct _cef_request_context_t {
     #[doc = " you must also implement the cef_app_t::on_register_custom_schemes()"]
     #[doc = " function in all processes. This function may be called multiple times to"]
     #[doc = " change or remove the factory that matches the specified |scheme_name| and"]
-    #[doc = " optional |domain_name|. Returns false (0) if an error occurs. This function"]
-    #[doc = " may be called on any thread in the browser process."]
+    #[doc = " optional |domain_name|. Returns false (0) if an error occurs. This"]
+    #[doc = " function may be called on any thread in the browser process."]
     #[doc = ""]
     pub register_scheme_handler_factory: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7082,9 +7210,9 @@ pub struct _cef_request_context_t {
     #[doc = ""]
     #[doc = " Returns the value for the preference with the specified |name|. Returns"]
     #[doc = " NULL if the preference does not exist. The returned object contains a copy"]
-    #[doc = " of the underlying preference value and modifications to the returned object"]
-    #[doc = " will not modify the underlying preference value. This function must be"]
-    #[doc = " called on the browser process UI thread."]
+    #[doc = " of the underlying preference value and modifications to the returned"]
+    #[doc = " object will not modify the underlying preference value. This function must"]
+    #[doc = " be called on the browser process UI thread."]
     #[doc = ""]
     pub get_preference: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7121,9 +7249,10 @@ pub struct _cef_request_context_t {
     #[doc = ""]
     #[doc = " Set the |value| associated with preference |name|. Returns true (1) if the"]
     #[doc = " value is set successfully and false (0) otherwise. If |value| is NULL the"]
-    #[doc = " preference will be restored to its default value. If setting the preference"]
-    #[doc = " fails then |error| will be populated with a detailed description of the"]
-    #[doc = " problem. This function must be called on the browser process UI thread."]
+    #[doc = " preference will be restored to its default value. If setting the"]
+    #[doc = " preference fails then |error| will be populated with a detailed"]
+    #[doc = " description of the problem. This function must be called on the browser"]
+    #[doc = " process UI thread."]
     #[doc = ""]
     pub set_preference: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7159,10 +7288,10 @@ pub struct _cef_request_context_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Clears all active and idle connections that Chromium currently has. This is"]
-    #[doc = " only recommended if you have released all other CEF objects but don't yet"]
-    #[doc = " want to call cef_shutdown(). If |callback| is non-NULL it will be executed"]
-    #[doc = " on the UI thread after completion."]
+    #[doc = " Clears all active and idle connections that Chromium currently has. This"]
+    #[doc = " is only recommended if you have released all other CEF objects but don't"]
+    #[doc = " yet want to call cef_shutdown(). If |callback| is non-NULL it will be"]
+    #[doc = " executed on the UI thread after completion."]
     #[doc = ""]
     pub close_all_connections: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7195,10 +7324,10 @@ pub struct _cef_request_context_t {
     #[doc = " disk."]
     #[doc = ""]
     #[doc = " The loaded extension will be accessible in all contexts sharing the same"]
-    #[doc = " storage (HasExtension returns true (1)). However, only the context on which"]
-    #[doc = " this function was called is considered the loader (DidLoadExtension returns"]
-    #[doc = " true (1)) and only the loader will receive cef_request_context_handler_t"]
-    #[doc = " callbacks for the extension."]
+    #[doc = " storage (HasExtension returns true (1)). However, only the context on"]
+    #[doc = " which this function was called is considered the loader (DidLoadExtension"]
+    #[doc = " returns true (1)) and only the loader will receive"]
+    #[doc = " cef_request_context_handler_t callbacks for the extension."]
     #[doc = ""]
     #[doc = " cef_extension_handler_t::OnExtensionLoaded will be called on load success"]
     #[doc = " or cef_extension_handler_t::OnExtensionLoadFailed will be called on load"]
@@ -7240,8 +7369,8 @@ pub struct _cef_request_context_t {
     #[doc = ""]
     #[doc = " Returns true (1) if this context was used to load the extension identified"]
     #[doc = " by |extension_id|. Other contexts sharing the same storage will also have"]
-    #[doc = " access to the extension (see HasExtension). This function must be called on"]
-    #[doc = " the browser process UI thread."]
+    #[doc = " access to the extension (see HasExtension). This function must be called"]
+    #[doc = " on the browser process UI thread."]
     #[doc = ""]
     pub did_load_extension: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7263,9 +7392,9 @@ pub struct _cef_request_context_t {
     >,
     #[doc = ""]
     #[doc = " Retrieve the list of all extensions that this context has access to (see"]
-    #[doc = " HasExtension). |extension_ids| will be populated with the list of extension"]
-    #[doc = " ID values. Returns true (1) on success. This function must be called on the"]
-    #[doc = " browser process UI thread."]
+    #[doc = " HasExtension). |extension_ids| will be populated with the list of"]
+    #[doc = " extension ID values. Returns true (1) on success. This function must be"]
+    #[doc = " called on the browser process UI thread."]
     #[doc = ""]
     pub get_extensions: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7285,9 +7414,9 @@ pub struct _cef_request_context_t {
         ) -> *mut _cef_extension_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the MediaRouter object associated with this context.  If |callback|"]
-    #[doc = " is non-NULL it will be executed asnychronously on the UI thread after the"]
-    #[doc = " manager's context has been initialized."]
+    #[doc = " Returns the MediaRouter object associated with this context.  If"]
+    #[doc = " |callback| is non-NULL it will be executed asnychronously on the UI thread"]
+    #[doc = " after the manager's context has been initialized."]
     #[doc = ""]
     pub get_media_router: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7406,8 +7535,8 @@ pub struct _cef_browser_t {
     #[doc = ""]
     pub stop_load: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_t)>,
     #[doc = ""]
-    #[doc = " Returns the globally unique identifier for this browser. This value is also"]
-    #[doc = " used as the tabId for extension APIs."]
+    #[doc = " Returns the globally unique identifier for this browser. This value is"]
+    #[doc = " also used as the tabId for extension APIs."]
     #[doc = ""]
     pub get_identifier: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_t) -> ::std::os::raw::c_int,
@@ -7508,9 +7637,9 @@ pub struct _cef_run_file_dialog_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called asynchronously after the file dialog is dismissed. |file_paths| will"]
-    #[doc = " be a single value or a list of values depending on the dialog mode. If the"]
-    #[doc = " selection was cancelled |file_paths| will be NULL."]
+    #[doc = " Called asynchronously after the file dialog is dismissed. |file_paths|"]
+    #[doc = " will be a single value or a list of values depending on the dialog mode."]
+    #[doc = " If the selection was cancelled |file_paths| will be NULL."]
     #[doc = ""]
     pub on_file_dialog_dismissed: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7531,11 +7660,11 @@ pub struct _cef_navigation_entry_visitor_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Method that will be executed. Do not keep a reference to |entry| outside of"]
-    #[doc = " this callback. Return true (1) to continue visiting entries or false (0) to"]
-    #[doc = " stop. |current| is true (1) if this entry is the currently loaded"]
-    #[doc = " navigation entry. |index| is the 0-based index of this entry and |total| is"]
-    #[doc = " the total number of entries."]
+    #[doc = " Method that will be executed. Do not keep a reference to |entry| outside"]
+    #[doc = " of this callback. Return true (1) to continue visiting entries or false"]
+    #[doc = " (0) to stop. |current| is true (1) if this entry is the currently loaded"]
+    #[doc = " navigation entry. |index| is the 0-based index of this entry and |total|"]
+    #[doc = " is the total number of entries."]
     #[doc = ""]
     pub visit: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7559,8 +7688,8 @@ pub struct _cef_pdf_print_callback_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Method that will be executed when the PDF printing has completed. |path| is"]
-    #[doc = " the output path. |ok| will be true (1) if the printing completed"]
+    #[doc = " Method that will be executed when the PDF printing has completed. |path|"]
+    #[doc = " is the output path. |ok| will be true (1) if the printing completed"]
     #[doc = " successfully or false (0) otherwise."]
     #[doc = ""]
     pub on_pdf_print_finished: ::std::option::Option<
@@ -7600,8 +7729,8 @@ pub struct _cef_download_image_callback_t {
 #[doc = ""]
 #[doc = " Structure used to represent the browser process aspects of a browser. The"]
 #[doc = " functions of this structure can only be called in the browser process. They"]
-#[doc = " may be called on any thread in that process unless otherwise indicated in the"]
-#[doc = " comments."]
+#[doc = " may be called on any thread in that process unless otherwise indicated in"]
+#[doc = " the comments."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -7619,12 +7748,12 @@ pub struct _cef_browser_host_t {
     #[doc = ""]
     #[doc = " Request that the browser close. The JavaScript 'onbeforeunload' event will"]
     #[doc = " be fired. If |force_close| is false (0) the event handler, if any, will be"]
-    #[doc = " allowed to prompt the user and the user can optionally cancel the close. If"]
-    #[doc = " |force_close| is true (1) the prompt will not be displayed and the close"]
-    #[doc = " will proceed. Results in a call to cef_life_span_handler_t::do_close() if"]
-    #[doc = " the event handler allows the close or if |force_close| is true (1). See"]
-    #[doc = " cef_life_span_handler_t::do_close() documentation for additional usage"]
-    #[doc = " information."]
+    #[doc = " allowed to prompt the user and the user can optionally cancel the close."]
+    #[doc = " If |force_close| is true (1) the prompt will not be displayed and the"]
+    #[doc = " close will proceed. Results in a call to"]
+    #[doc = " cef_life_span_handler_t::do_close() if the event handler allows the close"]
+    #[doc = " or if |force_close| is true (1). See cef_life_span_handler_t::do_close()"]
+    #[doc = " documentation for additional usage information."]
     #[doc = ""]
     pub close_browser: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, force_close: ::std::os::raw::c_int),
@@ -7632,8 +7761,8 @@ pub struct _cef_browser_host_t {
     #[doc = ""]
     #[doc = " Helper for closing a browser. Call this function from the top-level window"]
     #[doc = " close handler (if any). Internally this calls CloseBrowser(false (0)) if"]
-    #[doc = " the close has not yet been initiated. This function returns false (0) while"]
-    #[doc = " the close is pending and true (1) after the close has completed. See"]
+    #[doc = " the close has not yet been initiated. This function returns false (0)"]
+    #[doc = " while the close is pending and true (1) after the close has completed. See"]
     #[doc = " close_browser() and cef_life_span_handler_t::do_close() documentation for"]
     #[doc = " additional usage information. This function must be called on the browser"]
     #[doc = " process UI thread."]
@@ -7690,27 +7819,28 @@ pub struct _cef_browser_host_t {
     pub get_zoom_level:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t) -> f64>,
     #[doc = ""]
-    #[doc = " Change the zoom level to the specified value. Specify 0.0 to reset the zoom"]
-    #[doc = " level. If called on the UI thread the change will be applied immediately."]
-    #[doc = " Otherwise, the change will be applied asynchronously on the UI thread."]
+    #[doc = " Change the zoom level to the specified value. Specify 0.0 to reset the"]
+    #[doc = " zoom level. If called on the UI thread the change will be applied"]
+    #[doc = " immediately. Otherwise, the change will be applied asynchronously on the"]
+    #[doc = " UI thread."]
     #[doc = ""]
     pub set_zoom_level: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, zoomLevel: f64),
     >,
     #[doc = ""]
-    #[doc = " Call to run a file chooser dialog. Only a single file chooser dialog may be"]
-    #[doc = " pending at any given time. |mode| represents the type of dialog to display."]
-    #[doc = " |title| to the title to be used for the dialog and may be NULL to show the"]
-    #[doc = " default title (\"Open\" or \"Save\" depending on the mode). |default_file_path|"]
-    #[doc = " is the path with optional directory and/or file name component that will be"]
-    #[doc = " initially selected in the dialog. |accept_filters| are used to restrict the"]
-    #[doc = " selectable file types and may any combination of (a) valid lower-cased MIME"]
-    #[doc = " types (e.g. \"text/*\" or \"image/*\"), (b) individual file extensions (e.g."]
-    #[doc = " \".txt\" or \".png\"), or (c) combined description and file extension delimited"]
-    #[doc = " using \"|\" and \";\" (e.g. \"Image Types|.png;.gif;.jpg\"). |callback| will be"]
-    #[doc = " executed after the dialog is dismissed or immediately if another dialog is"]
-    #[doc = " already pending. The dialog will be initiated asynchronously on the UI"]
-    #[doc = " thread."]
+    #[doc = " Call to run a file chooser dialog. Only a single file chooser dialog may"]
+    #[doc = " be pending at any given time. |mode| represents the type of dialog to"]
+    #[doc = " display. |title| to the title to be used for the dialog and may be NULL to"]
+    #[doc = " show the default title (\"Open\" or \"Save\" depending on the mode)."]
+    #[doc = " |default_file_path| is the path with optional directory and/or file name"]
+    #[doc = " component that will be initially selected in the dialog. |accept_filters|"]
+    #[doc = " are used to restrict the selectable file types and may any combination of"]
+    #[doc = " (a) valid lower-cased MIME types (e.g. \"text/*\" or \"image/*\"), (b)"]
+    #[doc = " individual file extensions (e.g. \".txt\" or \".png\"), or (c) combined"]
+    #[doc = " description and file extension delimited using \"|\" and \";\" (e.g. \"Image"]
+    #[doc = " Types|.png;.gif;.jpg\"). |callback| will be executed after the dialog is"]
+    #[doc = " dismissed or immediately if another dialog is already pending. The dialog"]
+    #[doc = " will be initiated asynchronously on the UI thread."]
     #[doc = ""]
     pub run_file_dialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7734,11 +7864,11 @@ pub struct _cef_browser_host_t {
     #[doc = " not sent and not accepted during download. Images with density independent"]
     #[doc = " pixel (DIP) sizes larger than |max_image_size| are filtered out from the"]
     #[doc = " image results. Versions of the image at different scale factors may be"]
-    #[doc = " downloaded up to the maximum scale factor supported by the system. If there"]
-    #[doc = " are no image results <= |max_image_size| then the smallest image is resized"]
-    #[doc = " to |max_image_size| and is the only result. A |max_image_size| of 0 means"]
-    #[doc = " unlimited. If |bypass_cache| is true (1) then |image_url| is requested from"]
-    #[doc = " the server even if it is present in the browser cache."]
+    #[doc = " downloaded up to the maximum scale factor supported by the system. If"]
+    #[doc = " there are no image results <= |max_image_size| then the smallest image is"]
+    #[doc = " resized to |max_image_size| and is the only result. A |max_image_size| of"]
+    #[doc = " 0 means unlimited. If |bypass_cache| is true (1) then |image_url| is"]
+    #[doc = " requested from the server even if it is present in the browser cache."]
     #[doc = ""]
     pub download_image: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7772,9 +7902,9 @@ pub struct _cef_browser_host_t {
     #[doc = " Search for |searchText|. |forward| indicates whether to search forward or"]
     #[doc = " backward within the page. |matchCase| indicates whether the search should"]
     #[doc = " be case-sensitive. |findNext| indicates whether this is the first request"]
-    #[doc = " or a follow-up. The search will be restarted if |searchText| or |matchCase|"]
-    #[doc = " change. The search will be stopped if |searchText| is NULL. The"]
-    #[doc = " cef_find_handler_t instance, if any, returned via"]
+    #[doc = " or a follow-up. The search will be restarted if |searchText| or"]
+    #[doc = " |matchCase| change. The search will be stopped if |searchText| is NULL."]
+    #[doc = " The cef_find_handler_t instance, if any, returned via"]
     #[doc = " cef_client_t::GetFindHandler will be called to report find results."]
     #[doc = ""]
     pub find: ::std::option::Option<
@@ -7799,10 +7929,10 @@ pub struct _cef_browser_host_t {
     #[doc = " Open developer tools (DevTools) in its own browser. The DevTools browser"]
     #[doc = " will remain associated with this browser. If the DevTools browser is"]
     #[doc = " already open then it will be focused, in which case the |windowInfo|,"]
-    #[doc = " |client| and |settings| parameters will be ignored. If |inspect_element_at|"]
-    #[doc = " is non-NULL then the element at the specified (x,y) location will be"]
-    #[doc = " inspected. The |windowInfo| parameter will be ignored if this browser is"]
-    #[doc = " wrapped in a cef_browser_view_t."]
+    #[doc = " |client| and |settings| parameters will be ignored. If"]
+    #[doc = " |inspect_element_at| is non-NULL then the element at the specified (x,y)"]
+    #[doc = " location will be inspected. The |windowInfo| parameter will be ignored if"]
+    #[doc = " this browser is wrapped in a cef_browser_view_t."]
     #[doc = ""]
     pub show_dev_tools: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7833,14 +7963,14 @@ pub struct _cef_browser_host_t {
     #[doc = " protocol/ for details of supported functions and the expected \"params\""]
     #[doc = " dictionary contents. |message| will be copied if necessary. This function"]
     #[doc = " will return true (1) if called on the UI thread and the message was"]
-    #[doc = " successfully submitted for validation, otherwise false (0). Validation will"]
-    #[doc = " be applied asynchronously and any messages that fail due to formatting"]
-    #[doc = " errors or missing parameters may be discarded without notification. Prefer"]
-    #[doc = " ExecuteDevToolsMethod if a more structured approach to message formatting"]
-    #[doc = " is desired."]
+    #[doc = " successfully submitted for validation, otherwise false (0). Validation"]
+    #[doc = " will be applied asynchronously and any messages that fail due to"]
+    #[doc = " formatting errors or missing parameters may be discarded without"]
+    #[doc = " notification. Prefer ExecuteDevToolsMethod if a more structured approach"]
+    #[doc = " to message formatting is desired."]
     #[doc = ""]
-    #[doc = " Every valid function call will result in an asynchronous function result or"]
-    #[doc = " error message that references the sent message \"id\". Event messages are"]
+    #[doc = " Every valid function call will result in an asynchronous function result"]
+    #[doc = " or error message that references the sent message \"id\". Event messages are"]
     #[doc = " received while notifications are enabled (for example, between function"]
     #[doc = " calls for \"Page.enable\" and \"Page.disable\"). All received messages will be"]
     #[doc = " delivered to the observer(s) registered with AddDevToolsMessageObserver."]
@@ -7868,14 +7998,15 @@ pub struct _cef_browser_host_t {
     #[doc = ""]
     #[doc = " Execute a function call over the DevTools protocol. This is a more"]
     #[doc = " structured version of SendDevToolsMessage. |message_id| is an incremental"]
-    #[doc = " number that uniquely identifies the message (pass 0 to have the next number"]
-    #[doc = " assigned automatically based on previous values). |function| is the"]
-    #[doc = " function name. |params| are the function parameters, which may be NULL. See"]
-    #[doc = " the DevTools protocol documentation (linked above) for details of supported"]
-    #[doc = " functions and the expected |params| dictionary contents. This function will"]
-    #[doc = " return the assigned message ID if called on the UI thread and the message"]
-    #[doc = " was successfully submitted for validation, otherwise 0. See the"]
-    #[doc = " SendDevToolsMessage documentation for additional usage information."]
+    #[doc = " number that uniquely identifies the message (pass 0 to have the next"]
+    #[doc = " number assigned automatically based on previous values). |function| is the"]
+    #[doc = " function name. |params| are the function parameters, which may be NULL."]
+    #[doc = " See the DevTools protocol documentation (linked above) for details of"]
+    #[doc = " supported functions and the expected |params| dictionary contents. This"]
+    #[doc = " function will return the assigned message ID if called on the UI thread"]
+    #[doc = " and the message was successfully submitted for validation, otherwise 0."]
+    #[doc = " See the SendDevToolsMessage documentation for additional usage"]
+    #[doc = " information."]
     #[doc = ""]
     pub execute_dev_tools_method: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7888,8 +8019,8 @@ pub struct _cef_browser_host_t {
     #[doc = ""]
     #[doc = " Add an observer for DevTools protocol messages (function results and"]
     #[doc = " events). The observer will remain registered until the returned"]
-    #[doc = " Registration object is destroyed. See the SendDevToolsMessage documentation"]
-    #[doc = " for additional usage information."]
+    #[doc = " Registration object is destroyed. See the SendDevToolsMessage"]
+    #[doc = " documentation for additional usage information."]
     #[doc = ""]
     pub add_dev_tools_message_observer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -7911,8 +8042,8 @@ pub struct _cef_browser_host_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " If a misspelled word is currently selected in an editable node calling this"]
-    #[doc = " function will replace it with the specified |word|."]
+    #[doc = " If a misspelled word is currently selected in an editable node calling"]
+    #[doc = " this function will replace it with the specified |word|."]
     #[doc = ""]
     pub replace_misspelling: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, word: *const cef_string_t),
@@ -7930,10 +8061,10 @@ pub struct _cef_browser_host_t {
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Notify the browser that the widget has been resized. The browser will first"]
-    #[doc = " call cef_render_handler_t::GetViewRect to get the new size and then call"]
-    #[doc = " cef_render_handler_t::OnPaint asynchronously with the updated regions. This"]
-    #[doc = " function is only used when window rendering is disabled."]
+    #[doc = " Notify the browser that the widget has been resized. The browser will"]
+    #[doc = " first call cef_render_handler_t::GetViewRect to get the new size and then"]
+    #[doc = " call cef_render_handler_t::OnPaint asynchronously with the updated"]
+    #[doc = " regions. This function is only used when window rendering is disabled."]
     #[doc = ""]
     pub was_resized: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t)>,
     #[doc = ""]
@@ -7972,7 +8103,7 @@ pub struct _cef_browser_host_t {
     #[doc = " Send a key event to the browser."]
     #[doc = ""]
     pub send_key_event: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const _cef_key_event_t),
+        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const cef_key_event_t),
     >,
     #[doc = ""]
     #[doc = " Send a mouse click event to the browser. The |x| and |y| coordinates are"]
@@ -7981,7 +8112,7 @@ pub struct _cef_browser_host_t {
     pub send_mouse_click_event: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_browser_host_t,
-            event: *const _cef_mouse_event_t,
+            event: *const cef_mouse_event_t,
             type_: cef_mouse_button_type_t,
             mouseUp: ::std::os::raw::c_int,
             clickCount: ::std::os::raw::c_int,
@@ -7994,21 +8125,22 @@ pub struct _cef_browser_host_t {
     pub send_mouse_move_event: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_browser_host_t,
-            event: *const _cef_mouse_event_t,
+            event: *const cef_mouse_event_t,
             mouseLeave: ::std::os::raw::c_int,
         ),
     >,
     #[doc = ""]
     #[doc = " Send a mouse wheel event to the browser. The |x| and |y| coordinates are"]
     #[doc = " relative to the upper-left corner of the view. The |deltaX| and |deltaY|"]
-    #[doc = " values represent the movement delta in the X and Y directions respectively."]
-    #[doc = " In order to scroll inside select popups with window rendering disabled"]
-    #[doc = " cef_render_handler_t::GetScreenPoint should be implemented properly."]
+    #[doc = " values represent the movement delta in the X and Y directions"]
+    #[doc = " respectively. In order to scroll inside select popups with window"]
+    #[doc = " rendering disabled cef_render_handler_t::GetScreenPoint should be"]
+    #[doc = " implemented properly."]
     #[doc = ""]
     pub send_mouse_wheel_event: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_browser_host_t,
-            event: *const _cef_mouse_event_t,
+            event: *const cef_mouse_event_t,
             deltaX: ::std::os::raw::c_int,
             deltaY: ::std::os::raw::c_int,
         ),
@@ -8017,7 +8149,7 @@ pub struct _cef_browser_host_t {
     #[doc = " Send a touch event to the browser for a windowless browser."]
     #[doc = ""]
     pub send_touch_event: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const _cef_touch_event_t),
+        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const cef_touch_event_t),
     >,
     #[doc = ""]
     #[doc = " Send a capture lost event to the browser."]
@@ -8032,20 +8164,21 @@ pub struct _cef_browser_host_t {
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t)>,
     #[doc = ""]
     #[doc = " Returns the maximum rate in frames per second (fps) that"]
-    #[doc = " cef_render_handler_t:: OnPaint will be called for a windowless browser. The"]
+    #[doc = " cef_render_handler_t::OnPaint will be called for a windowless browser. The"]
     #[doc = " actual fps may be lower if the browser cannot generate frames at the"]
-    #[doc = " requested rate. The minimum value is 1 and the maximum value is 60 (default"]
-    #[doc = " 30). This function can only be called on the UI thread."]
+    #[doc = " requested rate. The minimum value is 1 and the maximum value is 60"]
+    #[doc = " (default 30). This function can only be called on the UI thread."]
     #[doc = ""]
     pub get_windowless_frame_rate: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Set the maximum rate in frames per second (fps) that cef_render_handler_t::"]
-    #[doc = " OnPaint will be called for a windowless browser. The actual fps may be"]
-    #[doc = " lower if the browser cannot generate frames at the requested rate. The"]
-    #[doc = " minimum value is 1 and the maximum value is 60 (default 30). Can also be"]
-    #[doc = " set at browser creation via cef_browser_tSettings.windowless_frame_rate."]
+    #[doc = " Set the maximum rate in frames per second (fps) that"]
+    #[doc = " cef_render_handler_t:: OnPaint will be called for a windowless browser."]
+    #[doc = " The actual fps may be lower if the browser cannot generate frames at the"]
+    #[doc = " requested rate. The minimum value is 1 and the maximum value is 60"]
+    #[doc = " (default 30). Can also be set at browser creation via"]
+    #[doc = " cef_browser_tSettings.windowless_frame_rate."]
     #[doc = ""]
     pub set_windowless_frame_rate: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, frame_rate: ::std::os::raw::c_int),
@@ -8054,22 +8187,24 @@ pub struct _cef_browser_host_t {
     #[doc = " Begins a new composition or updates the existing composition. Blink has a"]
     #[doc = " special node (a composition node) that allows the input function to change"]
     #[doc = " text without affecting other DOM nodes. |text| is the optional text that"]
-    #[doc = " will be inserted into the composition node. |underlines| is an optional set"]
-    #[doc = " of ranges that will be underlined in the resulting text."]
+    #[doc = " will be inserted into the composition node. |underlines| is an optional"]
+    #[doc = " set of ranges that will be underlined in the resulting text."]
     #[doc = " |replacement_range| is an optional range of the existing text that will be"]
-    #[doc = " replaced. |selection_range| is an optional range of the resulting text that"]
-    #[doc = " will be selected after insertion or replacement. The |replacement_range|"]
-    #[doc = " value is only used on OS X."]
+    #[doc = " replaced. |selection_range| is an optional range of the resulting text"]
+    #[doc = " that will be selected after insertion or replacement. The"]
+    #[doc = " |replacement_range| value is only used on OS X."]
     #[doc = ""]
-    #[doc = " This function may be called multiple times as the composition changes. When"]
-    #[doc = " the client is done making changes the composition should either be canceled"]
-    #[doc = " or completed. To cancel the composition call ImeCancelComposition. To"]
-    #[doc = " complete the composition call either ImeCommitText or"]
-    #[doc = " ImeFinishComposingText. Completion is usually signaled when:"]
-    #[doc = "   A. The client receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR"]
-    #[doc = "      flag (on Windows), or;"]
-    #[doc = "   B. The client receives a \"commit\" signal of GtkIMContext (on Linux), or;"]
-    #[doc = "   C. insertText of NSTextInput is called (on Mac)."]
+    #[doc = " This function may be called multiple times as the composition changes."]
+    #[doc = " When the client is done making changes the composition should either be"]
+    #[doc = " canceled or completed. To cancel the composition call"]
+    #[doc = " ImeCancelComposition. To complete the composition call either"]
+    #[doc = " ImeCommitText or ImeFinishComposingText. Completion is usually signaled"]
+    #[doc = " when:"]
+    #[doc = ""]
+    #[doc = " 1. The client receives a WM_IME_COMPOSITION message with a GCS_RESULTSTR"]
+    #[doc = "    flag (on Windows), or;"]
+    #[doc = " 2. The client receives a \"commit\" signal of GtkIMContext (on Linux), or;"]
+    #[doc = " 3. insertText of NSTextInput is called (on Mac)."]
     #[doc = ""]
     #[doc = " This function is only used when window rendering is disabled."]
     #[doc = ""]
@@ -8101,9 +8236,9 @@ pub struct _cef_browser_host_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Completes the existing composition by applying the current composition node"]
-    #[doc = " contents. If |keep_selection| is false (0) the current selection, if any,"]
-    #[doc = " will be discarded. See comments on ImeSetComposition for usage. This"]
+    #[doc = " Completes the existing composition by applying the current composition"]
+    #[doc = " node contents. If |keep_selection| is false (0) the current selection, if"]
+    #[doc = " any, will be discarded. See comments on ImeSetComposition for usage. This"]
     #[doc = " function is only used when window rendering is disabled."]
     #[doc = ""]
     pub ime_finish_composing_text: ::std::option::Option<
@@ -8113,9 +8248,9 @@ pub struct _cef_browser_host_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Cancels the existing composition and discards the composition node contents"]
-    #[doc = " without applying them. See comments on ImeSetComposition for usage. This"]
-    #[doc = " function is only used when window rendering is disabled."]
+    #[doc = " Cancels the existing composition and discards the composition node"]
+    #[doc = " contents without applying them. See comments on ImeSetComposition for"]
+    #[doc = " usage. This function is only used when window rendering is disabled."]
     #[doc = ""]
     pub ime_cancel_composition:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t)>,
@@ -8132,27 +8267,27 @@ pub struct _cef_browser_host_t {
         unsafe extern "C" fn(
             self_: *mut _cef_browser_host_t,
             drag_data: *mut _cef_drag_data_t,
-            event: *const _cef_mouse_event_t,
+            event: *const cef_mouse_event_t,
             allowed_ops: cef_drag_operations_mask_t,
         ),
     >,
     #[doc = ""]
     #[doc = " Call this function each time the mouse is moved across the web view during"]
     #[doc = " a drag operation (after calling DragTargetDragEnter and before calling"]
-    #[doc = " DragTargetDragLeave/DragTargetDrop). This function is only used when window"]
-    #[doc = " rendering is disabled."]
+    #[doc = " DragTargetDragLeave/DragTargetDrop). This function is only used when"]
+    #[doc = " window rendering is disabled."]
     #[doc = ""]
     pub drag_target_drag_over: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_browser_host_t,
-            event: *const _cef_mouse_event_t,
+            event: *const cef_mouse_event_t,
             allowed_ops: cef_drag_operations_mask_t,
         ),
     >,
     #[doc = ""]
-    #[doc = " Call this function when the user drags the mouse out of the web view (after"]
-    #[doc = " calling DragTargetDragEnter). This function is only used when window"]
-    #[doc = " rendering is disabled."]
+    #[doc = " Call this function when the user drags the mouse out of the web view"]
+    #[doc = " (after calling DragTargetDragEnter). This function is only used when"]
+    #[doc = " window rendering is disabled."]
     #[doc = ""]
     pub drag_target_drag_leave:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t)>,
@@ -8164,7 +8299,7 @@ pub struct _cef_browser_host_t {
     #[doc = " is disabled."]
     #[doc = ""]
     pub drag_target_drop: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const _cef_mouse_event_t),
+        unsafe extern "C" fn(self_: *mut _cef_browser_host_t, event: *const cef_mouse_event_t),
     >,
     #[doc = ""]
     #[doc = " Call this function when the drag operation started by a"]
@@ -8187,9 +8322,9 @@ pub struct _cef_browser_host_t {
     #[doc = " Call this function when the drag operation started by a"]
     #[doc = " cef_render_handler_t::StartDragging call has completed. This function may"]
     #[doc = " be called immediately without first calling DragSourceEndedAt to cancel a"]
-    #[doc = " drag operation. If the web view is both the drag source and the drag target"]
-    #[doc = " then all DragTarget* functions should be called before DragSource* mthods."]
-    #[doc = " This function is only used when window rendering is disabled."]
+    #[doc = " drag operation. If the web view is both the drag source and the drag"]
+    #[doc = " target then all DragTarget* functions should be called before DragSource*"]
+    #[doc = " mthods. This function is only used when window rendering is disabled."]
     #[doc = ""]
     pub drag_source_system_drag_ended:
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_browser_host_t)>,
@@ -8203,35 +8338,35 @@ pub struct _cef_browser_host_t {
     #[doc = ""]
     #[doc = " Set accessibility state for all frames. |accessibility_state| may be"]
     #[doc = " default, enabled or disabled. If |accessibility_state| is STATE_DEFAULT"]
-    #[doc = " then accessibility will be disabled by default and the state may be further"]
-    #[doc = " controlled with the \"force-renderer-accessibility\" and \"disable-renderer-"]
-    #[doc = " accessibility\" command-line switches. If |accessibility_state| is"]
+    #[doc = " then accessibility will be disabled by default and the state may be"]
+    #[doc = " further controlled with the \"force-renderer-accessibility\" and \"disable-"]
+    #[doc = " renderer-accessibility\" command-line switches. If |accessibility_state| is"]
     #[doc = " STATE_ENABLED then accessibility will be enabled. If |accessibility_state|"]
     #[doc = " is STATE_DISABLED then accessibility will be completely disabled."]
     #[doc = ""]
-    #[doc = " For windowed browsers accessibility will be enabled in Complete mode (which"]
-    #[doc = " corresponds to kAccessibilityModeComplete in Chromium). In this mode all"]
-    #[doc = " platform accessibility objects will be created and managed by Chromium's"]
-    #[doc = " internal implementation. The client needs only to detect the screen reader"]
-    #[doc = " and call this function appropriately. For example, on macOS the client can"]
-    #[doc = " handle the @\"AXEnhancedUserStructure\" accessibility attribute to detect"]
-    #[doc = " VoiceOver state changes and on Windows the client can handle WM_GETOBJECT"]
-    #[doc = " with OBJID_CLIENT to detect accessibility readers."]
+    #[doc = " For windowed browsers accessibility will be enabled in Complete mode"]
+    #[doc = " (which corresponds to kAccessibilityModeComplete in Chromium). In this"]
+    #[doc = " mode all platform accessibility objects will be created and managed by"]
+    #[doc = " Chromium's internal implementation. The client needs only to detect the"]
+    #[doc = " screen reader and call this function appropriately. For example, on macOS"]
+    #[doc = " the client can handle the @\"AXEnhancedUserStructure\" accessibility"]
+    #[doc = " attribute to detect VoiceOver state changes and on Windows the client can"]
+    #[doc = " handle WM_GETOBJECT with OBJID_CLIENT to detect accessibility readers."]
     #[doc = ""]
     #[doc = " For windowless browsers accessibility will be enabled in TreeOnly mode"]
     #[doc = " (which corresponds to kAccessibilityModeWebContentsOnly in Chromium). In"]
-    #[doc = " this mode renderer accessibility is enabled, the full tree is computed, and"]
-    #[doc = " events are passed to CefAccessibiltyHandler, but platform accessibility"]
-    #[doc = " objects are not created. The client may implement platform accessibility"]
-    #[doc = " objects using CefAccessibiltyHandler callbacks if desired."]
+    #[doc = " this mode renderer accessibility is enabled, the full tree is computed,"]
+    #[doc = " and events are passed to CefAccessibiltyHandler, but platform"]
+    #[doc = " accessibility objects are not created. The client may implement platform"]
+    #[doc = " accessibility objects using CefAccessibiltyHandler callbacks if desired."]
     #[doc = ""]
     pub set_accessibility_state: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, accessibility_state: cef_state_t),
     >,
     #[doc = ""]
     #[doc = " Enable notifications of auto resize via"]
-    #[doc = " cef_display_handler_t::OnAutoResize. Notifications are disabled by default."]
-    #[doc = " |min_size| and |max_size| define the range of allowed sizes."]
+    #[doc = " cef_display_handler_t::OnAutoResize. Notifications are disabled by"]
+    #[doc = " default. |min_size| and |max_size| define the range of allowed sizes."]
     #[doc = ""]
     pub set_auto_resize_enabled: ::std::option::Option<
         unsafe extern "C" fn(
@@ -8249,15 +8384,15 @@ pub struct _cef_browser_host_t {
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t) -> *mut _cef_extension_t,
     >,
     #[doc = ""]
-    #[doc = " Returns true (1) if this browser is hosting an extension background script."]
-    #[doc = " Background hosts do not have a window and are not displayable. See"]
+    #[doc = " Returns true (1) if this browser is hosting an extension background"]
+    #[doc = " script. Background hosts do not have a window and are not displayable. See"]
     #[doc = " cef_request_context_t::LoadExtension for details."]
     #[doc = ""]
     pub is_background_host: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = "  Set whether the browser's audio is muted."]
+    #[doc = " Set whether the browser's audio is muted."]
     #[doc = ""]
     pub set_audio_muted: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_host_t, mute: ::std::os::raw::c_int),
@@ -8277,9 +8412,9 @@ extern "C" {
     #[doc = " created on the UI thread. If |request_context| is NULL the global request"]
     #[doc = " context will be used. This function can be called on any browser process"]
     #[doc = " thread and will not block. The optional |extra_info| parameter provides an"]
-    #[doc = " opportunity to specify extra information specific to the created browser that"]
-    #[doc = " will be passed to cef_render_process_handler_t::on_browser_created() in the"]
-    #[doc = " render process."]
+    #[doc = " opportunity to specify extra information specific to the created browser"]
+    #[doc = " that will be passed to cef_render_process_handler_t::on_browser_created() in"]
+    #[doc = " the render process."]
     #[doc = ""]
     pub fn cef_browser_host_create_browser(
         windowInfo: *const cef_window_info_t,
@@ -8534,10 +8669,11 @@ pub struct _cef_print_handler_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called when printing has started for the specified |browser|. This function"]
-    #[doc = " will be called before the other OnPrint*() functions and irrespective of"]
-    #[doc = " how printing was initiated (e.g. cef_browser_host_t::print(), JavaScript"]
-    #[doc = " window.print() or PDF extension print button)."]
+    #[doc = " Called when printing has started for the specified |browser|. This"]
+    #[doc = " function will be called before the other OnPrint*() functions and"]
+    #[doc = " irrespective of how printing was initiated (e.g."]
+    #[doc = " cef_browser_host_t::print(), JavaScript window.print() or PDF extension"]
+    #[doc = " print button)."]
     #[doc = ""]
     pub on_print_start: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_print_handler_t, browser: *mut _cef_browser_t),
@@ -8715,9 +8851,8 @@ pub struct _cef_menu_model_t {
     #[doc = ""]
     #[doc = " Returns the number of items in this menu."]
     #[doc = ""]
-    pub get_count: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_menu_model_t) -> ::std::os::raw::c_int,
-    >,
+    pub get_count:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_menu_model_t) -> usize>,
     #[doc = ""]
     #[doc = " Add a separator to the menu. Returns true (1) on success."]
     #[doc = ""]
@@ -8771,10 +8906,7 @@ pub struct _cef_menu_model_t {
     #[doc = " on success."]
     #[doc = ""]
     pub insert_separator_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Insert an item in the menu at the specified |index|. Returns true (1) on"]
@@ -8783,7 +8915,7 @@ pub struct _cef_menu_model_t {
     pub insert_item_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             command_id: ::std::os::raw::c_int,
             label: *const cef_string_t,
         ) -> ::std::os::raw::c_int,
@@ -8795,7 +8927,7 @@ pub struct _cef_menu_model_t {
     pub insert_check_item_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             command_id: ::std::os::raw::c_int,
             label: *const cef_string_t,
         ) -> ::std::os::raw::c_int,
@@ -8808,20 +8940,20 @@ pub struct _cef_menu_model_t {
     pub insert_radio_item_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             command_id: ::std::os::raw::c_int,
             label: *const cef_string_t,
             group_id: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Insert a sub-menu in the menu at the specified |index|. The new sub-menu is"]
-    #[doc = " returned."]
+    #[doc = " Insert a sub-menu in the menu at the specified |index|. The new sub-menu"]
+    #[doc = " is returned."]
     #[doc = ""]
     pub insert_sub_menu_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             command_id: ::std::os::raw::c_int,
             label: *const cef_string_t,
         ) -> *mut _cef_menu_model_t,
@@ -8840,10 +8972,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Removes the item at the specified |index|. Returns true (1) on success."]
     #[doc = ""]
     pub remove_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Returns the index associated with the specified |command_id| or -1 if not"]
@@ -8860,10 +8989,7 @@ pub struct _cef_menu_model_t {
     #[doc = " invalid range or the index being a separator."]
     #[doc = ""]
     pub get_command_id_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Sets the command id at the specified |index|. Returns true (1) on success."]
@@ -8871,7 +8997,7 @@ pub struct _cef_menu_model_t {
     pub set_command_id_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             command_id: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
@@ -8891,13 +9017,11 @@ pub struct _cef_menu_model_t {
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_label_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> cef_string_userfree_t,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Sets the label for the specified |command_id|. Returns true (1) on success."]
+    #[doc = " Sets the label for the specified |command_id|. Returns true (1) on"]
+    #[doc = " success."]
     #[doc = ""]
     pub set_label: ::std::option::Option<
         unsafe extern "C" fn(
@@ -8912,7 +9036,7 @@ pub struct _cef_menu_model_t {
     pub set_label_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             label: *const cef_string_t,
         ) -> ::std::os::raw::c_int,
     >,
@@ -8929,10 +9053,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Returns the item type at the specified |index|."]
     #[doc = ""]
     pub get_type_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> cef_menu_item_type_t,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> cef_menu_item_type_t,
     >,
     #[doc = ""]
     #[doc = " Returns the group id for the specified |command_id| or -1 if invalid."]
@@ -8947,10 +9068,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Returns the group id at the specified |index| or -1 if invalid."]
     #[doc = ""]
     pub get_group_id_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Sets the group id for the specified |command_id|. Returns true (1) on"]
@@ -8969,7 +9087,7 @@ pub struct _cef_menu_model_t {
     pub set_group_id_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             group_id: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
@@ -8986,10 +9104,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Returns the submenu at the specified |index| or NULL if invalid."]
     #[doc = ""]
     pub get_sub_menu_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> *mut _cef_menu_model_t,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> *mut _cef_menu_model_t,
     >,
     #[doc = ""]
     #[doc = " Returns true (1) if the specified |command_id| is visible."]
@@ -9004,10 +9119,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Returns true (1) if the specified |index| is visible."]
     #[doc = ""]
     pub is_visible_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Change the visibility of the specified |command_id|. Returns true (1) on"]
@@ -9027,7 +9139,7 @@ pub struct _cef_menu_model_t {
     pub set_visible_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             visible: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
@@ -9044,10 +9156,7 @@ pub struct _cef_menu_model_t {
     #[doc = " Returns true (1) if the specified |index| is enabled."]
     #[doc = ""]
     pub is_enabled_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Change the enabled status of the specified |command_id|. Returns true (1)"]
@@ -9067,7 +9176,7 @@ pub struct _cef_menu_model_t {
     pub set_enabled_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             enabled: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
@@ -9082,14 +9191,11 @@ pub struct _cef_menu_model_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns true (1) if the specified |index| is checked. Only applies to check"]
-    #[doc = " and radio items."]
+    #[doc = " Returns true (1) if the specified |index| is checked. Only applies to"]
+    #[doc = " check and radio items."]
     #[doc = ""]
     pub is_checked_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Check the specified |command_id|. Only applies to check and radio items."]
@@ -9103,13 +9209,13 @@ pub struct _cef_menu_model_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Check the specified |index|. Only applies to check and radio items. Returns"]
-    #[doc = " true (1) on success."]
+    #[doc = " Check the specified |index|. Only applies to check and radio items."]
+    #[doc = " Returns true (1) on success."]
     #[doc = ""]
     pub set_checked_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             checked: ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
@@ -9128,14 +9234,11 @@ pub struct _cef_menu_model_t {
     #[doc = " assigned."]
     #[doc = ""]
     pub has_accelerator_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Set the keyboard accelerator for the specified |command_id|. |key_code| can"]
-    #[doc = " be any virtual key or character value. Returns true (1) on success."]
+    #[doc = " Set the keyboard accelerator for the specified |command_id|. |key_code|"]
+    #[doc = " can be any virtual key or character value. Returns true (1) on success."]
     #[doc = ""]
     pub set_accelerator: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9154,7 +9257,7 @@ pub struct _cef_menu_model_t {
     pub set_accelerator_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             key_code: ::std::os::raw::c_int,
             shift_pressed: ::std::os::raw::c_int,
             ctrl_pressed: ::std::os::raw::c_int,
@@ -9176,10 +9279,7 @@ pub struct _cef_menu_model_t {
     #[doc = " on success."]
     #[doc = ""]
     pub remove_accelerator_at: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
-        ) -> ::std::os::raw::c_int,
+        unsafe extern "C" fn(self_: *mut _cef_menu_model_t, index: usize) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Retrieves the keyboard accelerator for the specified |command_id|. Returns"]
@@ -9202,7 +9302,7 @@ pub struct _cef_menu_model_t {
     pub get_accelerator_at: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_menu_model_t,
-            index: ::std::os::raw::c_int,
+            index: usize,
             key_code: *mut ::std::os::raw::c_int,
             shift_pressed: *mut ::std::os::raw::c_int,
             ctrl_pressed: *mut ::std::os::raw::c_int,
@@ -9226,9 +9326,9 @@ pub struct _cef_menu_model_t {
     #[doc = ""]
     #[doc = " Set the explicit color for |command_id| and |index| to |color|. Specify a"]
     #[doc = " |color| value of 0 to remove the explicit color. Specify an |index| value"]
-    #[doc = " of -1 to set the default color for items that do not have an explicit color"]
-    #[doc = " set. If no explicit color or default color is set for |color_type| then the"]
-    #[doc = " system color will be used. Returns true (1) on success."]
+    #[doc = " of -1 to set the default color for items that do not have an explicit"]
+    #[doc = " color set. If no explicit color or default color is set for |color_type|"]
+    #[doc = " then the system color will be used. Returns true (1) on success."]
     #[doc = ""]
     pub set_color_at: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9253,9 +9353,9 @@ pub struct _cef_menu_model_t {
     >,
     #[doc = ""]
     #[doc = " Returns in |color| the color that was explicitly set for |command_id| and"]
-    #[doc = " |color_type|. Specify an |index| value of -1 to return the default color in"]
-    #[doc = " |color|. If a color was not set then 0 will be returned in |color|. Returns"]
-    #[doc = " true (1) on success."]
+    #[doc = " |color_type|. Specify an |index| value of -1 to return the default color"]
+    #[doc = " in |color|. If a color was not set then 0 will be returned in |color|."]
+    #[doc = " Returns true (1) on success."]
     #[doc = ""]
     pub get_color_at: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9268,10 +9368,10 @@ pub struct _cef_menu_model_t {
     #[doc = ""]
     #[doc = " Sets the font list for the specified |command_id|. If |font_list| is NULL"]
     #[doc = " the system font will be used. Returns true (1) on success. The format is"]
-    #[doc = " \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\", where: - FONT_FAMILY_LIST is a comma-"]
-    #[doc = " separated list of font family names, - STYLES is an optional space-"]
-    #[doc = " separated list of style names (case-sensitive"]
-    #[doc = "   \"Bold\" and \"Italic\" are supported), and"]
+    #[doc = " \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\", where: - FONT_FAMILY_LIST is a"]
+    #[doc = " comma-separated list of font family names, - STYLES is an optional space-"]
+    #[doc = " separated list of style names"]
+    #[doc = "   (case-sensitive \"Bold\" and \"Italic\" are supported), and"]
     #[doc = " - SIZE is an integer font size in pixels with the suffix \"px\"."]
     #[doc = ""]
     #[doc = " Here are examples of valid font description strings: - \"Arial, Helvetica,"]
@@ -9288,10 +9388,10 @@ pub struct _cef_menu_model_t {
     #[doc = " Sets the font list for the specified |index|. Specify an |index| value of"]
     #[doc = " -1 to set the default font. If |font_list| is NULL the system font will be"]
     #[doc = " used. Returns true (1) on success. The format is"]
-    #[doc = " \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\", where: - FONT_FAMILY_LIST is a comma-"]
-    #[doc = " separated list of font family names, - STYLES is an optional space-"]
-    #[doc = " separated list of style names (case-sensitive"]
-    #[doc = "   \"Bold\" and \"Italic\" are supported), and"]
+    #[doc = " \"<FONT_FAMILY_LIST>,[STYLES] <SIZE>\", where: - FONT_FAMILY_LIST is a"]
+    #[doc = " comma-separated list of font family names, - STYLES is an optional space-"]
+    #[doc = " separated list of style names"]
+    #[doc = "   (case-sensitive \"Bold\" and \"Italic\" are supported), and"]
     #[doc = " - SIZE is an integer font size in pixels with the suffix \"px\"."]
     #[doc = ""]
     #[doc = " Here are examples of valid font description strings: - \"Arial, Helvetica,"]
@@ -9375,8 +9475,8 @@ pub struct _cef_run_quick_menu_callback_t {
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_run_quick_menu_callback_t)>,
 }
 #[doc = ""]
-#[doc = " Implement this structure to handle context menu events. The functions of this"]
-#[doc = " structure will be called on the UI thread."]
+#[doc = " Implement this structure to handle context menu events. The functions of"]
+#[doc = " this structure will be called on the UI thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone, JNICEFCallback)]
@@ -9403,11 +9503,11 @@ pub struct _cef_context_menu_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called to allow custom display of the context menu. |params| provides"]
-    #[doc = " information about the context menu state. |model| contains the context menu"]
-    #[doc = " model resulting from OnBeforeContextMenu. For custom display return true"]
-    #[doc = " (1) and execute |callback| either synchronously or asynchronously with the"]
-    #[doc = " selected command ID. For default display return false (0). Do not keep"]
-    #[doc = " references to |params| or |model| outside of this callback."]
+    #[doc = " information about the context menu state. |model| contains the context"]
+    #[doc = " menu model resulting from OnBeforeContextMenu. For custom display return"]
+    #[doc = " true (1) and execute |callback| either synchronously or asynchronously"]
+    #[doc = " with the selected command ID. For default display return false (0). Do not"]
+    #[doc = " keep references to |params| or |model| outside of this callback."]
     #[doc = ""]
     pub run_context_menu: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9420,13 +9520,13 @@ pub struct _cef_context_menu_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called to execute a command selected from the context menu. Return true (1)"]
-    #[doc = " if the command was handled or false (0) for the default implementation. See"]
-    #[doc = " cef_menu_id_t for the command ids that have default implementations. All"]
-    #[doc = " user-defined command ids should be between MENU_ID_USER_FIRST and"]
-    #[doc = " MENU_ID_USER_LAST. |params| will have the same values as what was passed to"]
-    #[doc = " on_before_context_menu(). Do not keep a reference to |params| outside of"]
-    #[doc = " this callback."]
+    #[doc = " Called to execute a command selected from the context menu. Return true"]
+    #[doc = " (1) if the command was handled or false (0) for the default"]
+    #[doc = " implementation. See cef_menu_id_t for the command ids that have default"]
+    #[doc = " implementations. All user-defined command ids should be between"]
+    #[doc = " MENU_ID_USER_FIRST and MENU_ID_USER_LAST. |params| will have the same"]
+    #[doc = " values as what was passed to on_before_context_menu(). Do not keep a"]
+    #[doc = " reference to |params| outside of this callback."]
     #[doc = ""]
     pub on_context_menu_command: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9455,8 +9555,8 @@ pub struct _cef_context_menu_handler_t {
     #[doc = " size of the selected region. |edit_state_flags| is a combination of flags"]
     #[doc = " that represent the state of the quick menu. Return true (1) if the menu"]
     #[doc = " will be handled and execute |callback| either synchronously or"]
-    #[doc = " asynchronously with the selected command ID. Return false (0) to cancel the"]
-    #[doc = " menu."]
+    #[doc = " asynchronously with the selected command ID. Return false (0) to cancel"]
+    #[doc = " the menu."]
     #[doc = ""]
     pub run_quick_menu: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9472,8 +9572,8 @@ pub struct _cef_context_menu_handler_t {
     #[doc = ""]
     #[doc = " Called to execute a command selected from the quick menu for a windowless"]
     #[doc = " browser. Return true (1) if the command was handled or false (0) for the"]
-    #[doc = " default implementation. See cef_menu_id_t for command IDs that have default"]
-    #[doc = " implementations."]
+    #[doc = " default implementation. See cef_menu_id_t for command IDs that have"]
+    #[doc = " default implementations."]
     #[doc = ""]
     pub on_quick_menu_command: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9548,15 +9648,16 @@ pub struct _cef_context_menu_params_t {
     >,
     #[doc = ""]
     #[doc = " Returns the source URL, if any, for the element that the context menu was"]
-    #[doc = " invoked on. Example of elements with source URLs are img, audio, and video."]
+    #[doc = " invoked on. Example of elements with source URLs are img, audio, and"]
+    #[doc = " video."]
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_source_url: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_context_menu_params_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns true (1) if the context menu was invoked on an image which has non-"]
-    #[doc = " NULL contents."]
+    #[doc = " Returns true (1) if the context menu was invoked on an image which has"]
+    #[doc = " non-NULL contents."]
     #[doc = ""]
     pub has_image_contents: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_context_menu_params_t) -> ::std::os::raw::c_int,
@@ -9570,7 +9671,8 @@ pub struct _cef_context_menu_params_t {
         unsafe extern "C" fn(self_: *mut _cef_context_menu_params_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the URL of the top level page that the context menu was invoked on."]
+    #[doc = " Returns the URL of the top level page that the context menu was invoked"]
+    #[doc = " on."]
     #[doc = ""]
     #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_page_url: ::std::option::Option<
@@ -9626,8 +9728,8 @@ pub struct _cef_context_menu_params_t {
     >,
     #[doc = ""]
     #[doc = " Returns true (1) if suggestions exist, false (0) otherwise. Fills in"]
-    #[doc = " |suggestions| from the spell check service for the misspelled word if there"]
-    #[doc = " is one."]
+    #[doc = " |suggestions| from the spell check service for the misspelled word if"]
+    #[doc = " there is one."]
     #[doc = ""]
     pub get_dictionary_suggestions: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9708,10 +9810,10 @@ pub struct _cef_audio_handler_t {
     #[doc = " stream. |data| is an array representing the raw PCM data as a floating"]
     #[doc = " point type, i.e. 4-byte value(s). |frames| is the number of frames in the"]
     #[doc = " PCM packet. |pts| is the presentation timestamp (in milliseconds since the"]
-    #[doc = " Unix Epoch) and represents the time at which the decompressed packet should"]
-    #[doc = " be presented to the user. Based on |frames| and the |channel_layout| value"]
-    #[doc = " passed to OnAudioStreamStarted you can calculate the size of the |data|"]
-    #[doc = " array in bytes."]
+    #[doc = " Unix Epoch) and represents the time at which the decompressed packet"]
+    #[doc = " should be presented to the user. Based on |frames| and the"]
+    #[doc = " |channel_layout| value passed to OnAudioStreamStarted you can calculate"]
+    #[doc = " the size of the |data| array in bytes."]
     #[doc = ""]
     pub on_audio_stream_packet: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9756,13 +9858,13 @@ pub struct _cef_command_handler_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called to execute a Chrome command triggered via menu selection or keyboard"]
-    #[doc = " shortcut. Values for |command_id| can be found in the cef_command_ids.h"]
-    #[doc = " file. |disposition| provides information about the intended command target."]
-    #[doc = " Return true (1) if the command was handled or false (0) for the default"]
-    #[doc = " implementation. For context menu commands this will be called after"]
-    #[doc = " cef_context_menu_handler_t::OnContextMenuCommand. Only used with the Chrome"]
-    #[doc = " runtime."]
+    #[doc = " Called to execute a Chrome command triggered via menu selection or"]
+    #[doc = " keyboard shortcut. Values for |command_id| can be found in the"]
+    #[doc = " cef_command_ids.h file. |disposition| provides information about the"]
+    #[doc = " intended command target. Return true (1) if the command was handled or"]
+    #[doc = " false (0) for the default implementation. For context menu commands this"]
+    #[doc = " will be called after cef_context_menu_handler_t::OnContextMenuCommand."]
+    #[doc = " Only used with the Chrome runtime."]
     #[doc = ""]
     pub on_chrome_command: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9816,14 +9918,14 @@ pub struct _cef_dialog_handler_t {
     #[doc = " to display. |title| to the title to be used for the dialog and may be NULL"]
     #[doc = " to show the default title (\"Open\" or \"Save\" depending on the mode)."]
     #[doc = " |default_file_path| is the path with optional directory and/or file name"]
-    #[doc = " component that should be initially selected in the dialog. |accept_filters|"]
-    #[doc = " are used to restrict the selectable file types and may any combination of"]
-    #[doc = " (a) valid lower-cased MIME types (e.g. \"text/*\" or \"image/*\"), (b)"]
-    #[doc = " individual file extensions (e.g. \".txt\" or \".png\"), or (c) combined"]
-    #[doc = " description and file extension delimited using \"|\" and \";\" (e.g. \"Image"]
-    #[doc = " Types|.png;.gif;.jpg\"). To display a custom dialog return true (1) and"]
-    #[doc = " execute |callback| either inline or at a later time. To display the default"]
-    #[doc = " dialog return false (0)."]
+    #[doc = " component that should be initially selected in the dialog."]
+    #[doc = " |accept_filters| are used to restrict the selectable file types and may"]
+    #[doc = " any combination of (a) valid lower-cased MIME types (e.g. \"text/*\" or"]
+    #[doc = " \"image/*\"), (b) individual file extensions (e.g. \".txt\" or \".png\"), or (c)"]
+    #[doc = " combined description and file extension delimited using \"|\" and \";\" (e.g."]
+    #[doc = " \"Image Types|.png;.gif;.jpg\"). To display a custom dialog return true (1)"]
+    #[doc = " and execute |callback| either inline or at a later time. To display the"]
+    #[doc = " default dialog return false (0)."]
     #[doc = ""]
     pub on_file_dialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -9969,7 +10071,7 @@ pub struct _cef_display_handler_t {
             browser: *mut _cef_browser_t,
             cursor: *mut ::std::os::raw::c_void,
             type_: cef_cursor_type_t,
-            custom_cursor_info: *const _cef_cursor_info_t,
+            custom_cursor_info: *const cef_cursor_info_t,
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
@@ -10045,13 +10147,15 @@ pub struct _cef_download_item_t {
     #[doc = ""]
     #[doc = " Returns the time that the download started."]
     #[doc = ""]
-    pub get_start_time:
-        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_download_item_t) -> cef_time_t>,
+    pub get_start_time: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_download_item_t) -> cef_basetime_t,
+    >,
     #[doc = ""]
     #[doc = " Returns the time that the download ended."]
     #[doc = ""]
-    pub get_end_time:
-        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_download_item_t) -> cef_time_t>,
+    pub get_end_time: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_download_item_t) -> cef_basetime_t,
+    >,
     #[doc = ""]
     #[doc = " Returns the full path to the downloaded or downloading file."]
     #[doc = ""]
@@ -10151,8 +10255,8 @@ pub struct _cef_download_item_callback_t {
         ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_download_item_callback_t)>,
 }
 #[doc = ""]
-#[doc = " Structure used to handle file downloads. The functions of this structure will"]
-#[doc = " called on the browser process UI thread."]
+#[doc = " Structure used to handle file downloads. The functions of this structure"]
+#[doc = " will called on the browser process UI thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone, JNICEFCallback)]
@@ -10164,9 +10268,9 @@ pub struct _cef_download_handler_t {
     #[doc = ""]
     #[doc = " Called before a download begins in response to a user-initiated action"]
     #[doc = " (e.g. alt + link click or link click that returns a `Content-Disposition:"]
-    #[doc = " attachment` response from the server). |url| is the target download URL and"]
-    #[doc = " |request_function| is the target function (GET, POST, etc). Return true (1)"]
-    #[doc = " to proceed with the download or false (0) to cancel the download."]
+    #[doc = " attachment` response from the server). |url| is the target download URL"]
+    #[doc = " and |request_function| is the target function (GET, POST, etc). Return"]
+    #[doc = " true (1) to proceed with the download or false (0) to cancel the download."]
     #[doc = ""]
     pub can_download: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10177,8 +10281,8 @@ pub struct _cef_download_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called before a download begins. |suggested_name| is the suggested name for"]
-    #[doc = " the download file. By default the download will be canceled. Execute"]
+    #[doc = " Called before a download begins. |suggested_name| is the suggested name"]
+    #[doc = " for the download file. By default the download will be canceled. Execute"]
     #[doc = " |callback| either asynchronously or in this function to continue the"]
     #[doc = " download if desired. Do not keep a reference to |download_item| outside of"]
     #[doc = " this function."]
@@ -10294,10 +10398,11 @@ pub struct _cef_focus_handler_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called when the browser component is about to loose focus. For instance, if"]
-    #[doc = " focus was on the last HTML element and the user pressed the TAB key. |next|"]
-    #[doc = " will be true (1) if the browser is giving focus to the next component and"]
-    #[doc = " false (0) if the browser is giving focus to the previous component."]
+    #[doc = " Called when the browser component is about to loose focus. For instance,"]
+    #[doc = " if focus was on the last HTML element and the user pressed the TAB key."]
+    #[doc = " |next| will be true (1) if the browser is giving focus to the next"]
+    #[doc = " component and false (0) if the browser is giving focus to the previous"]
+    #[doc = " component."]
     #[doc = ""]
     pub on_take_focus: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10330,47 +10435,52 @@ pub struct _cef_focus_handler_t {
 #[doc = " The order of callbacks is:"]
 #[doc = ""]
 #[doc = " (1) During initial cef_browser_host_t creation and navigation of the main"]
-#[doc = " frame: - cef_frame_handler_t::OnFrameCreated => The initial main frame object"]
-#[doc = " has been"]
+#[doc = " frame: - cef_frame_handler_t::OnFrameCreated => The initial main frame"]
+#[doc = " object has been"]
 #[doc = "   created. Any commands will be queued until the frame is attached."]
 #[doc = " - cef_frame_handler_t::OnMainFrameChanged => The initial main frame object"]
 #[doc = " has"]
 #[doc = "   been assigned to the browser."]
-#[doc = " - cef_life_span_handler_t::OnAfterCreated => The browser is now valid and can"]
-#[doc = " be"]
+#[doc = " - cef_life_span_handler_t::OnAfterCreated => The browser is now valid and"]
+#[doc = " can be"]
 #[doc = "   used."]
 #[doc = " - cef_frame_handler_t::OnFrameAttached => The initial main frame object is"]
 #[doc = " now"]
 #[doc = "   connected to its peer in the renderer process. Commands can be routed."]
 #[doc = ""]
 #[doc = " (2) During further cef_browser_host_t navigation/loading of the main frame"]
-#[doc = " and/or sub-frames: - cef_frame_handler_t::OnFrameCreated => A new main frame"]
-#[doc = " or sub-frame object has"]
-#[doc = "   been created. Any commands will be queued until the frame is attached."]
+#[doc = "     and/or sub-frames:"]
+#[doc = " - cef_frame_handler_t::OnFrameCreated => A new main frame or sub-frame"]
+#[doc = " object"]
+#[doc = "   has been created. Any commands will be queued until the frame is attached."]
 #[doc = " - cef_frame_handler_t::OnFrameAttached => A new main frame or sub-frame"]
-#[doc = " object is"]
-#[doc = "   now connected to its peer in the renderer process. Commands can be routed."]
-#[doc = " - cef_frame_handler_t::OnFrameDetached => An existing main frame or sub-frame"]
-#[doc = "   object has lost its connection to the renderer process. If multiple objects"]
-#[doc = "   are detached at the same time then notifications will be sent for any"]
-#[doc = "   sub-frame objects before the main frame object. Commands can no longer be"]
-#[doc = "   routed and will be discarded."]
-#[doc = " - cef_frame_handler_t::OnMainFrameChanged => A new main frame object has been"]
+#[doc = " object"]
+#[doc = "   is now connected to its peer in the renderer process. Commands can be"]
+#[doc = "   routed."]
+#[doc = " - cef_frame_handler_t::OnFrameDetached => An existing main frame or sub-"]
+#[doc = " frame"]
+#[doc = "   object has lost its connection to the renderer process. If multiple"]
+#[doc = "   objects are detached at the same time then notifications will be sent for"]
+#[doc = "   any sub-frame objects before the main frame object. Commands can no longer"]
+#[doc = "   be routed and will be discarded."]
+#[doc = " - cef_frame_handler_t::OnMainFrameChanged => A new main frame object has"]
+#[doc = " been"]
 #[doc = "   assigned to the browser. This will only occur with cross-origin navigation"]
 #[doc = "   or re-navigation after renderer process termination (due to crashes, etc)."]
 #[doc = ""]
 #[doc = " (3) During final cef_browser_host_t destruction of the main frame: -"]
-#[doc = " cef_frame_handler_t::OnFrameDetached => Any sub-frame objects have lost their"]
+#[doc = " cef_frame_handler_t::OnFrameDetached => Any sub-frame objects have lost"]
+#[doc = " their"]
 #[doc = "   connection to the renderer process. Commands can no longer be routed and"]
 #[doc = "   will be discarded."]
-#[doc = " - cef_life_span_handler_t::OnBeforeClose => The browser has been destroyed. -"]
-#[doc = " cef_frame_handler_t::OnFrameDetached => The main frame object have lost its"]
+#[doc = " - cef_life_span_handler_t::OnBeforeClose => The browser has been destroyed."]
+#[doc = " - cef_frame_handler_t::OnFrameDetached => The main frame object have lost"]
+#[doc = " its"]
 #[doc = "   connection to the renderer process. Notifications will be sent for any"]
 #[doc = "   sub-frame objects before the main frame object. Commands can no longer be"]
 #[doc = "   routed and will be discarded."]
 #[doc = " - cef_frame_handler_t::OnMainFrameChanged => The final main frame object has"]
-#[doc = " been"]
-#[doc = "   removed from the browser."]
+#[doc = "   been removed from the browser."]
 #[doc = ""]
 #[doc = " Cross-origin navigation and/or loading receives special handling."]
 #[doc = ""]
@@ -10388,16 +10498,17 @@ pub struct _cef_focus_handler_t {
 #[doc = " discarded)."]
 #[doc = ""]
 #[doc = " When a new popup browser is created in a different origin from the parent"]
-#[doc = " browser, a temporary main frame object for the popup will first be created in"]
-#[doc = " the parent's renderer process. That temporary main frame will then be"]
-#[doc = " discarded after the real cross-origin main frame is created in the new/target"]
-#[doc = " renderer process. The client will recieve creation and initial navigation"]
-#[doc = " callbacks (1) for the temporary main frame, followed by cross-origin"]
-#[doc = " navigation callbacks (2) for the transition from the temporary main frame to"]
-#[doc = " the real main frame. The temporary main frame may receive and execute"]
-#[doc = " commands during this transitional period (any sent commands may be executed,"]
-#[doc = " but the behavior is potentially undesirable since they execute in the parent"]
-#[doc = " browser's renderer process and not the new/target renderer process)."]
+#[doc = " browser, a temporary main frame object for the popup will first be created"]
+#[doc = " in the parent's renderer process. That temporary main frame will then be"]
+#[doc = " discarded after the real cross-origin main frame is created in the"]
+#[doc = " new/target renderer process. The client will recieve creation and initial"]
+#[doc = " navigation callbacks (1) for the temporary main frame, followed by cross-"]
+#[doc = " origin navigation callbacks (2) for the transition from the temporary main"]
+#[doc = " frame to the real main frame. The temporary main frame may receive and"]
+#[doc = " execute commands during this transitional period (any sent commands may be"]
+#[doc = " executed, but the behavior is potentially undesirable since they execute in"]
+#[doc = " the parent browser's renderer process and not the new/target renderer"]
+#[doc = " process)."]
 #[doc = ""]
 #[doc = " Callbacks will not be executed for placeholders that may be created during"]
 #[doc = " pre-commit navigation for sub-frames that do not yet exist in the renderer"]
@@ -10444,8 +10555,9 @@ pub struct _cef_frame_handler_t {
     #[doc = " Called when a frame loses its connection to the renderer process and will"]
     #[doc = " be destroyed. Any pending or future commands will be discarded and"]
     #[doc = " cef_frame_t::is_valid() will now return false (0) for |frame|. If called"]
-    #[doc = " after cef_life_span_handler_t::on_before_close() during browser destruction"]
-    #[doc = " then cef_browser_t::is_valid() will return false (0) for |browser|."]
+    #[doc = " after cef_life_span_handler_t::on_before_close() during browser"]
+    #[doc = " destruction then cef_browser_t::is_valid() will return false (0) for"]
+    #[doc = " |browser|."]
     #[doc = ""]
     pub on_frame_detached: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10455,18 +10567,19 @@ pub struct _cef_frame_handler_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Called when the main frame changes due to (a) initial browser creation, (b)"]
-    #[doc = " final browser destruction, (c) cross-origin navigation or (d) re-navigation"]
-    #[doc = " after renderer process termination (due to crashes, etc). |old_frame| will"]
-    #[doc = " be NULL and |new_frame| will be non-NULL when a main frame is assigned to"]
-    #[doc = " |browser| for the first time. |old_frame| will be non-NULL and |new_frame|"]
-    #[doc = " will be NULL and  when a main frame is removed from |browser| for the last"]
-    #[doc = " time. Both |old_frame| and |new_frame| will be non-NULL for cross-origin"]
-    #[doc = " navigations or re-navigation after renderer process termination. This"]
-    #[doc = " function will be called after on_frame_created() for |new_frame| and/or"]
-    #[doc = " after on_frame_detached() for |old_frame|. If called after"]
-    #[doc = " cef_life_span_handler_t::on_before_close() during browser destruction then"]
-    #[doc = " cef_browser_t::is_valid() will return false (0) for |browser|."]
+    #[doc = " Called when the main frame changes due to (a) initial browser creation,"]
+    #[doc = " (b) final browser destruction, (c) cross-origin navigation or (d) re-"]
+    #[doc = " navigation after renderer process termination (due to crashes, etc)."]
+    #[doc = " |old_frame| will be NULL and |new_frame| will be non-NULL when a main"]
+    #[doc = " frame is assigned to |browser| for the first time. |old_frame| will be"]
+    #[doc = " non-NULL and |new_frame| will be NULL and  when a main frame is removed"]
+    #[doc = " from |browser| for the last time. Both |old_frame| and |new_frame| will be"]
+    #[doc = " non-NULL for cross-origin navigations or re-navigation after renderer"]
+    #[doc = " process termination. This function will be called after on_frame_created()"]
+    #[doc = " for |new_frame| and/or after on_frame_detached() for |old_frame|. If"]
+    #[doc = " called after cef_life_span_handler_t::on_before_close() during browser"]
+    #[doc = " destruction then cef_browser_t::is_valid() will return false (0) for"]
+    #[doc = " |browser|."]
     #[doc = ""]
     pub on_main_frame_changed: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10490,7 +10603,8 @@ pub struct _cef_jsdialog_callback_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Continue the JS dialog request. Set |success| to true (1) if the OK button"]
-    #[doc = " was pressed. The |user_input| value should be specified for prompt dialogs."]
+    #[doc = " was pressed. The |user_input| value should be specified for prompt"]
+    #[doc = " dialogs."]
     #[doc = ""]
     pub cont: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10520,13 +10634,13 @@ pub struct _cef_jsdialog_handler_t {
     #[doc = " preferable to immediately executing the callback as this is used to detect"]
     #[doc = " presumably malicious behavior like spamming alert messages in"]
     #[doc = " onbeforeunload). Set |suppress_message| to false (0) and return false (0)"]
-    #[doc = " to use the default implementation (the default implementation will show one"]
-    #[doc = " modal dialog at a time and suppress any additional dialog requests until"]
-    #[doc = " the displayed dialog is dismissed). Return true (1) if the application will"]
-    #[doc = " use a custom dialog or if the callback has been executed immediately."]
-    #[doc = " Custom dialogs may be either modal or modeless. If a custom dialog is used"]
-    #[doc = " the application must execute |callback| once the custom dialog is"]
-    #[doc = " dismissed."]
+    #[doc = " to use the default implementation (the default implementation will show"]
+    #[doc = " one modal dialog at a time and suppress any additional dialog requests"]
+    #[doc = " until the displayed dialog is dismissed). Return true (1) if the"]
+    #[doc = " application will use a custom dialog or if the callback has been executed"]
+    #[doc = " immediately. Custom dialogs may be either modal or modeless. If a custom"]
+    #[doc = " dialog is used the application must execute |callback| once the custom"]
+    #[doc = " dialog is dismissed."]
     #[doc = ""]
     pub on_jsdialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10541,12 +10655,12 @@ pub struct _cef_jsdialog_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called to run a dialog asking the user if they want to leave a page. Return"]
-    #[doc = " false (0) to use the default dialog implementation. Return true (1) if the"]
-    #[doc = " application will use a custom dialog or if the callback has been executed"]
-    #[doc = " immediately. Custom dialogs may be either modal or modeless. If a custom"]
-    #[doc = " dialog is used the application must execute |callback| once the custom"]
-    #[doc = " dialog is dismissed."]
+    #[doc = " Called to run a dialog asking the user if they want to leave a page."]
+    #[doc = " Return false (0) to use the default dialog implementation. Return true (1)"]
+    #[doc = " if the application will use a custom dialog or if the callback has been"]
+    #[doc = " executed immediately. Custom dialogs may be either modal or modeless. If a"]
+    #[doc = " custom dialog is used the application must execute |callback| once the"]
+    #[doc = " custom dialog is dismissed."]
     #[doc = ""]
     pub on_before_unload_dialog: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10558,9 +10672,9 @@ pub struct _cef_jsdialog_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called to cancel any pending dialogs and reset any saved dialog state. Will"]
-    #[doc = " be called due to events like page navigation irregardless of whether any"]
-    #[doc = " dialogs are currently pending."]
+    #[doc = " Called to cancel any pending dialogs and reset any saved dialog state."]
+    #[doc = " Will be called due to events like page navigation irregardless of whether"]
+    #[doc = " any dialogs are currently pending."]
     #[doc = ""]
     pub on_reset_dialog_state: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_jsdialog_handler_t, browser: *mut _cef_browser_t),
@@ -10587,14 +10701,15 @@ pub struct _cef_keyboard_handler_t {
     #[doc = " Called before a keyboard event is sent to the renderer. |event| contains"]
     #[doc = " information about the keyboard event. |os_event| is the operating system"]
     #[doc = " event message, if any. Return true (1) if the event was handled or false"]
-    #[doc = " (0) otherwise. If the event will be handled in on_key_event() as a keyboard"]
-    #[doc = " shortcut set |is_keyboard_shortcut| to true (1) and return false (0)."]
+    #[doc = " (0) otherwise. If the event will be handled in on_key_event() as a"]
+    #[doc = " keyboard shortcut set |is_keyboard_shortcut| to true (1) and return false"]
+    #[doc = " (0)."]
     #[doc = ""]
     pub on_pre_key_event: ::std::option::Option<
         unsafe extern "C" fn(
             self_: *mut _cef_keyboard_handler_t,
             browser: *mut _cef_browser_t,
-            event: *const _cef_key_event_t,
+            event: *const cef_key_event_t,
             os_event: *mut ::std::os::raw::c_void,
             is_keyboard_shortcut: *mut ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
@@ -10609,7 +10724,7 @@ pub struct _cef_keyboard_handler_t {
         unsafe extern "C" fn(
             self_: *mut _cef_keyboard_handler_t,
             browser: *mut _cef_browser_t,
-            event: *const _cef_key_event_t,
+            event: *const cef_key_event_t,
             os_event: *mut ::std::os::raw::c_void,
         ) -> ::std::os::raw::c_int,
     >,
@@ -10628,8 +10743,8 @@ pub struct _cef_life_span_handler_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Called on the UI thread before a new popup browser is created. The"]
-    #[doc = " |browser| and |frame| values represent the source of the popup request. The"]
-    #[doc = " |target_url| and |target_frame_name| values indicate where the popup"]
+    #[doc = " |browser| and |frame| values represent the source of the popup request."]
+    #[doc = " The |target_url| and |target_frame_name| values indicate where the popup"]
     #[doc = " browser should navigate and may be NULL if not specified with the request."]
     #[doc = " The |target_disposition| value indicates where the user intended to open"]
     #[doc = " the popup (e.g. current tab, new tab, etc). The |user_gesture| value will"]
@@ -10640,15 +10755,15 @@ pub struct _cef_life_span_handler_t {
     #[doc = " of the popup browser optionally modify |windowInfo|, |client|, |settings|"]
     #[doc = " and |no_javascript_access| and return false (0). To cancel creation of the"]
     #[doc = " popup browser return true (1). The |client| and |settings| values will"]
-    #[doc = " default to the source browser's values. If the |no_javascript_access| value"]
-    #[doc = " is set to false (0) the new browser will not be scriptable and may not be"]
-    #[doc = " hosted in the same renderer process as the source browser. Any"]
+    #[doc = " default to the source browser's values. If the |no_javascript_access|"]
+    #[doc = " value is set to false (0) the new browser will not be scriptable and may"]
+    #[doc = " not be hosted in the same renderer process as the source browser. Any"]
     #[doc = " modifications to |windowInfo| will be ignored if the parent browser is"]
-    #[doc = " wrapped in a cef_browser_view_t. Popup browser creation will be canceled if"]
-    #[doc = " the parent browser is destroyed before the popup browser creation completes"]
-    #[doc = " (indicated by a call to OnAfterCreated for the popup browser). The"]
-    #[doc = " |extra_info| parameter provides an opportunity to specify extra information"]
-    #[doc = " specific to the created popup browser that will be passed to"]
+    #[doc = " wrapped in a cef_browser_view_t. Popup browser creation will be canceled"]
+    #[doc = " if the parent browser is destroyed before the popup browser creation"]
+    #[doc = " completes (indicated by a call to OnAfterCreated for the popup browser)."]
+    #[doc = " The |extra_info| parameter provides an opportunity to specify extra"]
+    #[doc = " information specific to the created popup browser that will be passed to"]
     #[doc = " cef_render_process_handler_t::on_browser_created() in the render process."]
     #[doc = ""]
     pub on_before_popup: ::std::option::Option<
@@ -10660,7 +10775,7 @@ pub struct _cef_life_span_handler_t {
             target_frame_name: *const cef_string_t,
             target_disposition: cef_window_open_disposition_t,
             user_gesture: ::std::os::raw::c_int,
-            popupFeatures: *const _cef_popup_features_t,
+            popupFeatures: *const cef_popup_features_t,
             windowInfo: *mut _cef_window_info_t,
             client: *mut *mut _cef_client_t,
             settings: *mut _cef_browser_settings_t,
@@ -10689,8 +10804,8 @@ pub struct _cef_life_span_handler_t {
     #[doc = " calling cef_browser_host_t::try_close_browser() or"]
     #[doc = " cef_browser_host_t::CloseBrowser(false (0)) instead of allowing the window"]
     #[doc = " to close immediately (see the examples below). This gives CEF an"]
-    #[doc = " opportunity to process the 'onbeforeunload' event and optionally cancel the"]
-    #[doc = " close before do_close() is called."]
+    #[doc = " opportunity to process the 'onbeforeunload' event and optionally cancel"]
+    #[doc = " the close before do_close() is called."]
     #[doc = ""]
     #[doc = " When windowed rendering is enabled CEF will internally create a window or"]
     #[doc = " view to host the browser. In that case returning false (0) from do_close()"]
@@ -10698,8 +10813,8 @@ pub struct _cef_life_span_handler_t {
     #[doc = " window (e.g. WM_CLOSE on Windows, performClose: on OS X, \"delete_event\" on"]
     #[doc = " Linux or cef_window_delegate_t::can_close() callback from Views). If the"]
     #[doc = " browser's host window/view has already been destroyed (via view hierarchy"]
-    #[doc = " tear-down, for example) then do_close() will not be called for that browser"]
-    #[doc = " since is no longer possible to cancel the close."]
+    #[doc = " tear-down, for example) then do_close() will not be called for that"]
+    #[doc = " browser since is no longer possible to cancel the close."]
     #[doc = ""]
     #[doc = " When windowed rendering is disabled returning false (0) from do_close()"]
     #[doc = " will cause the browser object to be destroyed immediately."]
@@ -10713,22 +10828,23 @@ pub struct _cef_life_span_handler_t {
     #[doc = " browser object is destroyed. The application should only exit after"]
     #[doc = " on_before_close() has been called for all existing browsers."]
     #[doc = ""]
-    #[doc = " The below examples describe what should happen during window close when the"]
-    #[doc = " browser is parented to an application-provided top-level window."]
+    #[doc = " The below examples describe what should happen during window close when"]
+    #[doc = " the browser is parented to an application-provided top-level window."]
     #[doc = ""]
     #[doc = " Example 1: Using cef_browser_host_t::try_close_browser(). This is"]
     #[doc = " recommended for clients using standard close handling and windows created"]
     #[doc = " on the browser process UI thread. 1.  User clicks the window close button"]
-    #[doc = " which sends a close notification to"]
-    #[doc = "     the application's top-level window."]
+    #[doc = " which sends a close notification"]
+    #[doc = "     to the application's top-level window."]
     #[doc = " 2.  Application's top-level window receives the close notification and"]
     #[doc = "     calls TryCloseBrowser() (which internally calls CloseBrowser(false))."]
-    #[doc = "     TryCloseBrowser() returns false so the client cancels the window close."]
+    #[doc = "     TryCloseBrowser() returns false so the client cancels the window"]
+    #[doc = "     close."]
     #[doc = " 3.  JavaScript 'onbeforeunload' handler executes and shows the close"]
     #[doc = "     confirmation dialog (which can be overridden via"]
     #[doc = "     CefJSDialogHandler::OnBeforeUnloadDialog())."]
-    #[doc = " 4.  User approves the close. 5.  JavaScript 'onunload' handler executes. 6."]
-    #[doc = " CEF sends a close notification to the application's top-level window"]
+    #[doc = " 4.  User approves the close. 5.  JavaScript 'onunload' handler executes."]
+    #[doc = " 6.  CEF sends a close notification to the application's top-level window"]
     #[doc = "     (because DoClose() returned false by default)."]
     #[doc = " 7.  Application's top-level window receives the close notification and"]
     #[doc = "     calls TryCloseBrowser(). TryCloseBrowser() returns true so the client"]
@@ -10741,19 +10857,19 @@ pub struct _cef_life_span_handler_t {
     #[doc = "     exist."]
     #[doc = ""]
     #[doc = " Example 2: Using cef_browser_host_t::CloseBrowser(false (0)) and"]
-    #[doc = " implementing the do_close() callback. This is recommended for clients using"]
-    #[doc = " non-standard close handling or windows that were not created on the browser"]
-    #[doc = " process UI thread. 1.  User clicks the window close button which sends a"]
-    #[doc = " close notification to"]
-    #[doc = "     the application's top-level window."]
+    #[doc = " implementing the do_close() callback. This is recommended for clients"]
+    #[doc = " using non-standard close handling or windows that were not created on the"]
+    #[doc = " browser process UI thread. 1.  User clicks the window close button which"]
+    #[doc = " sends a close notification"]
+    #[doc = "     to the application's top-level window."]
     #[doc = " 2.  Application's top-level window receives the close notification and:"]
     #[doc = "     A. Calls CefBrowserHost::CloseBrowser(false)."]
     #[doc = "     B. Cancels the window close."]
     #[doc = " 3.  JavaScript 'onbeforeunload' handler executes and shows the close"]
     #[doc = "     confirmation dialog (which can be overridden via"]
     #[doc = "     CefJSDialogHandler::OnBeforeUnloadDialog())."]
-    #[doc = " 4.  User approves the close. 5.  JavaScript 'onunload' handler executes. 6."]
-    #[doc = " Application's do_close() handler is called. Application will:"]
+    #[doc = " 4.  User approves the close. 5.  JavaScript 'onunload' handler executes."]
+    #[doc = " 6.  Application's do_close() handler is called. Application will:"]
     #[doc = "     A. Set a flag to indicate that the next close attempt will be allowed."]
     #[doc = "     B. Return false."]
     #[doc = " 7.  CEF sends an close notification to the application's top-level window."]
@@ -10777,10 +10893,10 @@ pub struct _cef_life_span_handler_t {
     #[doc = " browser object and do not attempt to execute any functions on the browser"]
     #[doc = " object (other than IsValid, GetIdentifier or IsSame) after this callback"]
     #[doc = " returns. cef_frame_handler_t callbacks related to final main frame"]
-    #[doc = " destruction will arrive after this callback and cef_browser_t::IsValid will"]
-    #[doc = " return false (0) at that time. Any in-progress network requests associated"]
-    #[doc = " with |browser| will be aborted when the browser is destroyed, and"]
-    #[doc = " cef_resource_request_handler_t callbacks related to those requests may"]
+    #[doc = " destruction will arrive after this callback and cef_browser_t::IsValid"]
+    #[doc = " will return false (0) at that time. Any in-progress network requests"]
+    #[doc = " associated with |browser| will be aborted when the browser is destroyed,"]
+    #[doc = " and cef_resource_request_handler_t callbacks related to those requests may"]
     #[doc = " still arrive on the IO thread after this callback. See cef_frame_handler_t"]
     #[doc = " and do_close() documentation for additional usage information."]
     #[doc = ""]
@@ -10789,9 +10905,9 @@ pub struct _cef_life_span_handler_t {
     >,
 }
 #[doc = ""]
-#[doc = " Implement this structure to handle events related to browser load status. The"]
-#[doc = " functions of this structure will be called on the browser process UI thread"]
-#[doc = " or render process main thread (TID_RENDERER)."]
+#[doc = " Implement this structure to handle events related to browser load status."]
+#[doc = " The functions of this structure will be called on the browser process UI"]
+#[doc = " thread or render process main thread (TID_RENDERER)."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone, JNICEFCallback)]
@@ -10803,9 +10919,9 @@ pub struct _cef_load_handler_t {
     #[doc = ""]
     #[doc = " Called when the loading state has changed. This callback will be executed"]
     #[doc = " twice -- once when loading is initiated either programmatically or by user"]
-    #[doc = " action, and once when loading is terminated due to completion, cancellation"]
-    #[doc = " of failure. It will be called before any calls to OnLoadStart and after all"]
-    #[doc = " calls to OnLoadError and/or OnLoadEnd."]
+    #[doc = " action, and once when loading is terminated due to completion,"]
+    #[doc = " cancellation of failure. It will be called before any calls to OnLoadStart"]
+    #[doc = " and after all calls to OnLoadError and/or OnLoadEnd."]
     #[doc = ""]
     pub on_loading_state_change: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10818,8 +10934,8 @@ pub struct _cef_load_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called after a navigation has been committed and before the browser begins"]
-    #[doc = " loading contents in the frame. The |frame| value will never be NULL -- call"]
-    #[doc = " the is_main() function to check if this frame is the main frame."]
+    #[doc = " loading contents in the frame. The |frame| value will never be NULL --"]
+    #[doc = " call the is_main() function to check if this frame is the main frame."]
     #[doc = " |transition_type| provides information about the source of the navigation"]
     #[doc = " and an accurate value is only available in the browser process. Multiple"]
     #[doc = " frames may be loading at the same time. Sub-frames may start or continue"]
@@ -10839,8 +10955,8 @@ pub struct _cef_load_handler_t {
     #[doc = ""]
     #[doc = " Called when the browser is done loading a frame. The |frame| value will"]
     #[doc = " never be NULL -- call the is_main() function to check if this frame is the"]
-    #[doc = " main frame. Multiple frames may be loading at the same time. Sub-frames may"]
-    #[doc = " start or continue loading after the main frame load has ended. This"]
+    #[doc = " main frame. Multiple frames may be loading at the same time. Sub-frames"]
+    #[doc = " may start or continue loading after the main frame load has ended. This"]
     #[doc = " function will not be called for same page navigations (fragments, history"]
     #[doc = " state, etc.) or for navigations that fail or are canceled before commit."]
     #[doc = " For notification of overall browser load status use OnLoadingStateChange"]
@@ -10921,8 +11037,9 @@ pub struct _cef_permission_prompt_callback_t {
     >,
 }
 #[doc = ""]
-#[doc = " Implement this structure to handle events related to permission requests. The"]
-#[doc = " functions of this structure will be called on the browser process UI thread."]
+#[doc = " Implement this structure to handle events related to permission requests."]
+#[doc = " The functions of this structure will be called on the browser process UI"]
+#[doc = " thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -10932,16 +11049,17 @@ pub struct _cef_permission_handler_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Called when a page requests permission to access media. |requesting_origin|"]
-    #[doc = " is the URL origin requesting permission. |requested_permissions| is a"]
-    #[doc = " combination of values from cef_media_access_permission_types_t that"]
-    #[doc = " represent the requested permissions. Return true (1) and call"]
-    #[doc = " cef_media_access_callback_t functions either in this function or at a later"]
-    #[doc = " time to continue or cancel the request. Return false (0) to proceed with"]
-    #[doc = " default handling. With the Chrome runtime, default handling will display"]
-    #[doc = " the permission request UI. With the Alloy runtime, default handling will"]
-    #[doc = " deny the request. This function will not be called if the \"--enable-media-"]
-    #[doc = " stream\" command-line switch is used to grant all permissions."]
+    #[doc = " Called when a page requests permission to access media."]
+    #[doc = " |requesting_origin| is the URL origin requesting permission."]
+    #[doc = " |requested_permissions| is a combination of values from"]
+    #[doc = " cef_media_access_permission_types_t that represent the requested"]
+    #[doc = " permissions. Return true (1) and call cef_media_access_callback_t"]
+    #[doc = " functions either in this function or at a later time to continue or cancel"]
+    #[doc = " the request. Return false (0) to proceed with default handling. With the"]
+    #[doc = " Chrome runtime, default handling will display the permission request UI."]
+    #[doc = " With the Alloy runtime, default handling will deny the request. This"]
+    #[doc = " function will not be called if the \"--enable-media-stream\" command-line"]
+    #[doc = " switch is used to grant all permissions."]
     #[doc = ""]
     pub on_request_media_access_permission: ::std::option::Option<
         unsafe extern "C" fn(
@@ -10960,9 +11078,9 @@ pub struct _cef_permission_handler_t {
     #[doc = " cef_permission_request_types_t that represent the requested permissions."]
     #[doc = " Return true (1) and call cef_permission_prompt_callback_t::Continue either"]
     #[doc = " in this function or at a later time to continue or cancel the request."]
-    #[doc = " Return false (0) to proceed with default handling. With the Chrome runtime,"]
-    #[doc = " default handling will display the permission prompt UI. With the Alloy"]
-    #[doc = " runtime, default handling is CEF_PERMISSION_RESULT_IGNORE."]
+    #[doc = " Return false (0) to proceed with default handling. With the Chrome"]
+    #[doc = " runtime, default handling will display the permission prompt UI. With the"]
+    #[doc = " Alloy runtime, default handling is CEF_PERMISSION_RESULT_IGNORE."]
     #[doc = ""]
     pub on_show_permission_prompt: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11064,9 +11182,9 @@ pub struct _cef_render_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called to retrieve the translation from view DIP coordinates to screen"]
-    #[doc = " coordinates. Windows/Linux should provide screen device (pixel) coordinates"]
-    #[doc = " and MacOS should provide screen DIP coordinates. Return true (1) if the"]
-    #[doc = " requested coordinates were provided."]
+    #[doc = " coordinates. Windows/Linux should provide screen device (pixel)"]
+    #[doc = " coordinates and MacOS should provide screen DIP coordinates. Return true"]
+    #[doc = " (1) if the requested coordinates were provided."]
     #[doc = ""]
     pub get_screen_point: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11080,8 +11198,8 @@ pub struct _cef_render_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called to allow the client to fill in the CefScreenInfo object with"]
-    #[doc = " appropriate values. Return true (1) if the |screen_info| structure has been"]
-    #[doc = " modified."]
+    #[doc = " appropriate values. Return true (1) if the |screen_info| structure has"]
+    #[doc = " been modified."]
     #[doc = ""]
     #[doc = " If the screen info rectangle is left NULL the rectangle from GetViewRect"]
     #[doc = " will be used. If the rectangle is still NULL or invalid popups may not be"]
@@ -11091,7 +11209,7 @@ pub struct _cef_render_handler_t {
         unsafe extern "C" fn(
             self_: *mut _cef_render_handler_t,
             browser: *mut _cef_browser_t,
-            screen_info: *mut _cef_screen_info_t,
+            screen_info: *mut cef_screen_info_t,
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
@@ -11122,9 +11240,9 @@ pub struct _cef_render_handler_t {
     #[doc = " CefScreenInfo.device_scale_factor returned from GetScreenInfo. |type|"]
     #[doc = " indicates whether the element is the view or the popup widget. |buffer|"]
     #[doc = " contains the pixel data for the whole image. |dirtyRects| contains the set"]
-    #[doc = " of rectangles in pixel coordinates that need to be repainted. |buffer| will"]
-    #[doc = " be |width|*|height|*4 bytes in size and represents a BGRA image with an"]
-    #[doc = " upper-left origin. This function is only called when"]
+    #[doc = " of rectangles in pixel coordinates that need to be repainted. |buffer|"]
+    #[doc = " will be |width|*|height|*4 bytes in size and represents a BGRA image with"]
+    #[doc = " an upper-left origin. This function is only called when"]
     #[doc = " cef_window_tInfo::shared_texture_enabled is set to false (0)."]
     #[doc = ""]
     pub on_paint: ::std::option::Option<
@@ -11178,7 +11296,7 @@ pub struct _cef_render_handler_t {
         unsafe extern "C" fn(
             self_: *mut _cef_render_handler_t,
             browser: *mut _cef_browser_t,
-            state: *const _cef_touch_handle_state_t,
+            state: *const cef_touch_handle_state_t,
         ),
     >,
     #[doc = ""]
@@ -11257,9 +11375,9 @@ pub struct _cef_render_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called when an on-screen keyboard should be shown or hidden for the"]
-    #[doc = " specified |browser|. |input_mode| specifies what kind of keyboard should be"]
-    #[doc = " opened. If |input_mode| is CEF_TEXT_INPUT_MODE_NONE, any existing keyboard"]
-    #[doc = " for this browser should be hidden."]
+    #[doc = " specified |browser|. |input_mode| specifies what kind of keyboard should"]
+    #[doc = " be opened. If |input_mode| is CEF_TEXT_INPUT_MODE_NONE, any existing"]
+    #[doc = " keyboard for this browser should be hidden."]
     #[doc = ""]
     pub on_virtual_keyboard_requested: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11387,8 +11505,8 @@ pub struct _cef_response_t {
     >,
     #[doc = ""]
     #[doc = " Set the header |name| to |value|. If |overwrite| is true (1) any existing"]
-    #[doc = " values will be replaced with the new value. If |overwrite| is false (0) any"]
-    #[doc = " existing values will not be overwritten."]
+    #[doc = " values will be replaced with the new value. If |overwrite| is false (0)"]
+    #[doc = " any existing values will not be overwritten."]
     #[doc = ""]
     pub set_header_by_name: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11447,9 +11565,9 @@ pub struct _cef_resource_skip_callback_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Callback for asynchronous continuation of skip(). If |bytes_skipped| > 0"]
-    #[doc = " then either skip() will be called again until the requested number of bytes"]
-    #[doc = " have been skipped or the request will proceed. If |bytes_skipped| <= 0 the"]
-    #[doc = " request will fail with ERR_REQUEST_RANGE_NOT_SATISFIABLE."]
+    #[doc = " then either skip() will be called again until the requested number of"]
+    #[doc = " bytes have been skipped or the request will proceed. If |bytes_skipped| <="]
+    #[doc = " 0 the request will fail with ERR_REQUEST_RANGE_NOT_SATISFIABLE."]
     #[doc = ""]
     pub cont: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_resource_skip_callback_t, bytes_skipped: int64),
@@ -11480,8 +11598,9 @@ pub struct _cef_resource_read_callback_t {
     >,
 }
 #[doc = ""]
-#[doc = " Structure used to implement a custom request handler structure. The functions"]
-#[doc = " of this structure will be called on the IO thread unless otherwise indicated."]
+#[doc = " Structure used to implement a custom request handler structure. The"]
+#[doc = " functions of this structure will be called on the IO thread unless otherwise"]
+#[doc = " indicated."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone, JNICEFCallback)]
@@ -11492,13 +11611,13 @@ pub struct _cef_resource_handler_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Open the response stream. To handle the request immediately set"]
-    #[doc = " |handle_request| to true (1) and return true (1). To decide at a later time"]
-    #[doc = " set |handle_request| to false (0), return true (1), and execute |callback|"]
-    #[doc = " to continue or cancel the request. To cancel the request immediately set"]
-    #[doc = " |handle_request| to true (1) and return false (0). This function will be"]
-    #[doc = " called in sequence but not from a dedicated thread. For backwards"]
-    #[doc = " compatibility set |handle_request| to false (0) and return false (0) and"]
-    #[doc = " the ProcessRequest function will be called."]
+    #[doc = " |handle_request| to true (1) and return true (1). To decide at a later"]
+    #[doc = " time set |handle_request| to false (0), return true (1), and execute"]
+    #[doc = " |callback| to continue or cancel the request. To cancel the request"]
+    #[doc = " immediately set |handle_request| to true (1) and return false (0). This"]
+    #[doc = " function will be called in sequence but not from a dedicated thread. For"]
+    #[doc = " backwards compatibility set |handle_request| to false (0) and return false"]
+    #[doc = " (0) and the ProcessRequest function will be called."]
     #[doc = ""]
     pub open: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11527,17 +11646,17 @@ pub struct _cef_resource_handler_t {
     #[doc = ""]
     #[doc = " Retrieve response header information. If the response length is not known"]
     #[doc = " set |response_length| to -1 and read_response() will be called until it"]
-    #[doc = " returns false (0). If the response length is known set |response_length| to"]
-    #[doc = " a positive value and read_response() will be called until it returns false"]
-    #[doc = " (0) or the specified number of bytes have been read. Use the |response|"]
-    #[doc = " object to set the mime type, http status code and other optional header"]
-    #[doc = " values. To redirect the request to a new URL set |redirectUrl| to the new"]
-    #[doc = " URL. |redirectUrl| can be either a relative or fully qualified URL. It is"]
-    #[doc = " also possible to set |response| to a redirect http status code and pass the"]
-    #[doc = " new URL via a Location header. Likewise with |redirectUrl| it is valid to"]
-    #[doc = " set a relative or fully qualified URL as the Location header value. If an"]
-    #[doc = " error occured while setting up the request you can call set_error() on"]
-    #[doc = " |response| to indicate the error condition."]
+    #[doc = " returns false (0). If the response length is known set |response_length|"]
+    #[doc = " to a positive value and read_response() will be called until it returns"]
+    #[doc = " false (0) or the specified number of bytes have been read. Use the"]
+    #[doc = " |response| object to set the mime type, http status code and other"]
+    #[doc = " optional header values. To redirect the request to a new URL set"]
+    #[doc = " |redirectUrl| to the new URL. |redirectUrl| can be either a relative or"]
+    #[doc = " fully qualified URL. It is also possible to set |response| to a redirect"]
+    #[doc = " http status code and pass the new URL via a Location header. Likewise with"]
+    #[doc = " |redirectUrl| it is valid to set a relative or fully qualified URL as the"]
+    #[doc = " Location header value. If an error occured while setting up the request"]
+    #[doc = " you can call set_error() on |response| to indicate the error condition."]
     #[doc = ""]
     pub get_response_headers: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11551,8 +11670,8 @@ pub struct _cef_resource_handler_t {
     #[doc = " Skip response data when requested by a Range header. Skip over and discard"]
     #[doc = " |bytes_to_skip| bytes of response data. If data is available immediately"]
     #[doc = " set |bytes_skipped| to the number of bytes skipped and return true (1). To"]
-    #[doc = " read the data at a later time set |bytes_skipped| to 0, return true (1) and"]
-    #[doc = " execute |callback| when the data is available. To indicate failure set"]
+    #[doc = " read the data at a later time set |bytes_skipped| to 0, return true (1)"]
+    #[doc = " and execute |callback| when the data is available. To indicate failure set"]
     #[doc = " |bytes_skipped| to < 0 (e.g. -2 for ERR_FAILED) and return false (0). This"]
     #[doc = " function will be called in sequence but not from a dedicated thread."]
     #[doc = ""]
@@ -11570,12 +11689,12 @@ pub struct _cef_resource_handler_t {
     #[doc = " bytes copied, and return true (1). To read the data at a later time keep a"]
     #[doc = " pointer to |data_out|, set |bytes_read| to 0, return true (1) and execute"]
     #[doc = " |callback| when the data is available (|data_out| will remain valid until"]
-    #[doc = " the callback is executed). To indicate response completion set |bytes_read|"]
-    #[doc = " to 0 and return false (0). To indicate failure set |bytes_read| to < 0"]
-    #[doc = " (e.g. -2 for ERR_FAILED) and return false (0). This function will be called"]
-    #[doc = " in sequence but not from a dedicated thread. For backwards compatibility"]
-    #[doc = " set |bytes_read| to -1 and return false (0) and the ReadResponse function"]
-    #[doc = " will be called."]
+    #[doc = " the callback is executed). To indicate response completion set"]
+    #[doc = " |bytes_read| to 0 and return false (0). To indicate failure set"]
+    #[doc = " |bytes_read| to < 0 (e.g. -2 for ERR_FAILED) and return false (0). This"]
+    #[doc = " function will be called in sequence but not from a dedicated thread. For"]
+    #[doc = " backwards compatibility set |bytes_read| to -1 and return false (0) and"]
+    #[doc = " the ReadResponse function will be called."]
     #[doc = ""]
     pub read: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11590,8 +11709,8 @@ pub struct _cef_resource_handler_t {
     #[doc = " Read response data. If data is available immediately copy up to"]
     #[doc = " |bytes_to_read| bytes into |data_out|, set |bytes_read| to the number of"]
     #[doc = " bytes copied, and return true (1). To read the data at a later time set"]
-    #[doc = " |bytes_read| to 0, return true (1) and call cef_callback_t::cont() when the"]
-    #[doc = " data is available. To indicate response completion return false (0)."]
+    #[doc = " |bytes_read| to 0, return true (1) and call cef_callback_t::cont() when"]
+    #[doc = " the data is available. To indicate response completion return false (0)."]
     #[doc = ""]
     #[doc = " WARNING: This function is deprecated. Use Skip and Read instead."]
     #[doc = ""]
@@ -11630,31 +11749,31 @@ pub struct _cef_response_filter_t {
     #[doc = ""]
     #[doc = " Called to filter a chunk of data. Expected usage is as follows:"]
     #[doc = ""]
-    #[doc = "  A. Read input data from |data_in| and set |data_in_read| to the number of"]
+    #[doc = "  1. Read input data from |data_in| and set |data_in_read| to the number of"]
     #[doc = "     bytes that were read up to a maximum of |data_in_size|. |data_in| will"]
     #[doc = "     be NULL if |data_in_size| is zero."]
-    #[doc = "  B. Write filtered output data to |data_out| and set |data_out_written| to"]
+    #[doc = "  2. Write filtered output data to |data_out| and set |data_out_written| to"]
     #[doc = "     the number of bytes that were written up to a maximum of"]
     #[doc = "     |data_out_size|. If no output data was written then all data must be"]
     #[doc = "     read from |data_in| (user must set |data_in_read| = |data_in_size|)."]
-    #[doc = "  C. Return RESPONSE_FILTER_DONE if all output data was written or"]
+    #[doc = "  3. Return RESPONSE_FILTER_DONE if all output data was written or"]
     #[doc = "     RESPONSE_FILTER_NEED_MORE_DATA if output data is still pending."]
     #[doc = ""]
     #[doc = " This function will be called repeatedly until the input buffer has been"]
-    #[doc = " fully read (user sets |data_in_read| = |data_in_size|) and there is no more"]
-    #[doc = " input data to filter (the resource response is complete). This function may"]
-    #[doc = " then be called an additional time with an NULL input buffer if the user"]
-    #[doc = " filled the output buffer (set |data_out_written| = |data_out_size|) and"]
-    #[doc = " returned RESPONSE_FILTER_NEED_MORE_DATA to indicate that output data is"]
-    #[doc = " still pending."]
+    #[doc = " fully read (user sets |data_in_read| = |data_in_size|) and there is no"]
+    #[doc = " more input data to filter (the resource response is complete). This"]
+    #[doc = " function may then be called an additional time with an NULL input buffer"]
+    #[doc = " if the user filled the output buffer (set |data_out_written| ="]
+    #[doc = " |data_out_size|) and returned RESPONSE_FILTER_NEED_MORE_DATA to indicate"]
+    #[doc = " that output data is still pending."]
     #[doc = ""]
     #[doc = " Calls to this function will stop when one of the following conditions is"]
     #[doc = " met:"]
     #[doc = ""]
-    #[doc = "  A. There is no more input data to filter (the resource response is"]
+    #[doc = "  1. There is no more input data to filter (the resource response is"]
     #[doc = "     complete) and the user sets |data_out_written| = 0 or returns"]
     #[doc = "     RESPONSE_FILTER_DONE to indicate that all data has been written, or;"]
-    #[doc = "  B. The user returns RESPONSE_FILTER_ERROR to indicate an error."]
+    #[doc = "  2. The user returns RESPONSE_FILTER_ERROR to indicate an error."]
     #[doc = ""]
     #[doc = " Do not keep a reference to the buffers passed to this function."]
     #[doc = ""]
@@ -11684,8 +11803,8 @@ pub struct _cef_resource_request_handler_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Called on the IO thread before a resource request is loaded. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. To"]
+    #[doc = " and |frame| values represent the source of the request, and may be NULL"]
+    #[doc = " for requests originating from service workers or cef_urlrequest_t. To"]
     #[doc = " optionally filter cookies for the request return a"]
     #[doc = " cef_cookie_access_filter_t object. The |request| object cannot not be"]
     #[doc = " modified in this callback."]
@@ -11700,14 +11819,14 @@ pub struct _cef_resource_request_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called on the IO thread before a resource request is loaded. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. To redirect"]
-    #[doc = " or change the resource load optionally modify |request|. Modification of"]
-    #[doc = " the request URL will be treated as a redirect. Return RV_CONTINUE to"]
-    #[doc = " continue the request immediately. Return RV_CONTINUE_ASYNC and call"]
-    #[doc = " cef_callback_t functions at a later time to continue or cancel the request"]
-    #[doc = " asynchronously. Return RV_CANCEL to cancel the request immediately."]
-    #[doc = ""]
+    #[doc = " and |frame| values represent the source of the request, and may be NULL"]
+    #[doc = " for requests originating from service workers or cef_urlrequest_t. To"]
+    #[doc = " redirect or change the resource load optionally modify |request|."]
+    #[doc = " Modification of the request URL will be treated as a redirect. Return"]
+    #[doc = " RV_CONTINUE to continue the request immediately. Return RV_CONTINUE_ASYNC"]
+    #[doc = " and call cef_callback_t functions at a later time to continue or cancel"]
+    #[doc = " the request asynchronously. Return RV_CANCEL to cancel the request"]
+    #[doc = " immediately."]
     #[doc = ""]
     pub on_before_resource_load: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11721,10 +11840,10 @@ pub struct _cef_resource_request_handler_t {
     #[doc = ""]
     #[doc = " Called on the IO thread before a resource is loaded. The |browser| and"]
     #[doc = " |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. To allow the"]
-    #[doc = " resource to load using the default network loader return NULL. To specify a"]
-    #[doc = " handler for the resource return a cef_resource_handler_t object. The"]
-    #[doc = " |request| object cannot not be modified in this callback."]
+    #[doc = " requests originating from service workers or cef_urlrequest_t. To allow"]
+    #[doc = " the resource to load using the default network loader return NULL. To"]
+    #[doc = " specify a handler for the resource return a cef_resource_handler_t object."]
+    #[doc = " The |request| object cannot not be modified in this callback."]
     #[doc = ""]
     pub get_resource_handler: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11736,8 +11855,8 @@ pub struct _cef_resource_request_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called on the IO thread when a resource load is redirected. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. The"]
+    #[doc = " and |frame| values represent the source of the request, and may be NULL"]
+    #[doc = " for requests originating from service workers or cef_urlrequest_t. The"]
     #[doc = " |request| parameter will contain the old URL and other request-related"]
     #[doc = " information. The |response| parameter will contain the response that"]
     #[doc = " resulted in the redirect. The |new_url| parameter will contain the new URL"]
@@ -11755,14 +11874,15 @@ pub struct _cef_resource_request_handler_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Called on the IO thread when a resource response is received. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. To allow the"]
-    #[doc = " resource load to proceed without modification return false (0). To redirect"]
-    #[doc = " or retry the resource load optionally modify |request| and return true (1)."]
-    #[doc = " Modification of the request URL will be treated as a redirect. Requests"]
-    #[doc = " handled using the default network loader cannot be redirected in this"]
-    #[doc = " callback. The |response| object cannot be modified in this callback."]
+    #[doc = " Called on the IO thread when a resource response is received. The"]
+    #[doc = " |browser| and |frame| values represent the source of the request, and may"]
+    #[doc = " be NULL for requests originating from service workers or cef_urlrequest_t."]
+    #[doc = " To allow the resource load to proceed without modification return false"]
+    #[doc = " (0). To redirect or retry the resource load optionally modify |request|"]
+    #[doc = " and return true (1). Modification of the request URL will be treated as a"]
+    #[doc = " redirect. Requests handled using the default network loader cannot be"]
+    #[doc = " redirected in this callback. The |response| object cannot be modified in"]
+    #[doc = " this callback."]
     #[doc = ""]
     #[doc = " WARNING: Redirecting using this function is deprecated. Use"]
     #[doc = " OnBeforeResourceLoad or GetResourceHandler to perform redirects."]
@@ -11777,11 +11897,11 @@ pub struct _cef_resource_request_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called on the IO thread to optionally filter resource response content. The"]
-    #[doc = " |browser| and |frame| values represent the source of the request, and may"]
-    #[doc = " be NULL for requests originating from service workers or cef_urlrequest_t."]
-    #[doc = " |request| and |response| represent the request and response respectively"]
-    #[doc = " and cannot be modified in this callback."]
+    #[doc = " Called on the IO thread to optionally filter resource response content."]
+    #[doc = " The |browser| and |frame| values represent the source of the request, and"]
+    #[doc = " may be NULL for requests originating from service workers or"]
+    #[doc = " cef_urlrequest_t. |request| and |response| represent the request and"]
+    #[doc = " response respectively and cannot be modified in this callback."]
     #[doc = ""]
     pub get_resource_response_filter: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11794,19 +11914,19 @@ pub struct _cef_resource_request_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called on the IO thread when a resource load has completed. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. |request|"]
-    #[doc = " and |response| represent the request and response respectively and cannot"]
-    #[doc = " be modified in this callback. |status| indicates the load completion"]
-    #[doc = " status. |received_content_length| is the number of response bytes actually"]
-    #[doc = " read. This function will be called for all requests, including requests"]
-    #[doc = " that are aborted due to CEF shutdown or destruction of the associated"]
-    #[doc = " browser. In cases where the associated browser is destroyed this callback"]
-    #[doc = " may arrive after the cef_life_span_handler_t::OnBeforeClose callback for"]
-    #[doc = " that browser. The cef_frame_t::IsValid function can be used to test for"]
-    #[doc = " this situation, and care should be taken not to call |browser| or |frame|"]
-    #[doc = " functions that modify state (like LoadURL, SendProcessMessage, etc.) if the"]
-    #[doc = " frame is invalid."]
+    #[doc = " and |frame| values represent the source of the request, and may be NULL"]
+    #[doc = " for requests originating from service workers or cef_urlrequest_t."]
+    #[doc = " |request| and |response| represent the request and response respectively"]
+    #[doc = " and cannot be modified in this callback. |status| indicates the load"]
+    #[doc = " completion status. |received_content_length| is the number of response"]
+    #[doc = " bytes actually read. This function will be called for all requests,"]
+    #[doc = " including requests that are aborted due to CEF shutdown or destruction of"]
+    #[doc = " the associated browser. In cases where the associated browser is destroyed"]
+    #[doc = " this callback may arrive after the cef_life_span_handler_t::OnBeforeClose"]
+    #[doc = " callback for that browser. The cef_frame_t::IsValid function can be used"]
+    #[doc = " to test for this situation, and care should be taken not to call |browser|"]
+    #[doc = " or |frame| functions that modify state (like LoadURL, SendProcessMessage,"]
+    #[doc = " etc.) if the frame is invalid."]
     #[doc = ""]
     pub on_resource_load_complete: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11823,10 +11943,10 @@ pub struct _cef_resource_request_handler_t {
     #[doc = " Called on the IO thread to handle requests for URLs with an unknown"]
     #[doc = " protocol component. The |browser| and |frame| values represent the source"]
     #[doc = " of the request, and may be NULL for requests originating from service"]
-    #[doc = " workers or cef_urlrequest_t. |request| cannot be modified in this callback."]
-    #[doc = " Set |allow_os_execution| to true (1) to attempt execution via the"]
-    #[doc = " registered OS protocol handler, if any. SECURITY WARNING: YOU SHOULD USE"]
-    #[doc = " THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR OTHER URL"]
+    #[doc = " workers or cef_urlrequest_t. |request| cannot be modified in this"]
+    #[doc = " callback. Set |allow_os_execution| to true (1) to attempt execution via"]
+    #[doc = " the registered OS protocol handler, if any. SECURITY WARNING: YOU SHOULD"]
+    #[doc = " USE THIS METHOD TO ENFORCE RESTRICTIONS BASED ON SCHEME, HOST OR OTHER URL"]
     #[doc = " ANALYSIS BEFORE ALLOWING OS EXECUTION."]
     #[doc = ""]
     pub on_protocol_execution: ::std::option::Option<
@@ -11853,10 +11973,10 @@ pub struct _cef_cookie_access_filter_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Called on the IO thread before a resource request is sent. The |browser|"]
-    #[doc = " and |frame| values represent the source of the request, and may be NULL for"]
-    #[doc = " requests originating from service workers or cef_urlrequest_t. |request|"]
-    #[doc = " cannot be modified in this callback. Return true (1) if the specified"]
-    #[doc = " cookie can be sent with the request or false (0) otherwise."]
+    #[doc = " and |frame| values represent the source of the request, and may be NULL"]
+    #[doc = " for requests originating from service workers or cef_urlrequest_t."]
+    #[doc = " |request| cannot be modified in this callback. Return true (1) if the"]
+    #[doc = " specified cookie can be sent with the request or false (0) otherwise."]
     #[doc = ""]
     pub can_send_cookie: ::std::option::Option<
         unsafe extern "C" fn(
@@ -11952,13 +12072,14 @@ pub struct _cef_request_handler_t {
     #[doc = " Called on the UI thread before browser navigation. Return true (1) to"]
     #[doc = " cancel the navigation or false (0) to allow the navigation to proceed. The"]
     #[doc = " |request| object cannot be modified in this callback."]
-    #[doc = " cef_load_handler_t::OnLoadingStateChange will be called twice in all cases."]
-    #[doc = " If the navigation is allowed cef_load_handler_t::OnLoadStart and"]
-    #[doc = " cef_load_handler_t::OnLoadEnd will be called. If the navigation is canceled"]
-    #[doc = " cef_load_handler_t::OnLoadError will be called with an |errorCode| value of"]
-    #[doc = " ERR_ABORTED. The |user_gesture| value will be true (1) if the browser"]
-    #[doc = " navigated via explicit user gesture (e.g. clicking a link) or false (0) if"]
-    #[doc = " it navigated automatically (e.g. via the DomContentLoaded event)."]
+    #[doc = " cef_load_handler_t::OnLoadingStateChange will be called twice in all"]
+    #[doc = " cases. If the navigation is allowed cef_load_handler_t::OnLoadStart and"]
+    #[doc = " cef_load_handler_t::OnLoadEnd will be called. If the navigation is"]
+    #[doc = " canceled cef_load_handler_t::OnLoadError will be called with an"]
+    #[doc = " |errorCode| value of ERR_ABORTED. The |user_gesture| value will be true"]
+    #[doc = " (1) if the browser navigated via explicit user gesture (e.g. clicking a"]
+    #[doc = " link) or false (0) if it navigated automatically (e.g. via the"]
+    #[doc = " DomContentLoaded event)."]
     #[doc = ""]
     pub on_before_browse: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12002,12 +12123,12 @@ pub struct _cef_request_handler_t {
     #[doc = " request. |request| represents the request contents and cannot be modified"]
     #[doc = " in this callback. |is_navigation| will be true (1) if the resource request"]
     #[doc = " is a navigation. |is_download| will be true (1) if the resource request is"]
-    #[doc = " a download. |request_initiator| is the origin (scheme + domain) of the page"]
-    #[doc = " that initiated the request. Set |disable_default_handling| to true (1) to"]
-    #[doc = " disable default handling of the request, in which case it will need to be"]
-    #[doc = " handled via cef_resource_request_handler_t::GetResourceHandler or it will"]
-    #[doc = " be canceled. To allow the resource load to proceed with default handling"]
-    #[doc = " return NULL. To specify a handler for the resource return a"]
+    #[doc = " a download. |request_initiator| is the origin (scheme + domain) of the"]
+    #[doc = " page that initiated the request. Set |disable_default_handling| to true"]
+    #[doc = " (1) to disable default handling of the request, in which case it will need"]
+    #[doc = " to be handled via cef_resource_request_handler_t::GetResourceHandler or it"]
+    #[doc = " will be canceled. To allow the resource load to proceed with default"]
+    #[doc = " handling return NULL. To specify a handler for the resource return a"]
     #[doc = " cef_resource_request_handler_t object. If this callback returns NULL the"]
     #[doc = " same function will be called on the associated"]
     #[doc = " cef_request_context_handler_t, if any."]
@@ -12032,9 +12153,9 @@ pub struct _cef_request_handler_t {
     #[doc = " and may be NULL. |scheme| is the authentication scheme used, such as"]
     #[doc = " \"basic\" or \"digest\", and will be NULL if the source of the request is an"]
     #[doc = " FTP server. Return true (1) to continue the request and call"]
-    #[doc = " cef_auth_callback_t::cont() either in this function or at a later time when"]
-    #[doc = " the authentication information is available. Return false (0) to cancel the"]
-    #[doc = " request immediately."]
+    #[doc = " cef_auth_callback_t::cont() either in this function or at a later time"]
+    #[doc = " when the authentication information is available. Return false (0) to"]
+    #[doc = " cancel the request immediately."]
     #[doc = ""]
     pub get_auth_credentials: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12072,8 +12193,8 @@ pub struct _cef_request_handler_t {
     #[doc = " certificate. Return true (1) and call cef_callback_t functions either in"]
     #[doc = " this function or at a later time to continue or cancel the request. Return"]
     #[doc = " false (0) to cancel the request immediately. If"]
-    #[doc = " CefSettings.ignore_certificate_errors is set all invalid certificates will"]
-    #[doc = " be accepted without calling this function."]
+    #[doc = " cef_settings_t.ignore_certificate_errors is set all invalid certificates"]
+    #[doc = " will be accepted without calling this function."]
     #[doc = ""]
     pub on_certificate_error: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12093,10 +12214,10 @@ pub struct _cef_request_handler_t {
     #[doc = " function or at a later time to select a certificate. Do not call Select or"]
     #[doc = " call it with NULL to continue without using any certificate. |isProxy|"]
     #[doc = " indicates whether the host is an HTTPS proxy or the origin server. |host|"]
-    #[doc = " and |port| contains the hostname and port of the SSL server. |certificates|"]
-    #[doc = " is the list of certificates to choose from; this list has already been"]
-    #[doc = " pruned by Chromium so that it only contains certificates from issuers that"]
-    #[doc = " the server trusts."]
+    #[doc = " and |port| contains the hostname and port of the SSL server."]
+    #[doc = " |certificates| is the list of certificates to choose from; this list has"]
+    #[doc = " already been pruned by Chromium so that it only contains certificates from"]
+    #[doc = " issuers that the server trusts."]
     #[doc = ""]
     pub on_select_client_certificate: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12161,8 +12282,8 @@ pub struct _cef_client_t {
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_command_handler_t,
     >,
     #[doc = ""]
-    #[doc = " Return the handler for context menus. If no handler is provided the default"]
-    #[doc = " implementation will be used."]
+    #[doc = " Return the handler for context menus. If no handler is provided the"]
+    #[doc = " default implementation will be used."]
     #[doc = ""]
     pub get_context_menu_handler: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_context_menu_handler_t,
@@ -12181,8 +12302,8 @@ pub struct _cef_client_t {
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_display_handler_t,
     >,
     #[doc = ""]
-    #[doc = " Return the handler for download events. If no handler is returned downloads"]
-    #[doc = " will not be allowed."]
+    #[doc = " Return the handler for download events. If no handler is returned"]
+    #[doc = " downloads will not be allowed."]
     #[doc = ""]
     pub get_download_handler: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_download_handler_t,
@@ -12264,9 +12385,9 @@ pub struct _cef_client_t {
         unsafe extern "C" fn(self_: *mut _cef_client_t) -> *mut _cef_request_handler_t,
     >,
     #[doc = ""]
-    #[doc = " Called when a new message is received from a different process. Return true"]
-    #[doc = " (1) if the message was handled or false (0) otherwise.  It is safe to keep"]
-    #[doc = " a reference to |message| outside of this callback."]
+    #[doc = " Called when a new message is received from a different process. Return"]
+    #[doc = " true (1) if the message was handled or false (0) otherwise.  It is safe to"]
+    #[doc = " keep a reference to |message| outside of this callback."]
     #[doc = ""]
     pub on_process_message_received: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12280,9 +12401,9 @@ pub struct _cef_client_t {
 }
 #[doc = ""]
 #[doc = " Structure used to create and/or parse command line arguments. Arguments with"]
-#[doc = " '--', '-' and, on Windows, '/' prefixes are considered switches. Switches"]
+#[doc = " \"--\", \"-\" and, on Windows, \"/\" prefixes are considered switches. Switches"]
 #[doc = " will always precede any arguments without switch prefixes. Switches can"]
-#[doc = " optionally have a value specified using the '=' delimiter (e.g."]
+#[doc = " optionally have a value specified using the \"=\" delimiter (e.g."]
 #[doc = " \"-switch=value\"). An argument of \"--\" will terminate switch parsing with all"]
 #[doc = " subsequent tokens, regardless of prefix, being interpreted as non-switch"]
 #[doc = " arguments. Switch names should be lowercase ASCII and will be converted to"]
@@ -12342,7 +12463,7 @@ pub struct _cef_command_line_t {
     pub reset: ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_command_line_t)>,
     #[doc = ""]
     #[doc = " Retrieve the original command line string as a vector of strings. The argv"]
-    #[doc = " array: { program, [(--|-|/)switch[=value]]*, [--], [argument]* }"]
+    #[doc = " array: `{ program, [(--|-|/)switch[=value]]*, [--], [argument]* }`"]
     #[doc = ""]
     pub get_argv: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_command_line_t, argv: cef_string_list_t),
@@ -12446,9 +12567,9 @@ pub struct _cef_command_line_t {
 }
 #[doc = ""]
 #[doc = " Structure used to create and/or parse command line arguments. Arguments with"]
-#[doc = " '--', '-' and, on Windows, '/' prefixes are considered switches. Switches"]
+#[doc = " \"--\", \"-\" and, on Windows, \"/\" prefixes are considered switches. Switches"]
 #[doc = " will always precede any arguments without switch prefixes. Switches can"]
-#[doc = " optionally have a value specified using the '=' delimiter (e.g."]
+#[doc = " optionally have a value specified using the \"=\" delimiter (e.g."]
 #[doc = " \"-switch=value\"). An argument of \"--\" will terminate switch parsing with all"]
 #[doc = " subsequent tokens, regardless of prefix, being interpreted as non-switch"]
 #[doc = " arguments. Switch names should be lowercase ASCII and will be converted to"]
@@ -12501,17 +12622,17 @@ pub struct _cef_browser_process_handler_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Called from any thread when work has been scheduled for the browser process"]
-    #[doc = " main (UI) thread. This callback is used in combination with CefSettings."]
-    #[doc = " external_message_pump and cef_do_message_loop_work() in cases where the CEF"]
-    #[doc = " message loop must be integrated into an existing application message loop"]
-    #[doc = " (see additional comments and warnings on CefDoMessageLoopWork). This"]
-    #[doc = " callback should schedule a cef_do_message_loop_work() call to happen on the"]
-    #[doc = " main (UI) thread. |delay_ms| is the requested delay in milliseconds. If"]
-    #[doc = " |delay_ms| is <= 0 then the call should happen reasonably soon. If"]
-    #[doc = " |delay_ms| is > 0 then the call should be scheduled to happen after the"]
-    #[doc = " specified delay and any currently pending scheduled call should be"]
-    #[doc = " cancelled."]
+    #[doc = " Called from any thread when work has been scheduled for the browser"]
+    #[doc = " process main (UI) thread. This callback is used in combination with"]
+    #[doc = " cef_settings_t.external_message_pump and cef_do_message_loop_work() in"]
+    #[doc = " cases where the CEF message loop must be integrated into an existing"]
+    #[doc = " application message loop (see additional comments and warnings on"]
+    #[doc = " CefDoMessageLoopWork). This callback should schedule a"]
+    #[doc = " cef_do_message_loop_work() call to happen on the main (UI) thread."]
+    #[doc = " |delay_ms| is the requested delay in milliseconds. If |delay_ms| is <= 0"]
+    #[doc = " then the call should happen reasonably soon. If |delay_ms| is > 0 then the"]
+    #[doc = " call should be scheduled to happen after the specified delay and any"]
+    #[doc = " currently pending scheduled call should be cancelled."]
     #[doc = ""]
     pub on_schedule_message_pump_work: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_process_handler_t, delay_ms: int64),
@@ -12520,8 +12641,8 @@ pub struct _cef_browser_process_handler_t {
     #[doc = " Return the default client for use with a newly created browser window. If"]
     #[doc = " null is returned the browser will be unmanaged (no callbacks will be"]
     #[doc = " executed for that browser) and application shutdown will be blocked until"]
-    #[doc = " the browser window is closed manually. This function is currently only used"]
-    #[doc = " with the chrome runtime."]
+    #[doc = " the browser window is closed manually. This function is currently only"]
+    #[doc = " used with the chrome runtime."]
     #[doc = ""]
     pub get_default_client: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_process_handler_t) -> *mut _cef_client_t,
@@ -12530,10 +12651,10 @@ pub struct _cef_browser_process_handler_t {
 #[doc = ""]
 #[doc = " Implement this structure for asynchronous task execution. If the task is"]
 #[doc = " posted successfully and if the associated message loop is still running then"]
-#[doc = " the execute() function will be called on the target thread. If the task fails"]
-#[doc = " to post then the task object may be destroyed on the source thread instead of"]
-#[doc = " the target thread. For this reason be cautious when performing work in the"]
-#[doc = " task object destructor."]
+#[doc = " the execute() function will be called on the target thread. If the task"]
+#[doc = " fails to post then the task object may be destroyed on the source thread"]
+#[doc = " instead of the target thread. For this reason be cautious when performing"]
+#[doc = " work in the task object destructor."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -12550,10 +12671,10 @@ pub struct _cef_task_t {
 #[doc = ""]
 #[doc = " Implement this structure for asynchronous task execution. If the task is"]
 #[doc = " posted successfully and if the associated message loop is still running then"]
-#[doc = " the execute() function will be called on the target thread. If the task fails"]
-#[doc = " to post then the task object may be destroyed on the source thread instead of"]
-#[doc = " the target thread. For this reason be cautious when performing work in the"]
-#[doc = " task object destructor."]
+#[doc = " the execute() function will be called on the target thread. If the task"]
+#[doc = " fails to post then the task object may be destroyed on the source thread"]
+#[doc = " instead of the target thread. For this reason be cautious when performing"]
+#[doc = " work in the task object destructor."]
 #[doc = ""]
 pub type cef_task_t = _cef_task_t;
 #[doc = ""]
@@ -12688,8 +12809,8 @@ pub struct _cef_v8context_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Returns the task runner associated with this context. V8 handles can only"]
-    #[doc = " be accessed from the thread on which they are created. This function can be"]
-    #[doc = " called on any render process thread."]
+    #[doc = " be accessed from the thread on which they are created. This function can"]
+    #[doc = " be called on any render process thread."]
     #[doc = ""]
     pub get_task_runner: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8context_t) -> *mut _cef_task_runner_t,
@@ -12752,11 +12873,11 @@ pub struct _cef_v8context_t {
     >,
     #[doc = ""]
     #[doc = " Execute a string of JavaScript code in this V8 context. The |script_url|"]
-    #[doc = " parameter is the URL where the script in question can be found, if any. The"]
-    #[doc = " |start_line| parameter is the base line number to use for error reporting."]
-    #[doc = " On success |retval| will be set to the return value, if any, and the"]
-    #[doc = " function will return true (1). On failure |exception| will be set to the"]
-    #[doc = " exception, if any, and the function will return false (0)."]
+    #[doc = " parameter is the URL where the script in question can be found, if any."]
+    #[doc = " The |start_line| parameter is the base line number to use for error"]
+    #[doc = " reporting. On success |retval| will be set to the return value, if any,"]
+    #[doc = " and the function will return true (1). On failure |exception| will be set"]
+    #[doc = " to the exception, if any, and the function will return false (0)."]
     #[doc = ""]
     pub eval: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12810,9 +12931,9 @@ pub struct _cef_v8handler_t {
     #[doc = ""]
     #[doc = " Handle execution of the function identified by |name|. |object| is the"]
     #[doc = " receiver ('this' object) of the function. |arguments| is the list of"]
-    #[doc = " arguments passed to the function. If execution succeeds set |retval| to the"]
-    #[doc = " function return value. If execution fails set |exception| to the exception"]
-    #[doc = " that will be thrown. Return true (1) if execution was handled."]
+    #[doc = " arguments passed to the function. If execution succeeds set |retval| to"]
+    #[doc = " the function return value. If execution fails set |exception| to the"]
+    #[doc = " exception that will be thrown. Return true (1) if execution was handled."]
     #[doc = ""]
     pub execute: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12888,10 +13009,10 @@ pub type cef_v8accessor_t = _cef_v8accessor_t;
 #[doc = ""]
 #[doc = " Structure that should be implemented to handle V8 interceptor calls. The"]
 #[doc = " functions of this structure will be called on the thread associated with the"]
-#[doc = " V8 interceptor. Interceptor's named property handlers (with first argument of"]
-#[doc = " type CefString) are called when object is indexed by string. Indexed property"]
-#[doc = " handlers (with first argument of type int) are called when object is indexed"]
-#[doc = " by integer."]
+#[doc = " V8 interceptor. Interceptor's named property handlers (with first argument"]
+#[doc = " of type CefString) are called when object is indexed by string. Indexed"]
+#[doc = " property handlers (with first argument of type int) are called when object"]
+#[doc = " is indexed by integer."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -12901,13 +13022,13 @@ pub struct _cef_v8interceptor_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Handle retrieval of the interceptor value identified by |name|. |object| is"]
-    #[doc = " the receiver ('this' object) of the interceptor. If retrieval succeeds, set"]
-    #[doc = " |retval| to the return value. If the requested value does not exist, don't"]
-    #[doc = " set either |retval| or |exception|. If retrieval fails, set |exception| to"]
-    #[doc = " the exception that will be thrown. If the property has an associated"]
-    #[doc = " accessor, it will be called only if you don't set |retval|. Return true (1)"]
-    #[doc = " if interceptor retrieval was handled, false (0) otherwise."]
+    #[doc = " Handle retrieval of the interceptor value identified by |name|. |object|"]
+    #[doc = " is the receiver ('this' object) of the interceptor. If retrieval succeeds,"]
+    #[doc = " set |retval| to the return value. If the requested value does not exist,"]
+    #[doc = " don't set either |retval| or |exception|. If retrieval fails, set"]
+    #[doc = " |exception| to the exception that will be thrown. If the property has an"]
+    #[doc = " associated accessor, it will be called only if you don't set |retval|."]
+    #[doc = " Return true (1) if interceptor retrieval was handled, false (0) otherwise."]
     #[doc = ""]
     pub get_byname: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12972,15 +13093,15 @@ pub struct _cef_v8interceptor_t {
 #[doc = ""]
 #[doc = " Structure that should be implemented to handle V8 interceptor calls. The"]
 #[doc = " functions of this structure will be called on the thread associated with the"]
-#[doc = " V8 interceptor. Interceptor's named property handlers (with first argument of"]
-#[doc = " type CefString) are called when object is indexed by string. Indexed property"]
-#[doc = " handlers (with first argument of type int) are called when object is indexed"]
-#[doc = " by integer."]
+#[doc = " V8 interceptor. Interceptor's named property handlers (with first argument"]
+#[doc = " of type CefString) are called when object is indexed by string. Indexed"]
+#[doc = " property handlers (with first argument of type int) are called when object"]
+#[doc = " is indexed by integer."]
 #[doc = ""]
 pub type cef_v8interceptor_t = _cef_v8interceptor_t;
 #[doc = ""]
-#[doc = " Structure representing a V8 exception. The functions of this structure may be"]
-#[doc = " called on any render process thread."]
+#[doc = " Structure representing a V8 exception. The functions of this structure may"]
+#[doc = " be called on any render process thread."]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
@@ -13012,8 +13133,8 @@ pub struct _cef_v8exception_t {
         unsafe extern "C" fn(self_: *mut _cef_v8exception_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the 1-based number of the line where the error occurred or 0 if the"]
-    #[doc = " line number is unknown."]
+    #[doc = " Returns the 1-based number of the line where the error occurred or 0 if"]
+    #[doc = " the line number is unknown."]
     #[doc = ""]
     pub get_line_number: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8exception_t) -> ::std::os::raw::c_int,
@@ -13059,8 +13180,8 @@ pub struct _cef_v8array_buffer_release_callback_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Called to release |buffer| when the ArrayBuffer JS object is garbage"]
-    #[doc = " collected. |buffer| is the value that was passed to CreateArrayBuffer along"]
-    #[doc = " with this object."]
+    #[doc = " collected. |buffer| is the value that was passed to CreateArrayBuffer"]
+    #[doc = " along with this object."]
     #[doc = ""]
     pub release_buffer: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13202,7 +13323,7 @@ pub struct _cef_v8value_t {
     #[doc = " Return a Date value."]
     #[doc = ""]
     pub get_date_value:
-        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> cef_time_t>,
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> cef_basetime_t>,
     #[doc = ""]
     #[doc = " Return a string value."]
     #[doc = ""]
@@ -13224,8 +13345,8 @@ pub struct _cef_v8value_t {
         unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns the exception resulting from the last function call. This attribute"]
-    #[doc = " exists only in the scope of the current CEF value object."]
+    #[doc = " Returns the exception resulting from the last function call. This"]
+    #[doc = " attribute exists only in the scope of the current CEF value object."]
     #[doc = ""]
     pub get_exception: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> *mut _cef_v8exception_t,
@@ -13288,9 +13409,9 @@ pub struct _cef_v8value_t {
     >,
     #[doc = ""]
     #[doc = " Deletes the value with the specified identifier and returns true (1) on"]
-    #[doc = " success. Returns false (0) if this function is called incorrectly, deletion"]
-    #[doc = " fails or an exception is thrown. For read-only and don't-delete values this"]
-    #[doc = " function will return true (1) even though deletion failed."]
+    #[doc = " success. Returns false (0) if this function is called incorrectly,"]
+    #[doc = " deletion fails or an exception is thrown. For read-only and don't-delete"]
+    #[doc = " values this function will return true (1) even though deletion failed."]
     #[doc = ""]
     pub delete_value_byindex: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13299,8 +13420,8 @@ pub struct _cef_v8value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns the value with the specified identifier on success. Returns NULL if"]
-    #[doc = " this function is called incorrectly or an exception is thrown."]
+    #[doc = " Returns the value with the specified identifier on success. Returns NULL"]
+    #[doc = " if this function is called incorrectly or an exception is thrown."]
     #[doc = ""]
     pub get_value_bykey: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13309,8 +13430,8 @@ pub struct _cef_v8value_t {
         ) -> *mut _cef_v8value_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the value with the specified identifier on success. Returns NULL if"]
-    #[doc = " this function is called incorrectly or an exception is thrown."]
+    #[doc = " Returns the value with the specified identifier on success. Returns NULL"]
+    #[doc = " if this function is called incorrectly or an exception is thrown."]
     #[doc = ""]
     pub get_value_byindex: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13371,9 +13492,9 @@ pub struct _cef_v8value_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Sets the user data for this object and returns true (1) on success. Returns"]
-    #[doc = " false (0) if this function is called incorrectly. This function can only be"]
-    #[doc = " called on user created objects."]
+    #[doc = " Sets the user data for this object and returns true (1) on success."]
+    #[doc = " Returns false (0) if this function is called incorrectly. This function"]
+    #[doc = " can only be called on user created objects."]
     #[doc = ""]
     pub set_user_data: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13401,8 +13522,8 @@ pub struct _cef_v8value_t {
     #[doc = " to perform global garbage collection. Each cef_v8value_t tracks the amount"]
     #[doc = " of external memory associated with it and automatically decreases the"]
     #[doc = " global total by the appropriate amount on its destruction."]
-    #[doc = " |change_in_bytes| specifies the number of bytes to adjust by. This function"]
-    #[doc = " returns the number of bytes associated with the object after the"]
+    #[doc = " |change_in_bytes| specifies the number of bytes to adjust by. This"]
+    #[doc = " function returns the number of bytes associated with the object after the"]
     #[doc = " adjustment. This function can only be called on user created objects."]
     #[doc = ""]
     pub adjust_externally_allocated_memory: ::std::option::Option<
@@ -13470,11 +13591,11 @@ pub struct _cef_v8value_t {
     >,
     #[doc = ""]
     #[doc = " Execute the function using the specified V8 context. |object| is the"]
-    #[doc = " receiver ('this' object) of the function. If |object| is NULL the specified"]
-    #[doc = " context's global object will be used. |arguments| is the list of arguments"]
-    #[doc = " that will be passed to the function. Returns the function return value on"]
-    #[doc = " success. Returns NULL if this function is called incorrectly or an"]
-    #[doc = " exception is thrown."]
+    #[doc = " receiver ('this' object) of the function. If |object| is NULL the"]
+    #[doc = " specified context's global object will be used. |arguments| is the list of"]
+    #[doc = " arguments that will be passed to the function. Returns the function return"]
+    #[doc = " value on success. Returns NULL if this function is called incorrectly or"]
+    #[doc = " an exception is thrown."]
     #[doc = ""]
     pub execute_function_with_context: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13537,7 +13658,7 @@ extern "C" {
     #[doc = " cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling"]
     #[doc = " enter() and exit() on a stored cef_v8context_t reference."]
     #[doc = ""]
-    pub fn cef_v8value_create_date(date: *const cef_time_t) -> *mut cef_v8value_t;
+    pub fn cef_v8value_create_date(date: cef_basetime_t) -> *mut cef_v8value_t;
 }
 extern "C" {
     #[doc = ""]
@@ -13548,8 +13669,8 @@ extern "C" {
 extern "C" {
     #[doc = ""]
     #[doc = " Create a new cef_v8value_t object of type object with optional accessor"]
-    #[doc = " and/or interceptor. This function should only be called from within the scope"]
-    #[doc = " of a cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t"]
+    #[doc = " and/or interceptor. This function should only be called from within the"]
+    #[doc = " scope of a cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t"]
     #[doc = " callback, or in combination with calling enter() and exit() on a stored"]
     #[doc = " cef_v8context_t reference."]
     #[doc = ""]
@@ -13564,8 +13685,8 @@ extern "C" {
     #[doc = " If |length| is negative the returned array will have length 0. This function"]
     #[doc = " should only be called from within the scope of a"]
     #[doc = " cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,"]
-    #[doc = " or in combination with calling enter() and exit() on a stored cef_v8context_t"]
-    #[doc = " reference."]
+    #[doc = " or in combination with calling enter() and exit() on a stored"]
+    #[doc = " cef_v8context_t reference."]
     #[doc = ""]
     pub fn cef_v8value_create_array(length: ::std::os::raw::c_int) -> *mut cef_v8value_t;
 }
@@ -13574,11 +13695,11 @@ extern "C" {
     #[doc = " Create a new cef_v8value_t object of type ArrayBuffer which wraps the"]
     #[doc = " provided |buffer| of size |length| bytes. The ArrayBuffer is externalized,"]
     #[doc = " meaning that it does not own |buffer|. The caller is responsible for freeing"]
-    #[doc = " |buffer| when requested via a call to cef_v8array_buffer_release_callback_t::"]
-    #[doc = " ReleaseBuffer. This function should only be called from within the scope of a"]
-    #[doc = " cef_render_process_handler_t, cef_v8handler_t or cef_v8accessor_t callback,"]
-    #[doc = " or in combination with calling enter() and exit() on a stored cef_v8context_t"]
-    #[doc = " reference."]
+    #[doc = " |buffer| when requested via a call to"]
+    #[doc = " cef_v8array_buffer_release_callback_t::ReleaseBuffer. This function should"]
+    #[doc = " only be called from within the scope of a cef_render_process_handler_t,"]
+    #[doc = " cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling"]
+    #[doc = " enter() and exit() on a stored cef_v8context_t reference."]
     #[doc = ""]
     pub fn cef_v8value_create_array_buffer(
         buffer: *mut ::std::os::raw::c_void,
@@ -13588,8 +13709,8 @@ extern "C" {
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " Create a new cef_v8value_t object of type function. This function should only"]
-    #[doc = " be called from within the scope of a cef_render_process_handler_t,"]
+    #[doc = " Create a new cef_v8value_t object of type function. This function should"]
+    #[doc = " only be called from within the scope of a cef_render_process_handler_t,"]
     #[doc = " cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling"]
     #[doc = " enter() and exit() on a stored cef_v8context_t reference."]
     #[doc = ""]
@@ -13705,8 +13826,8 @@ pub struct _cef_v8stack_frame_t {
         unsafe extern "C" fn(self_: *mut _cef_v8stack_frame_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Returns the 1-based column offset on the line for the function call or 0 if"]
-    #[doc = " unknown."]
+    #[doc = " Returns the 1-based column offset on the line for the function call or 0"]
+    #[doc = " if unknown."]
     #[doc = ""]
     pub get_column: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8stack_frame_t) -> ::std::os::raw::c_int,
@@ -13728,9 +13849,9 @@ extern "C" {
     #[doc = ""]
     #[doc = " Register a new V8 extension with the specified JavaScript extension code and"]
     #[doc = " handler. Functions implemented by the handler are prototyped using the"]
-    #[doc = " keyword 'native'. The calling of a native function is restricted to the scope"]
-    #[doc = " in which the prototype of the native function is defined. This function may"]
-    #[doc = " only be called on the render process main thread."]
+    #[doc = " keyword 'native'. The calling of a native function is restricted to the"]
+    #[doc = " scope in which the prototype of the native function is defined. This"]
+    #[doc = " function may only be called on the render process main thread."]
     #[doc = ""]
     #[doc = " Example JavaScript extension code: <pre>"]
     #[doc = "   // create the 'example' global object if it doesn't already exist."]
@@ -13770,7 +13891,9 @@ extern "C" {
     #[doc = "       return myint;"]
     #[doc = "     };"]
     #[doc = "   })();"]
-    #[doc = " </pre> Example usage in the page: <pre>"]
+    #[doc = " </pre>"]
+    #[doc = ""]
+    #[doc = " Example usage in the page: <pre>"]
     #[doc = "   // Call the function."]
     #[doc = "   example.test.myfunction();"]
     #[doc = "   // Set the parameter."]
@@ -13866,7 +13989,7 @@ pub struct _cef_render_process_handler_t {
     #[doc = ""]
     #[doc = " Called for global uncaught exceptions in a frame. Execution of this"]
     #[doc = " callback is disabled by default. To enable set"]
-    #[doc = " CefSettings.uncaught_exception_stack_size > 0."]
+    #[doc = " cef_settings_t.uncaught_exception_stack_size > 0."]
     #[doc = ""]
     pub on_uncaught_exception: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13881,10 +14004,10 @@ pub struct _cef_render_process_handler_t {
     #[doc = ""]
     #[doc = " Called when a new node in the the browser gets focus. The |node| value may"]
     #[doc = " be NULL if no specific node has gained focus. The node object passed to"]
-    #[doc = " this function represents a snapshot of the DOM at the time this function is"]
-    #[doc = " executed. DOM objects are only valid for the scope of this function. Do not"]
-    #[doc = " keep references to or attempt to access any DOM objects outside the scope"]
-    #[doc = " of this function."]
+    #[doc = " this function represents a snapshot of the DOM at the time this function"]
+    #[doc = " is executed. DOM objects are only valid for the scope of this function. Do"]
+    #[doc = " not keep references to or attempt to access any DOM objects outside the"]
+    #[doc = " scope of this function."]
     #[doc = ""]
     pub on_focused_node_changed: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13895,9 +14018,9 @@ pub struct _cef_render_process_handler_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Called when a new message is received from a different process. Return true"]
-    #[doc = " (1) if the message was handled or false (0) otherwise. It is safe to keep a"]
-    #[doc = " reference to |message| outside of this callback."]
+    #[doc = " Called when a new message is received from a different process. Return"]
+    #[doc = " true (1) if the message was handled or false (0) otherwise. It is safe to"]
+    #[doc = " keep a reference to |message| outside of this callback."]
     #[doc = ""]
     pub on_process_message_received: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13936,11 +14059,11 @@ pub struct _cef_resource_bundle_handler_t {
     >,
     #[doc = ""]
     #[doc = " Called to retrieve data for the specified scale independent |resource_id|."]
-    #[doc = " To provide the resource data set |data| and |data_size| to the data pointer"]
-    #[doc = " and size respectively and return true (1). To use the default resource data"]
-    #[doc = " return false (0). The resource data will not be copied and must remain"]
-    #[doc = " resident in memory. Include cef_pack_resources.h for a listing of valid"]
-    #[doc = " resource ID values."]
+    #[doc = " To provide the resource data set |data| and |data_size| to the data"]
+    #[doc = " pointer and size respectively and return true (1). To use the default"]
+    #[doc = " resource data return false (0). The resource data will not be copied and"]
+    #[doc = " must remain resident in memory. Include cef_pack_resources.h for a listing"]
+    #[doc = " of valid resource ID values."]
     #[doc = ""]
     pub get_data_resource: ::std::option::Option<
         unsafe extern "C" fn(
@@ -13979,8 +14102,8 @@ pub struct _cef_scheme_registrar_t {
     #[doc = ""]
     pub base: cef_base_scoped_t,
     #[doc = ""]
-    #[doc = " Register a custom scheme. This function should not be called for the built-"]
-    #[doc = " in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes."]
+    #[doc = " Register a custom scheme. This function should not be called for the"]
+    #[doc = " built-in HTTP, HTTPS, FILE, FTP, ABOUT and DATA schemes."]
     #[doc = ""]
     #[doc = " See cef_scheme_options_t for possible values for |options|."]
     #[doc = ""]
@@ -14012,9 +14135,9 @@ pub struct _cef_scheme_handler_factory_t {
     #[doc = " Return a new resource handler instance to handle the request or an NULL"]
     #[doc = " reference to allow default handling of the request. |browser| and |frame|"]
     #[doc = " will be the browser window and frame respectively that originated the"]
-    #[doc = " request or NULL if the request did not originate from a browser window (for"]
-    #[doc = " example, if the request came from cef_urlrequest_t). The |request| object"]
-    #[doc = " passed to this function cannot be modified."]
+    #[doc = " request or NULL if the request did not originate from a browser window"]
+    #[doc = " (for example, if the request came from cef_urlrequest_t). The |request|"]
+    #[doc = " object passed to this function cannot be modified."]
     #[doc = ""]
     pub create: ::std::option::Option<
         unsafe extern "C" fn(
@@ -14035,18 +14158,18 @@ pub type cef_scheme_handler_factory_t = _cef_scheme_handler_factory_t;
 extern "C" {
     #[doc = ""]
     #[doc = " Register a scheme handler factory with the global request context. An NULL"]
-    #[doc = " |domain_name| value for a standard scheme will cause the factory to match all"]
-    #[doc = " domain names. The |domain_name| value will be ignored for non-standard"]
+    #[doc = " |domain_name| value for a standard scheme will cause the factory to match"]
+    #[doc = " all domain names. The |domain_name| value will be ignored for non-standard"]
     #[doc = " schemes. If |scheme_name| is a built-in scheme and no handler is returned by"]
     #[doc = " |factory| then the built-in scheme handler factory will be called. If"]
     #[doc = " |scheme_name| is a custom scheme then you must also implement the"]
     #[doc = " cef_app_t::on_register_custom_schemes() function in all processes. This"]
     #[doc = " function may be called multiple times to change or remove the factory that"]
-    #[doc = " matches the specified |scheme_name| and optional |domain_name|. Returns false"]
-    #[doc = " (0) if an error occurs. This function may be called on any thread in the"]
-    #[doc = " browser process. Using this function is equivalent to calling cef_request_con"]
-    #[doc = " text_t::cef_request_context_get_global_context()->register_scheme_handler_fac"]
-    #[doc = " tory()."]
+    #[doc = " matches the specified |scheme_name| and optional |domain_name|. Returns"]
+    #[doc = " false (0) if an error occurs. This function may be called on any thread in"]
+    #[doc = " the browser process. Using this function is equivalent to calling cef_reques"]
+    #[doc = " t_context_t::cef_request_context_get_global_context()->register_scheme_handl"]
+    #[doc = " er_factory()."]
     #[doc = ""]
     pub fn cef_register_scheme_handler_factory(
         scheme_name: *const cef_string_t,
@@ -14058,9 +14181,9 @@ extern "C" {
     #[doc = ""]
     #[doc = " Clear all scheme handler factories registered with the global request"]
     #[doc = " context. Returns false (0) on error. This function may be called on any"]
-    #[doc = " thread in the browser process. Using this function is equivalent to calling c"]
-    #[doc = " ef_request_context_t::cef_request_context_get_global_context()->clear_scheme_"]
-    #[doc = " handler_factories()."]
+    #[doc = " thread in the browser process. Using this function is equivalent to calling"]
+    #[doc = " cef_request_context_t::cef_request_context_get_global_context()->clear_schem"]
+    #[doc = " e_handler_factories()."]
     #[doc = ""]
     pub fn cef_clear_scheme_handler_factories() -> ::std::os::raw::c_int;
 }
@@ -14076,15 +14199,16 @@ pub struct _cef_app_t {
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
-    #[doc = " Provides an opportunity to view and/or modify command-line arguments before"]
-    #[doc = " processing by CEF and Chromium. The |process_type| value will be NULL for"]
-    #[doc = " the browser process. Do not keep a reference to the cef_command_line_t"]
-    #[doc = " object passed to this function. The CefSettings.command_line_args_disabled"]
-    #[doc = " value can be used to start with an NULL command-line object. Any values"]
-    #[doc = " specified in CefSettings that equate to command-line arguments will be set"]
-    #[doc = " before this function is called. Be cautious when using this function to"]
-    #[doc = " modify command-line arguments for non-browser processes as this may result"]
-    #[doc = " in undefined behavior including crashes."]
+    #[doc = " Provides an opportunity to view and/or modify command-line arguments"]
+    #[doc = " before processing by CEF and Chromium. The |process_type| value will be"]
+    #[doc = " NULL for the browser process. Do not keep a reference to the"]
+    #[doc = " cef_command_line_t object passed to this function. The"]
+    #[doc = " cef_settings_t.command_line_args_disabled value can be used to start with"]
+    #[doc = " an NULL command-line object. Any values specified in CefSettings that"]
+    #[doc = " equate to command-line arguments will be set before this function is"]
+    #[doc = " called. Be cautious when using this function to modify command-line"]
+    #[doc = " arguments for non-browser processes as this may result in undefined"]
+    #[doc = " behavior including crashes."]
     #[doc = ""]
     pub on_before_command_line_processing: ::std::option::Option<
         unsafe extern "C" fn(
@@ -14094,19 +14218,20 @@ pub struct _cef_app_t {
         ),
     >,
     #[doc = ""]
-    #[doc = " Provides an opportunity to register custom schemes. Do not keep a reference"]
-    #[doc = " to the |registrar| object. This function is called on the main thread for"]
-    #[doc = " each process and the registered schemes should be the same across all"]
-    #[doc = " processes."]
+    #[doc = " Provides an opportunity to register custom schemes. Do not keep a"]
+    #[doc = " reference to the |registrar| object. This function is called on the main"]
+    #[doc = " thread for each process and the registered schemes should be the same"]
+    #[doc = " across all processes."]
     #[doc = ""]
     pub on_register_custom_schemes: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_app_t, registrar: *mut _cef_scheme_registrar_t),
     >,
     #[doc = ""]
     #[doc = " Return the handler for resource bundle events. If"]
-    #[doc = " CefSettings.pack_loading_disabled is true (1) a handler must be returned."]
-    #[doc = " If no handler is returned resources will be loaded from pack files. This"]
-    #[doc = " function is called by the browser and render processes on multiple threads."]
+    #[doc = " cef_settings_t.pack_loading_disabled is true (1) a handler must be"]
+    #[doc = " returned. If no handler is returned resources will be loaded from pack"]
+    #[doc = " files. This function is called by the browser and render processes on"]
+    #[doc = " multiple threads."]
     #[doc = ""]
     pub get_resource_bundle_handler: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_app_t) -> *mut _cef_resource_bundle_handler_t,
@@ -14136,16 +14261,16 @@ extern "C" {
     #[doc = " This function should be called from the application entry point function to"]
     #[doc = " execute a secondary process. It can be used to run secondary processes from"]
     #[doc = " the browser client executable (default behavior) or from a separate"]
-    #[doc = " executable specified by the CefSettings.browser_subprocess_path value. If"]
+    #[doc = " executable specified by the cef_settings_t.browser_subprocess_path value. If"]
     #[doc = " called for the browser process (identified by no \"type\" command-line value)"]
     #[doc = " it will return immediately with a value of -1. If called for a recognized"]
-    #[doc = " secondary process it will block until the process should exit and then return"]
-    #[doc = " the process exit code. The |application| parameter may be NULL. The"]
-    #[doc = " |windows_sandbox_info| parameter is only used on Windows and may be NULL (see"]
-    #[doc = " cef_sandbox_win.h for details)."]
+    #[doc = " secondary process it will block until the process should exit and then"]
+    #[doc = " return the process exit code. The |application| parameter may be NULL. The"]
+    #[doc = " |windows_sandbox_info| parameter is only used on Windows and may be NULL"]
+    #[doc = " (see cef_sandbox_win.h for details)."]
     #[doc = ""]
     pub fn cef_execute_process(
-        args: *const _cef_main_args_t,
+        args: *const cef_main_args_t,
         application: *mut cef_app_t,
         windows_sandbox_info: *mut ::std::os::raw::c_void,
     ) -> ::std::os::raw::c_int;
@@ -14154,12 +14279,12 @@ extern "C" {
     #[doc = ""]
     #[doc = " This function should be called on the main application thread to initialize"]
     #[doc = " the CEF browser process. The |application| parameter may be NULL. A return"]
-    #[doc = " value of true (1) indicates that it succeeded and false (0) indicates that it"]
-    #[doc = " failed. The |windows_sandbox_info| parameter is only used on Windows and may"]
-    #[doc = " be NULL (see cef_sandbox_win.h for details)."]
+    #[doc = " value of true (1) indicates that it succeeded and false (0) indicates that"]
+    #[doc = " it failed. The |windows_sandbox_info| parameter is only used on Windows and"]
+    #[doc = " may be NULL (see cef_sandbox_win.h for details)."]
     #[doc = ""]
     pub fn cef_initialize(
-        args: *const _cef_main_args_t,
+        args: *const cef_main_args_t,
         settings: *const _cef_settings_t,
         application: *mut cef_app_t,
         windows_sandbox_info: *mut ::std::os::raw::c_void,
@@ -14178,14 +14303,14 @@ extern "C" {
     #[doc = " provided for cases where the CEF message loop must be integrated into an"]
     #[doc = " existing application message loop. Use of this function is not recommended"]
     #[doc = " for most users; use either the cef_run_message_loop() function or"]
-    #[doc = " CefSettings.multi_threaded_message_loop if possible. When using this function"]
-    #[doc = " care must be taken to balance performance against excessive CPU usage. It is"]
-    #[doc = " recommended to enable the CefSettings.external_message_pump option when using"]
-    #[doc = " this function so that"]
+    #[doc = " cef_settings_t.multi_threaded_message_loop if possible. When using this"]
+    #[doc = " function care must be taken to balance performance against excessive CPU"]
+    #[doc = " usage. It is recommended to enable the cef_settings_t.external_message_pump"]
+    #[doc = " option when using this function so that"]
     #[doc = " cef_browser_process_handler_t::on_schedule_message_pump_work() callbacks can"]
-    #[doc = " facilitate the scheduling process. This function should only be called on the"]
-    #[doc = " main application thread and only if cef_initialize() is called with a"]
-    #[doc = " CefSettings.multi_threaded_message_loop value of false (0). This function"]
+    #[doc = " facilitate the scheduling process. This function should only be called on"]
+    #[doc = " the main application thread and only if cef_initialize() is called with a"]
+    #[doc = " cef_settings_t.multi_threaded_message_loop value of false (0). This function"]
     #[doc = " will not block."]
     #[doc = ""]
     pub fn cef_do_message_loop_work();
@@ -14194,18 +14319,18 @@ extern "C" {
     #[doc = ""]
     #[doc = " Run the CEF message loop. Use this function instead of an application-"]
     #[doc = " provided message loop to get the best balance between performance and CPU"]
-    #[doc = " usage. This function should only be called on the main application thread and"]
-    #[doc = " only if cef_initialize() is called with a"]
-    #[doc = " CefSettings.multi_threaded_message_loop value of false (0). This function"]
+    #[doc = " usage. This function should only be called on the main application thread"]
+    #[doc = " and only if cef_initialize() is called with a"]
+    #[doc = " cef_settings_t.multi_threaded_message_loop value of false (0). This function"]
     #[doc = " will block until a quit message is received by the system."]
     #[doc = ""]
     pub fn cef_run_message_loop();
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " Quit the CEF message loop that was started by calling cef_run_message_loop()."]
-    #[doc = " This function should only be called on the main application thread and only"]
-    #[doc = " if cef_run_message_loop() was used."]
+    #[doc = " Quit the CEF message loop that was started by calling"]
+    #[doc = " cef_run_message_loop(). This function should only be called on the main"]
+    #[doc = " application thread and only if cef_run_message_loop() was used."]
     #[doc = ""]
     pub fn cef_quit_message_loop();
 }
@@ -14218,9 +14343,9 @@ extern "C" {
 }
 extern "C" {
     #[doc = ""]
-    #[doc = " Call during process startup to enable High-DPI support on Windows 7 or newer."]
-    #[doc = " Older versions of Windows should be left DPI-unaware because they do not"]
-    #[doc = " support DirectWrite and GDI fonts are kerned very badly."]
+    #[doc = " Call during process startup to enable High-DPI support on Windows 7 or"]
+    #[doc = " newer. Older versions of Windows should be left DPI-unaware because they do"]
+    #[doc = " not support DirectWrite and GDI fonts are kerned very badly."]
     #[doc = ""]
     pub fn cef_enable_highdpi_support();
 }
@@ -14266,8 +14391,8 @@ pub struct _cef_urlrequest_t {
     >,
     #[doc = ""]
     #[doc = " Returns the response, or NULL if no response information is available."]
-    #[doc = " Response information will only be available after the upload has completed."]
-    #[doc = " The returned object is read-only and should not be modified."]
+    #[doc = " Response information will only be available after the upload has"]
+    #[doc = " completed. The returned object is read-only and should not be modified."]
     #[doc = ""]
     pub get_response: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_urlrequest_t) -> *mut _cef_response_t,
@@ -14305,7 +14430,8 @@ extern "C" {
     #[doc = "     or PDE_TYPE_BYTES."]
     #[doc = "   - If |request_context| is empty the global request context will be used."]
     #[doc = ""]
-    #[doc = " The |request| object will be marked as read-only after calling this function."]
+    #[doc = " The |request| object will be marked as read-only after calling this"]
+    #[doc = " function."]
     #[doc = ""]
     pub fn cef_urlrequest_create(
         request: *mut _cef_request_t,
@@ -14327,16 +14453,16 @@ pub struct _cef_urlrequest_client_t {
     pub base: cef_base_ref_counted_t,
     #[doc = ""]
     #[doc = " Notifies the client that the request has completed. Use the"]
-    #[doc = " cef_urlrequest_t::GetRequestStatus function to determine if the request was"]
-    #[doc = " successful or not."]
+    #[doc = " cef_urlrequest_t::GetRequestStatus function to determine if the request"]
+    #[doc = " was successful or not."]
     #[doc = ""]
     pub on_request_complete: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_urlrequest_client_t, request: *mut _cef_urlrequest_t),
     >,
     #[doc = ""]
     #[doc = " Notifies the client of upload progress. |current| denotes the number of"]
-    #[doc = " bytes sent so far and |total| is the total size of uploading data (or -1 if"]
-    #[doc = " chunked upload is enabled). This function will only be called if the"]
+    #[doc = " bytes sent so far and |total| is the total size of uploading data (or -1"]
+    #[doc = " if chunked upload is enabled). This function will only be called if the"]
     #[doc = " UR_FLAG_REPORT_UPLOAD_PROGRESS flag is set on the request."]
     #[doc = ""]
     pub on_upload_progress: ::std::option::Option<
@@ -14349,8 +14475,8 @@ pub struct _cef_urlrequest_client_t {
     >,
     #[doc = ""]
     #[doc = " Notifies the client of download progress. |current| denotes the number of"]
-    #[doc = " bytes received up to the call and |total| is the expected total size of the"]
-    #[doc = " response (or -1 if not determined)."]
+    #[doc = " bytes received up to the call and |total| is the expected total size of"]
+    #[doc = " the response (or -1 if not determined)."]
     #[doc = ""]
     pub on_download_progress: ::std::option::Option<
         unsafe extern "C" fn(
@@ -14362,8 +14488,8 @@ pub struct _cef_urlrequest_client_t {
     >,
     #[doc = ""]
     #[doc = " Called when some part of the response is read. |data| contains the current"]
-    #[doc = " bytes received since the last call. This function will not be called if the"]
-    #[doc = " UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request."]
+    #[doc = " bytes received since the last call. This function will not be called if"]
+    #[doc = " the UR_FLAG_NO_DOWNLOAD_DATA flag is set on the request."]
     #[doc = ""]
     pub on_download_data: ::std::option::Option<
         unsafe extern "C" fn(
@@ -14375,14 +14501,15 @@ pub struct _cef_urlrequest_client_t {
     >,
     #[doc = ""]
     #[doc = " Called on the IO thread when the browser needs credentials from the user."]
-    #[doc = " |isProxy| indicates whether the host is a proxy server. |host| contains the"]
-    #[doc = " hostname and |port| contains the port number. Return true (1) to continue"]
-    #[doc = " the request and call cef_auth_callback_t::cont() when the authentication"]
-    #[doc = " information is available. If the request has an associated browser/frame"]
-    #[doc = " then returning false (0) will result in a call to GetAuthCredentials on the"]
-    #[doc = " cef_request_handler_t associated with that browser, if any. Otherwise,"]
-    #[doc = " returning false (0) will cancel the request immediately. This function will"]
-    #[doc = " only be called for requests initiated from the browser process."]
+    #[doc = " |isProxy| indicates whether the host is a proxy server. |host| contains"]
+    #[doc = " the hostname and |port| contains the port number. Return true (1) to"]
+    #[doc = " continue the request and call cef_auth_callback_t::cont() when the"]
+    #[doc = " authentication information is available. If the request has an associated"]
+    #[doc = " browser/frame then returning false (0) will result in a call to"]
+    #[doc = " GetAuthCredentials on the cef_request_handler_t associated with that"]
+    #[doc = " browser, if any. Otherwise, returning false (0) will cancel the request"]
+    #[doc = " immediately. This function will only be called for requests initiated from"]
+    #[doc = " the browser process."]
     #[doc = ""]
     pub get_auth_credentials: ::std::option::Option<
         unsafe extern "C" fn(
