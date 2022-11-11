@@ -1,4 +1,6 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><project xmlns="http://maven.apache.org/POM/4.0.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.1.xsd">
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project xmlns="http://maven.apache.org/POM/4.0.1"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.1 http://maven.apache.org/xsd/maven-4.0.1.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.eclipse.set</groupId>
 	<artifactId>org.eclipse.set.browser.cef.releng.parent</artifactId>
@@ -94,16 +96,9 @@
 		</plugins>
 	</build>
 
-	<distributionManagement>
-		<repository>
-			<id>planpro-model</id>
-			<url>http://nexus:8081/nexus/content/repositories/planpro-repo</url>
-		</repository>
-	</distributionManagement>
-
 	<scm>
-		<connection>scm:git:http://ki-vl-git.ki.lan/PlanPro/browser.git</connection>
-		<developerConnection>scm:git:http://ki-vl-git.ki.lan/PlanPro/browser.git</developerConnection>
+		<connection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser.git</connection>
+		<developerConnection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
