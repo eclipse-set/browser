@@ -82,9 +82,9 @@ public class ResourceHandler {
 	private final long cefResourceHandler = ChromiumLib
 			.allocate_cef_resource_handler_t(this);
 
-	RequestImpl request = new RequestImpl();
-	RequestHandler requestHandler;
-	ResponseImpl response = new ResponseImpl();
+	private RequestImpl request = new RequestImpl();
+	private RequestHandler requestHandler;
+	private ResponseImpl response = new ResponseImpl();
 
 	/**
 	 * @param requestHandler

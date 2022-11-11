@@ -11,7 +11,7 @@ package org.eclipse.set.browser;
 import java.io.InputStream;
 
 /**
- * Request handler
+ * Handler to process HTTP requests and responses
  */
 public interface RequestHandler {
 	/**

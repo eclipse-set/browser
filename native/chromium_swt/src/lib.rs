@@ -76,7 +76,7 @@ pub fn cefswt_init(
         user_agent: chromium::utils::cef_string_empty(),
         locale: chromium::utils::cef_string_from_c(locale),
         log_file: logfile_cef,
-        log_severity: cef::cef_log_severity_t::LOGSEVERITY_VERBOSE,
+        log_severity: cef::cef_log_severity_t::LOGSEVERITY_INFO,
         javascript_flags: chromium::utils::cef_string_empty(),
         resources_dir_path: resources_cef,
         locales_dir_path: locales_cef,
