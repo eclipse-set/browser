@@ -24,6 +24,9 @@ pipeline {
           {
             sh 'cargo clean'
             sh 'cargo build --release --target x86_64-pc-windows-gnu'
+
+            sh "cargo tree --prefix none --locked --frozen --no-dedupe | sort -u | grep -v '(' | sed \'s|\\(.*\\) v\\([0-9]*\\.[0-9]*\\.[0-9]*\\)|crate/cratesio/-/\\1/\\2|g\' > rust.deps"
+            stash name: 'rust_dependencies', includes: 'rust.deps', useDefaultExcludes: false
           }
 
           dir('native/target/x86_64-pc-windows-gnu/release')
@@ -44,8 +47,16 @@ pipeline {
 
           dir('java')
           {
-            mvn goal: 'clean integration-test'
+            mvn goal: 'clean integration-test', dependencies: 'dependencies/maven.deps'
           }
+        }
+      }
+    }
+
+    stage('Process Licenses') {
+      steps {
+        container('maven') {
+          collectDependencies()
         }
       }
     }
