@@ -307,9 +307,6 @@ pub fn cefswt_cstring_to_java(string: *const c_char) -> *const c_char {
 
 #[jni_wrapper("org.eclipse.set.browser.lib.ChromiumLib")]
 pub fn cefswt_cefstring_to_java(string: *mut chromium::cef::_cef_string_utf16_t) -> *mut c_char {
-    if std::ptr::null() == string {
-        return std::ptr::null_mut();
-    }
     chromium::utils::cstr_from_cef(string)
 }
 

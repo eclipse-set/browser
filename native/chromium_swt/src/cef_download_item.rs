@@ -13,9 +13,7 @@ use jni::objects::JString;
 use jni::sys::jboolean;
 use jni::sys::jstring;
 use jni::JNIEnv;
-use std::ffi::c_void;
 use std::ffi::CStr;
-use std::os::raw::c_char;
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn get_full_path(
@@ -82,9 +80,9 @@ pub unsafe extern "C" fn before_download_callback(
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.cef_download_item_t")]
-pub fn cefswt_copy_bytes(destination: *mut i8, source: *const c_void, count: usize) {
+pub fn cefswt_copy_bytes(destination: *mut u8, source: Vec<u8>, count: usize) {
     unsafe {
-        std::ptr::copy(source as *const c_char, destination, count);
+        std::ptr::copy(source.as_ptr(), destination, count);
     }
 }
 

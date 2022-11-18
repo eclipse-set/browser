@@ -160,7 +160,7 @@ pub fn cefswt_close_browser(browser: *mut cef::cef_browser_t, force: c_int) {
 pub fn cefswt_load_url(
     browser: *mut cef::cef_browser_t,
     url: *const c_char,
-    post_bytes: *const c_void,
+    post_bytes: Option<Vec<u8>>,
     post_size: usize,
     headers: *const c_char,
     headers_size: usize,
@@ -170,15 +170,19 @@ pub fn cefswt_load_url(
     unsafe {
         let get_frame = (*browser).get_main_frame.expect("null get_main_frame");
         let main_frame = get_frame(browser);
-        if post_bytes.is_null() && headers.is_null() {
+        if post_bytes.is_none() && headers.is_null() {
             (*main_frame).load_url.unwrap()(main_frame, &url_cef);
         } else {
             let request = cef::cef_request_create();
             (*request).set_url.unwrap()(request, &url_cef);
-            if !post_bytes.is_null() {
+            if post_bytes.is_some() {
                 let post_data = cef::cef_post_data_create();
                 let post_element = cef::cef_post_data_element_create();
-                (*post_element).set_to_bytes.unwrap()(post_element, post_size, post_bytes);
+                (*post_element).set_to_bytes.unwrap()(
+                    post_element,
+                    post_size,
+                    post_bytes.unwrap().as_ptr() as *const c_void,
+                );
                 (*post_data).add_element.unwrap()(post_data, post_element);
 
                 (*request).set_post_data.unwrap()(request, post_data);

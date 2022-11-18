@@ -68,7 +68,7 @@ public class ResourceHandler {
 
 		@Override
 		public void setResponseData(final String data) {
-			responseStream = new ByteArrayInputStream(data.getBytes());
+			setResponseData(new ByteArrayInputStream(data.getBytes()));
 		}
 
 		@Override
@@ -82,9 +82,9 @@ public class ResourceHandler {
 	private final long cefResourceHandler = ChromiumLib
 			.allocate_cef_resource_handler_t(this);
 
-	private RequestImpl request = new RequestImpl();
-	private RequestHandler requestHandler;
-	private ResponseImpl response = new ResponseImpl();
+	private final RequestImpl request = new RequestImpl();
+	private final RequestHandler requestHandler;
+	private final ResponseImpl response = new ResponseImpl();
 
 	/**
 	 * @param requestHandler
@@ -113,7 +113,18 @@ public class ResourceHandler {
 			final long response_length, final long redirectUrl)
 			throws IOException {
 		response.cefResponse = cef_response;
-		this.requestHandler.onRequest(request, response);
+		
+		// Ensure mime type and a response is always set
+		response.setMimeType("text/plain");
+		response.setResponseData("");
+
+		try {
+			requestHandler.onRequest(request, response);
+		} catch (final Exception e) {
+			response.setMimeType("text/plain");
+			response.setResponseData("Internal server error");
+			response.setStatus(500);
+		}
 
 		ChromiumLib.cefswt_set_intptr(response_length,
 				response.responseStream.available());
@@ -141,7 +152,8 @@ public class ResourceHandler {
 					bytes.length);
 			return 1;
 		}
-		// No further bytes
+		// No further bytes, close the input stream
+		response.responseStream.close();
 		return 0;
 	}
 }

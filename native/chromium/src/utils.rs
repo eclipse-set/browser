@@ -70,7 +70,7 @@ pub fn str_from_c(cstr: *const c_char) -> &'static str {
 }
 
 pub fn cstr_from_cef(cefstring: *const cef::cef_string_t) -> *mut c_char {
-    if cefstring.is_null() {
+    if cefstring.is_null() || unsafe { (*cefstring).str_.is_null() } {
         return ::std::ptr::null_mut();
     }
     let utf8 = unsafe { cef::cef_string_userfree_utf8_alloc() };

@@ -8,17 +8,18 @@
  */
 package org.eclipse.set.browser.cef.handlers;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.HashMap;
+import java.util.Map;
 
 import org.eclipse.set.browser.cef.Chromium;
 import org.eclipse.set.browser.lib.ChromiumLib;
+import org.eclipse.set.browser.lib.cef_browser_t;
 
 /**
  * Java Handler for cef_scheme_handler_factory_t
  */
 public class SchemeHandlerFactory {
-	private final List<Chromium> browsers;
+	private final Map<Integer, Chromium> browsers;
 
 	private final long cefSchemeHandlerFactory;
 	private final String name;
@@ -30,20 +31,22 @@ public class SchemeHandlerFactory {
 	 *            the browser instance to use
 	 */
 	public SchemeHandlerFactory(final String name, final Chromium browser) {
-		this.browsers = List.of(browser);
+		this.browsers = new HashMap<>();
+
 		this.name = name;
 		this.cefSchemeHandlerFactory = ChromiumLib
 				.allocate_cef_scheme_handler_factory_t(this);
 		ChromiumLib.cefswt_register_http_host(name, cefSchemeHandlerFactory);
+		addBrowser(browser);
 	}
 
 	/**
 	 * @param browser
 	 *            the browser to add this hostname to
 	 */
+	@SuppressWarnings("boxing")
 	public void addBrowser(final Chromium browser) {
-		browsers.add(browser);
-
+		this.browsers.put(browser.getBrowserId(), browser);
 	}
 
 	/**
@@ -68,7 +71,9 @@ public class SchemeHandlerFactory {
 	 * @return whether this factory has no more assigned browsers
 	 */
 	public boolean removeBrowser(final Chromium browser) {
-		browsers.remove(browser);
+		@SuppressWarnings("boxing")
+		final Integer id = browser.getBrowserId();
+		browsers.remove(id);
 		return browsers.isEmpty();
 	}
 
@@ -76,18 +81,18 @@ public class SchemeHandlerFactory {
 	private long create(final long self, final long browser_id,
 			final long frame, final long scheme_name, final long request) {
 		// Find the associated Chromium instance for this browser
-		final Optional<Chromium> browser = this.browsers.stream().filter(
-				b -> ChromiumLib.cefswt_is_same(b.getCEFBrowser(), browser_id))
-				.findFirst();
-		if (browser.isPresent()) {
-			// Handle the request
-			final ResourceHandler resHandler = browser.get()
-					.onRequestCustomHandler(name);
-			if (resHandler != null) {
-				return resHandler.get();
-			}
+		@SuppressWarnings("boxing")
+		final Integer id = cef_browser_t.cefswt_get_id(browser_id);
+		final Chromium browser = this.browsers.get(id);
+		if (browser == null) {
+			// Fall back to default handler
+			return 0;
 		}
-		// Fall back to default handler
+		// Handle the request
+		final ResourceHandler resHandler = browser.onRequestCustomHandler(name);
+		if (resHandler != null) {
+			return resHandler.get();
+		}
 		return 0;
 	}
 

@@ -183,6 +183,8 @@ public class Chromium extends WebBrowser {
 	@SuppressWarnings("hiding")
 	private long browser;
 
+	private int browserId;
+
 	private boolean canGoBack;
 
 	private boolean canGoForward;
@@ -452,16 +454,16 @@ public class Chromium extends WebBrowser {
 		return event.doit ? 1 : 0;
 	}
 
-	@Override
-	public String getBrowserType() {
-		return "chromium";
-	}
-
 	/**
 	 * @return the cef browser instance
 	 */
-	public long getCEFBrowser() {
-		return browser;
+	public int getBrowserId() {
+		return browserId;
+	}
+
+	@Override
+	public String getBrowserType() {
+		return "chromium";
 	}
 
 	@Override
@@ -545,6 +547,14 @@ public class Chromium extends WebBrowser {
 		}
 		if (browser_id != 0) {
 			this.browser = browser_id;
+			this.browserId = cef_browser_t.cefswt_get_id(browser);
+
+			// Register request handlers
+			for (final String hostname : requestHandlers.keySet()) {
+				ChromiumStatic.getSchemeHandlerFactory()
+						.registerSchemeHandler(this, hostname);
+			}
+
 			if (this.isPopup == null) {
 				final org.eclipse.swt.graphics.Point size = getChromiumSize();
 				cef_browser_t.cefswt_resized(browser, size.x, size.y);
@@ -1044,8 +1054,6 @@ public class Chromium extends WebBrowser {
 	public void registerRequestHandler(final String hostname,
 			final RequestHandler handler) {
 		this.requestHandlers.put(hostname, handler);
-		ChromiumStatic.getSchemeHandlerFactory().registerSchemeHandler(this,
-				hostname);
 	}
 
 	/**

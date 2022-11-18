@@ -119,6 +119,9 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
             "* mut c_char" | "* const c_char" => (
                 quote! { -> jni::sys::jstring },
                 quote! {
+                    if result.is_null() {
+                        return std::ptr::null_mut();
+                    }
                     let result = unsafe { CStr::from_ptr(result) };
                     return _env.new_string(result.to_str().unwrap()).unwrap().into_inner();
                 },
@@ -190,9 +193,14 @@ fn handle_arg(
                 _env.release_string_utf_chars(#arg, #param).unwrap()
             }},
         ),
-        "* const c_void" => (
+        "Option < Vec < u8 > >" => (
             quote! { jni::sys::jbyteArray },
-            quote! { _env.get_byte_array_elements(#arg, jni::objects::ReleaseMode::CopyBack).map(|arr| arr.as_ptr()).unwrap_or(std::ptr::null_mut()) as *mut c_void },
+            quote! { _env.convert_byte_array(#arg).map(|arr| Some(arr)).unwrap_or(None) },
+            quote! {},
+        ),
+        "Vec < u8 >" => (
+            quote! { jni::sys::jbyteArray },
+            quote! { _env.convert_byte_array(#arg).unwrap() },
             quote! {},
         ),
         _ => {

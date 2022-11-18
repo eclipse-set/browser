@@ -58,6 +58,8 @@ public interface RequestHandler {
 		/**
 		 * @param stream
 		 *            a stream containing the data to be returned to the browser
+		 *            The stream is automatically closed by the response object
+		 *            after data has been written to the browser
 		 */
 		public void setResponseData(InputStream stream);
 
@@ -72,6 +74,7 @@ public interface RequestHandler {
 		 *            the status code
 		 */
 		public void setStatus(int statusCode);
+
 	}
 
 	/**
@@ -81,6 +84,8 @@ public interface RequestHandler {
 	 * @param response
 	 *            the outgoing response. This object *must not* be preserved
 	 *            outside this function call.
+	 * @throws Exception
+	 *             throw any exception to indicate failure (status code 500)
 	 */
-	public void onRequest(Request request, Response response);
+	public void onRequest(Request request, Response response) throws Exception;
 }

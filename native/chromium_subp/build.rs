@@ -11,13 +11,6 @@
  * Contributors:
  *   Guillermo Zunino, Equo - initial implementation
  */
-#[cfg(feature = "gen")]
-extern crate bindgen;
-
-#[cfg(debug_assertions)]
-const CEF_TARGET: &str = "Debug";
-#[cfg(not(debug_assertions))]
-const CEF_TARGET: &str = "Release";
 
 fn main() {
     link();
@@ -28,11 +21,12 @@ fn get_cef_path() -> std::path::PathBuf {
     cef_path.push("..");
     cef_path.push("..");
     cef_path.push("cef");
+    cef_path.push("Release");
     cef_path
 }
 
 fn link() {
-    let mut cef_path = get_cef_path();
+    let cef_path = get_cef_path();
 
     if !cef_path.exists() {
         panic!(
@@ -42,7 +36,6 @@ fn link() {
     }
 
     // Tell cargo to tell rustc to link the system shared library.
-    cef_path.push(CEF_TARGET);
     println!("cargo:rustc-link-search={}", cef_path.display());
     println!("cargo:rustc-link-lib=libcef");
 
