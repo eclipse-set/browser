@@ -61,17 +61,29 @@ pipeline {
       }
     }
 
+    stage('Remove Old Snapshot') {
+      when {
+        branch 'main'
+      }
+      steps {
+        removeOldSnapshot repo: 'browser'
+      }
+    }
+
+
+
     stage('Deploy Snapshot')
     {
       when {
         anyOf {
           buildingTag()
           branch 'main'
+          branch pattern: "feature/\\w+", comparator: "REGEXP"
         }
       }
 
       steps {
-        deployP2Site name: 'browser', path: 'java/org.eclipse.set.browser.releng.repository/target/repository' 
+        deployP2Site name: 'browser/${BRANCH_NAME}', path: 'java/org.eclipse.set.browser.releng.repository/target/repository' 
       }
     }
   }
