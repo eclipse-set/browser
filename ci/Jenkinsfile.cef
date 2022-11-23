@@ -13,7 +13,7 @@ pipeline {
   stages {
     stage('Build CEF') {
       steps {
-        container('maven') {
+        container('rust') {        
           dir('java-cef/org.eclipse.set.browser.cef.feature/res/bin/cef')
           {
             // Download CEF distribution
@@ -25,7 +25,8 @@ pipeline {
               ]
             sh 'rm -rf .gitkeep'
           }
-
+        }
+        container('maven') {
           dir('java-cef')
           {
             mvn goal: 'clean integration-test'
