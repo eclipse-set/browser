@@ -308,10 +308,8 @@ public class Chromium extends WebBrowser {
 			function.index = getNextFunctionIndex();
 			registerFunction(function);
 
-			if (!cef_browser_t.cefswt_function(browser, function.name,
-					function.index)) {
-				throw new SWTException("Cannot create BrowserFunction");
-			}
+			cef_browser_t.cefswt_function(browser, function.name,
+					function.index);
 		});
 	}
 
@@ -860,10 +858,8 @@ public class Chromium extends WebBrowser {
 		if (isLoading == 0) {
 			for (final BrowserFunction function : functions.values()) {
 				if (function.index != 0) {
-					if (!cef_browser_t.cefswt_function(browser, function.name,
-							function.index)) {
-						throw new SWTException("Cannot create BrowserFunction");
-					}
+					cef_browser_t.cefswt_function(browser, function.name,
+							function.index);
 				}
 			}
 		}

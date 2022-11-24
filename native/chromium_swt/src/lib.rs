@@ -13,7 +13,7 @@
  */
 extern crate chromium;
 use chromium::cef;
-use chromium_jni_macro::jni_wrapper;
+use chromium_jni_macro::{jni_name, jni_wrapper};
 
 mod app;
 pub mod cef_browser;
@@ -300,9 +300,20 @@ pub fn cefswt_set_intptr(ptr: *mut ::std::os::raw::c_int, value: c_int) {
     }
 }
 
-#[jni_wrapper("org.eclipse.set.browser.lib.ChromiumLib")]
-pub fn cefswt_cstring_to_java(string: *const c_char) -> *const c_char {
-    string
+#[jni_name("org.eclipse.set.browser.lib.ChromiumLib")]
+#[no_mangle]
+pub extern "C" fn cefswt_cstring_to_java(
+    _env: jni::JNIEnv,
+    _class: jni::objects::JClass,
+    string: *const c_char,
+) -> jni::sys::jstring {
+    if string.is_null() {
+        return std::ptr::null_mut();
+    }
+    let string = unsafe { CStr::from_ptr(string) };
+    _env.new_string(string.to_str().unwrap())
+        .unwrap()
+        .into_inner()
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.ChromiumLib")]
