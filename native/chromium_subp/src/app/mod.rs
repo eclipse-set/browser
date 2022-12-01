@@ -12,6 +12,7 @@
  *   Guillermo Zunino, Equo - initial implementation
  */
 use crate::socket;
+use chromium::utils::cef_string;
 use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
@@ -55,9 +56,18 @@ impl App {
             (*a).render_process_handler.as_ptr()
         }
 
+        unsafe extern "C" fn on_before_command_line_processing(
+            _self: *mut chromium::cef::_cef_app_t,
+            _process_type: *const chromium::cef::cef_string_t,
+            command_line: *mut chromium::cef::_cef_command_line_t,
+        ) {
+            let disable_component_update = cef_string("disable-component-update");
+            ((*command_line).append_switch.unwrap())(command_line, &disable_component_update)
+        }
+
         chromium::cef::cef_app_t {
             base: Base::new(mem::size_of::<chromium::cef::cef_app_t>()),
-            on_before_command_line_processing: Option::None,
+            on_before_command_line_processing: Option::Some(on_before_command_line_processing),
             on_register_custom_schemes: Option::None,
             get_resource_bundle_handler: Option::None,
             get_browser_process_handler: Option::None,

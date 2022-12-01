@@ -9,6 +9,7 @@
 package org.eclipse.set.browser.cef.handlers;
 
 import org.eclipse.set.browser.lib.ChromiumLib;
+import org.eclipse.set.browser.lib.cef_command_line_t;
 
 /**
  * Java Handler for cef_app_t
@@ -37,5 +38,10 @@ public class AppHandler {
 	@SuppressWarnings({ "unused" }) // Called via JNI
 	private long get_browser_process_handler(final long app) {
 		return browserProcessHandler.get();
+	}
+	
+	@SuppressWarnings({ "unused", "static-method" }) // Called via JNI
+	private void on_before_command_line_processing(final long app, final long process_type, final long command_line) {
+		cef_command_line_t.cefswt_disable_component_update(command_line);
 	}
 }

@@ -328,3 +328,9 @@ pub fn cefswt_request_to_java(request: *mut chromium::cef::_cef_request_t) -> *m
     unsafe { cef::cef_string_userfree_utf16_free(url) };
     cstr
 }
+
+#[jni_wrapper("org.eclipse.set.browser.lib.cef_command_line_t")]
+pub fn cefswt_disable_component_update(command_line: *mut chromium::cef::_cef_command_line_t) {
+    let switch = chromium::utils::cef_string("disable-component-update");
+    unsafe { ((*command_line).append_switch.unwrap())(command_line, &switch) }
+}
