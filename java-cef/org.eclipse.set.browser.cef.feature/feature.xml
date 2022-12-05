@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <feature id="org.eclipse.set.browser.cef.feature" label="CEF Binary Feature" version="107.0.0.qualifier" provider-name="Eclipse SET Project">
 
-   <description url="http://www.example.com/description">
-      [Enter Feature Description here.]
+   <description>
+      Repackaged Chromium Embedded Framework build for usage with the Eclipse Signalling Engineering Toolbox browser feature. 
+      This contains the required files from a CEF build for the embedded web browser.
    </description>
 
-   <copyright url="http://www.example.com/copyright">
-      [Enter Copyright Description here.]
-   </copyright>
+   <copyright>
+      Copyright (c) 2022 DB Netz AG and others.
 
-   <license url="http://www.example.com/license">
-      [Enter License Description here.]
-   </license>
+All rights reserved. This program and the accompanying materials
+are made available under the terms of the Eclipse Public License v2.0
+which accompanies this distribution, and is available at
+http://www.eclipse.org/legal/epl-v20.html
+   </copyright>
 
 </feature>

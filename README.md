@@ -33,11 +33,15 @@ Currently only Windows x64 is supported.
 
 ## Build Instructions
 
-### TODO
+For detailed build instructions see [BUILD_INSTRUCTIONS.md](BUILD_INSTRUCTIONS.md).
+
+## Contributing
+
+If you are interested in contributing, please see [CONTRIBUTING.md](CONTRIBUTING.md) for details.
 
 ## Links
 
 - [Main SET Repository](https://gitlab.eclipse.org/eclipse/set/set)
 - [Eclipse Project Page](https://projects.eclipse.org/projects/technology.set)
-- [License (EPL 2.0)](https://gitlab.eclipse.org/eclipse/set/browser/-/blob/main/LICENSE.md)
+- [License (EPL 2.0)](LICENSE)
 - [Jenkins (CI) Builds](https://gitlab.eclipse.org/eclipse/set/set)
