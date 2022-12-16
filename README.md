@@ -18,7 +18,7 @@ From these two p2 sites, the following features should be added to the target pl
 - `browser`: `org.eclipse.set.browser.feature.feature.group`
 - `browser-cef`: `org.eclipse.set.browser.cef.feature.feature.group`
 
-Before using the browser, you first need to use initialize the library: 
+Before using the browser, you first need to initialize the library:
 - `org.eclipse.set.browser.lib.CEFLibrary.init("path to the cef files");` 
 
 After doing so, you can use the `org.eclipse.set.browser.Browser` class to create a new browser instance. As this component is derived from the Eclipse Platform browser implementation it generally follows the same APIs, so most existing usages of a SWT browser can be reused. As a minimal example for the usage, see `java/org.eclipse.set.browser.example`. There's also further examples on [the SWT snippets website](https://www.eclipse.org/swt/snippets/) under Browser, which are generally applicable if you change the imports from `org.eclipse.swt` to `org.eclipse.set` and add the initialization call. 

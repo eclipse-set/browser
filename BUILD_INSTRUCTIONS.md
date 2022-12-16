@@ -1,6 +1,7 @@
 # Build instructions
 
-As the requirements for local development and production deployments are different, this document contains two sets of instructions. First, instructions on how to work on the component locally using the Eclipse IDE (e.g. for development) and secondly how to do a full production build locally via Maven. As a subsection of the 
+As the requirements for local development and production deployments are different, this document contains two sets of instructions.
+First, instructions on how to work on the component locally using the Eclipse IDE (e.g. for development) and secondly instructions on how to do a full production build locally via Maven are provided. 
 
 ## Prerequisites
 
@@ -38,4 +39,4 @@ This is the recommended way if you want a production-style build. This is also w
 4. Copy `chromium_jni.dll` and `chromium_subp.exe` from the `native/target` directory to `java/org.eclipse.set.browser.lib/res`.
 5. Build the Java part: `mvn clean verify`
 
-The p2 site for the model is now located in `java/bundles/org.eclipse.set.browser.releng.repository/target/repository`. 
+The p2 site for the browser is now located in `java/bundles/org.eclipse.set.browser.releng.repository/target/repository`. 
