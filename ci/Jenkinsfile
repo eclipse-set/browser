@@ -14,23 +14,20 @@ pipeline {
     stage('Build Rust') {
       steps {
         container('rust') {
-          dir('cef/Release')
-          {
+          dir('cef/Release') {
             downloadCEF versionFile: '../../CEF_VERSION.txt', files: ['Release/libcef.lib']
           }
 
           sh 'rustup target add x86_64-pc-windows-gnu'
-          dir('native')
-          {
+          dir('native') {
             sh 'cargo clean'
             sh 'cargo build --release --target x86_64-pc-windows-gnu'
 
-            sh "cargo tree --prefix none --locked --frozen --no-dedupe | sort -u | grep -v '(' | sed \'s|\\(.*\\) v\\([0-9]*\\.[0-9]*\\.[0-9]*\\)|crate/cratesio/-/\\1/\\2|g\' > rust.deps"
+            sh 'cargo tree --prefix none --locked --frozen --no-dedupe | sort -u | grep -v \'(\' | sed \'s|\\(.*\\) v\\([0-9]*\\.[0-9]*\\.[0-9]*\\)|crate/cratesio/-/\\1/\\2|g\' > rust.deps'
             stash name: 'rust_dependencies', includes: 'rust.deps', useDefaultExcludes: false
           }
 
-          dir('native/target/x86_64-pc-windows-gnu/release')
-          {
+          dir('native/target/x86_64-pc-windows-gnu/release') {
             stash name: 'rust_binaries', includes: 'chromium_subp.exe, chromium_jni.dll', useDefaultExcludes: false
           }
         }
@@ -40,13 +37,11 @@ pipeline {
     stage('Build Java') {
       steps {
         container('maven') {
-          dir('java/org.eclipse.set.browser.lib/res')
-          {
+          dir('java/org.eclipse.set.browser.lib/res') {
             unstash 'rust_binaries'
           }
 
-          dir('java')
-          {
+          dir('java') {
             mvn goal: 'clean integration-test', dependencies: 'dependencies/maven.deps'
           }
         }
@@ -65,25 +60,23 @@ pipeline {
       when {
         branch 'main'
       }
+
       steps {
         removeOldSnapshot repo: 'browser'
       }
     }
 
-
-
-    stage('Deploy Snapshot')
-    {
+    stage('Deploy Snapshot') {
       when {
         anyOf {
           buildingTag()
           branch 'main'
-          branch pattern: "feature/\\w+", comparator: "REGEXP"
+          branch pattern: 'feature/\\w+', comparator: 'REGEXP'
         }
       }
 
       steps {
-        deployP2Site name: 'browser/${BRANCH_NAME}', path: 'java/org.eclipse.set.browser.releng.repository/target/repository' 
+        deployP2Site name: "browser/${BRANCH_NAME}", path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
       }
     }
   }
@@ -92,10 +85,10 @@ pipeline {
     always {
       // Publish JUnit test result
       junit testResults: 'java/*/target/surefire-reports/*.xml', allowEmptyResults: true
-      recordIssues aggregatingResults: true, 
-        enabledForFailure: true, 
+      recordIssues aggregatingResults: true,
+        enabledForFailure: true,
         tools: [
-          checkStyle(), 
+          checkStyle(),
           mavenConsole()],
         qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
     }
