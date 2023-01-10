@@ -8,6 +8,7 @@
 	<packaging>pom</packaging>
 
 	<properties>
+		<cbi-version>1.3.2</cbi-version>
 		<tycho-version>2.7.3</tycho-version>
 		<tycho-extras-version>2.7.3</tycho-extras-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -130,9 +131,39 @@
 	</build>
 
 	<scm>
-		<connection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser.git</connection>
-		<developerConnection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser.git</developerConnection>
-		<tag>HEAD</tag>
+		<connection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser</connection>
+		<developerConnection>scm:git:https://gitlab.eclipse.org/eclipse/set/browser</developerConnection>
 	</scm>
+
+	<profiles>
+		<profile>
+			<id>sign</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.eclipse.cbi.maven.plugins</groupId>
+						<artifactId>eclipse-jarsigner-plugin</artifactId>
+						<version>${cbi-version}</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
+
+	<pluginRepositories>
+		<pluginRepository>
+			<id>cbi</id>
+			<url>https://repo.eclipse.org/content/repositories/cbi-releases/</url>
+		</pluginRepository>
+	</pluginRepositories>
 
 </project>

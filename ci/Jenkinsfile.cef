@@ -29,7 +29,7 @@ pipeline {
         container('maven') {
           dir('java-cef')
           {
-            mvn goal: 'clean integration-test'
+            mvn goal: 'clean verify -P sign'
           }
         }
       }
