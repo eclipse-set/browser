@@ -1,5 +1,9 @@
 pipeline {
-  agent { label 'docker' }
+  agent {
+    kubernetes {
+      yamlFile 'ci/kubernetes.yaml'
+    }
+  }
 
   options {
     timeout(time: 20, unit: 'MINUTES')
@@ -8,13 +12,6 @@ pipeline {
 
   stages {
     stage('Build Rust') {
-      agent {
-        docker {
-          image 'sub-planpro-rust-mingw'
-          reuseNode true
-        }
-      }
-
       steps {
         container('rust') {
           dir('cef/Release') {
@@ -31,20 +28,18 @@ pipeline {
           }
 
           dir('native/target/x86_64-pc-windows-gnu/release') {
-            stash name: 'rust_binaries', includes: 'chromium_subp.exe, chromium_jni.dll', useDefaultExcludes: false
+            sh 'mkdir -p signed'
+            sh 'curl --output signed/chromium_subp.exe --form file=@chromium_subp.exe --silent --show-error --fail https://cbi.eclipse.org/authenticode/sign'
+            sh 'curl --output signed/chromium_jni.dll --form file=@chromium_jni.dll --silent --show-error --fail https://cbi.eclipse.org/authenticode/sign'
+            dir('signed') {
+              stash name: 'rust_binaries', includes: 'chromium_subp.exe, chromium_jni.dll', useDefaultExcludes: false
+            }
           }
         }
       }
     }
 
     stage('Build Java') {
-      agent {
-        docker {
-          image 'sub-planpro-java'
-          reuseNode true
-        }
-      }
-
       steps {
         container('maven') {
           dir('java/org.eclipse.set.browser.lib/res') {
@@ -52,31 +47,42 @@ pipeline {
           }
 
           dir('java') {
-            mvn goal: 'clean verify'
+            mvn goal: 'clean verify -P sign', dependencies: 'dependencies/maven.deps'
           }
         }
       }
     }
 
-    stage('Deploy Snapshot') {
-      agent {
-        docker {
-          image 'sub-planpro-java'
-          reuseNode true
+    stage('Process Licenses') {
+      steps {
+        container('maven') {
+          collectDependencies()
         }
       }
+    }
 
+    stage('Remove Old Snapshot') {
+      when {
+        branch 'main'
+      }
+
+      steps {
+        removeOldSnapshot repo: 'browser'
+      }
+    }
+
+    stage('Deploy Snapshot') {
       when {
         anyOf {
           buildingTag()
           branch 'main'
-          branch pattern: 'release/[0-9.]+', comparator: 'REGEXP'
+          branch pattern: 'release/[0-9.]+', comparator: 'REGEXP'          
           branch pattern: 'feature/\\w+', comparator: 'REGEXP'
         }
       }
 
       steps {
-        deployP2Site name: 'browser', path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
+        deployP2Site name: "browser/${BRANCH_NAME}", path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
       }
     }
   }
