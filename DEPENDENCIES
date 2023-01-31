@@ -2,7 +2,7 @@ maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.feature/2.0.0-SNAPSHO
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.lib/2.0.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser/2.0.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.osgi/org.osgi.service.prefs/1.1.2, Apache-2.0, approved, #2451
-maven/mavencentral/org.osgi/osgi.annotation/8.0.1, Apache-2.0, approved, clearlydefined
+maven/mavencentral/org.osgi/osgi.annotation/8.0.1, Apache-2.0, approved, #6909
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.contenttype/3.8.100.v20210910-0640, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.jobs/3.13.0.v20220512-1935, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.runtime/3.25.0.v20220506-1157, EPL-2.0, approved, eclipse.platform
