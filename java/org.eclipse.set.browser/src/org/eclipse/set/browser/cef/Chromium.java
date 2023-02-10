@@ -1343,4 +1343,33 @@ public class Chromium extends WebBrowser {
 		return chromium == null || chromium.isDisposed();
 	}
 
+	/**
+	 * Handles a console message
+	 * 
+	 * @param id
+	 *            this browser id
+	 * @param severity
+	 *            log severity
+	 * @param message
+	 *            message
+	 * @param source
+	 *            source file
+	 * @param line
+	 *            source line
+	 * @return 1 if the message was handled externally, 0 otherwise
+	 */
+	public int on_console_message(final long id, final int severity,
+			final long message, final long source, final int line) {
+		if (consoleListener != null) {
+			final String msg = message == 0 ? ""
+					: ChromiumLib.cefswt_cefstring_to_java(message);
+			final String src = source == 0 ? ""
+					: ChromiumLib.cefswt_cefstring_to_java(source);
+			consoleListener.onConsoleMessage(severity, msg, src, line);
+			// Return true to stop the message from being output to the console.
+			return 1;
+		}
+		return 0;
+	}
+
 }

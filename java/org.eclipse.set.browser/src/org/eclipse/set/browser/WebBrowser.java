@@ -63,4 +63,14 @@ public abstract class WebBrowser
 	public void setDownloadListener(final DownloadListener listener) {
 		downloadListener = listener;
 	}
+
+	protected ConsoleListener consoleListener;
+
+	/**
+	 * @param listener
+	 *            the new console listener
+	 */
+	public void setConsoleListener(final ConsoleListener listener) {
+		consoleListener = listener;
+	}
 }

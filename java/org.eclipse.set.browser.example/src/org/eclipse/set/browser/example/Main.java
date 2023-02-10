@@ -16,6 +16,7 @@ package org.eclipse.set.browser.example;
 import java.nio.file.Path;
 
 import org.eclipse.set.browser.Browser;
+import org.eclipse.set.browser.cef.ChromiumStatic;
 import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.SWTError;
@@ -48,6 +49,9 @@ public class Main {
 		// Init CEF Library
 		CEFLibrary.init(
 				Path.of(System.getProperty("org.eclipse.set.browser.cefpath")));
+
+		// Enable remote debugging
+		ChromiumStatic.getCEFConfiguration().DebugPort = 9999;
 
 		final Display display = new Display();
 		final Shell shell = new Shell(display);
@@ -111,7 +115,12 @@ public class Main {
 			} else {
 				response.setResponseData("404 - Page not found!");
 			}
+		});
 
+		// Example for custom console handling
+		browser.setConsoleListener((final int logLevel, final String message,
+				final String source, final int line) -> {
+			System.out.printf("[Browser] %s: %s\n", source, message);
 		});
 
 		final Label status = new Label(shell, SWT.NONE);

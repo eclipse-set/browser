@@ -54,4 +54,10 @@ public class DisplayHandler {
 	void on_title_change(final long self, final long id, final long title) {
 		browser.on_title_change(title);
 	}
+
+	@SuppressWarnings("unused") // Called from JNI
+	int on_console_message(final long self, final long id, final int severity,
+			final long message, final long source, final int line) {
+		return browser.on_console_message(id, severity, message, source, line);
+	}
 }

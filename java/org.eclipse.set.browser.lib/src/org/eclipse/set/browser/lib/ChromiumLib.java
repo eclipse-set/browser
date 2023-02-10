@@ -256,10 +256,12 @@ public class ChromiumLib extends C {
 	/**
 	 * @param app
 	 *            cast=(void *)
+	 * @param logLevel
+	 * @param logPath
 	 */
 	public static final native void cefswt_init(long app, String subprocessPath,
 			String cefPath, String tempPath, String userAgentProduct,
-			String locale, int debugPort);
+			String locale, int debugPort, String logPath, int logLevel);
 
 	/**
 	 * @param frame

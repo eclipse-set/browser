@@ -54,4 +54,12 @@ public class Browser extends org.eclipse.set.browser.swt.Browser {
 	public void setDownloadListener(final DownloadListener listener) {
 		webBrowser.setDownloadListener(listener);
 	}
+
+	/**
+	 * @param listener
+	 *            the new console listener
+	 */
+	public void setConsoleListener(final ConsoleListener listener) {
+		webBrowser.setConsoleListener(listener);
+	}
 }

@@ -36,10 +36,14 @@ pub fn cefswt_init(
     user_agent_product: *const c_char,
     locale: *const c_char,
     debug_port: c_int,
+    log_path: *const c_char,
+    log_level: c_int,
 ) {
     let subp_path = chromium::utils::str_from_c(subp_path);
     let cef_path = chromium::utils::str_from_c(cef_path);
     let temp_path = chromium::utils::str_from_c(temp_path);
+    let log_path = chromium::utils::str_from_c(log_path);
+    let log_level = unsafe { std::mem::transmute(log_level as i32) };
 
     let main_args = chromium::utils::prepare_args();
 
@@ -57,7 +61,7 @@ pub fn cefswt_init(
     let locales_cef = chromium::utils::cef_string(cef_dir.join("locales").to_str().unwrap());
     let framework_dir_cef = chromium::utils::cef_string_empty();
     let cache_dir_cef = chromium::utils::cef_string(temp_dir.join("cef_cache").to_str().unwrap());
-    let logfile_cef = chromium::utils::cef_string(temp_dir.join("cef_lib.log").to_str().unwrap());
+    let log_path = chromium::utils::cef_string(log_path);
 
     let settings = cef::_cef_settings_t {
         size: std::mem::size_of::<cef::_cef_settings_t>(),
@@ -75,8 +79,8 @@ pub fn cefswt_init(
         persist_user_preferences: 1,
         user_agent: chromium::utils::cef_string_empty(),
         locale: chromium::utils::cef_string_from_c(locale),
-        log_file: logfile_cef,
-        log_severity: cef::cef_log_severity_t::LOGSEVERITY_INFO,
+        log_file: log_path,
+        log_severity: log_level,
         javascript_flags: chromium::utils::cef_string_empty(),
         resources_dir_path: resources_cef,
         locales_dir_path: locales_cef,

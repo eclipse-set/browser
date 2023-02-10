@@ -36,11 +36,11 @@ public class ChromiumStatic {
 	 * Number of active browsers
 	 */
 	public static AtomicInteger browsers = new AtomicInteger(0);
-
 	/**
 	 * Number of browsers currently being destroyed
 	 */
 	public static int disposingAny = 0;
+
 	/**
 	 * List of all browser instances
 	 */
@@ -49,15 +49,18 @@ public class ChromiumStatic {
 	 * Number of instances
 	 */
 	public static int INSTANCES = 0;
-
 	/**
 	 * Whether chromium is shutting down globally
 	 */
 	public static boolean shuttingDown;
+
 	private static AppHandler app;
+	private static CEFConfiguration configuration = new CEFConfiguration();
+
 	private static CookieVisitor cookieVisitor;
 
 	private static MessageLoop messageLoop = new MessageLoop();
+
 	private static CEFSchemeHandlerFactory schemeHandlerFactory = new CEFSchemeHandlerFactory();
 
 	/**
@@ -93,24 +96,6 @@ public class ChromiumStatic {
 		}
 	}
 
-	private static String getBrowserLocale() {
-		return System.getProperty("org.eclipse.set.browser.locale", "en-US");
-	}
-
-	private static int getDebugPort() {
-		try {
-			return Integer.parseInt(System.getProperty(
-					"org.eclipse.set.browser.remote-debugging-port", "0"));
-		} catch (final NumberFormatException e) {
-			return 0;
-		}
-	}
-
-	private static String getUserAgentProduct() {
-		return System.getProperty("org.eclipse.set.browser.user-agent-product",
-				"Eclipse SET");
-	}
-
 	private static void setupCookies() {
 		WebBrowser.NativeClearSessions = cef_cookie_visitor_t::cefswt_delete_cookies;
 		WebBrowser.NativeSetCookie = () -> {
@@ -133,6 +118,13 @@ public class ChromiumStatic {
 		WebBrowser.NativeGetCookie = () -> cookieVisitor.getCookie();
 	}
 
+	/**
+	 * @return Configuration for CEF integration
+	 */
+	public static synchronized CEFConfiguration getCEFConfiguration() {
+		return configuration;
+	}
+
 	static synchronized void initCEF(final Display display) {
 		if (app == null) {
 			CEFLibrary.loadLibraries();
@@ -142,8 +134,9 @@ public class ChromiumStatic {
 
 			ChromiumLib.cefswt_init(app.get(),
 					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					CEFLibrary.getTempPath(), getUserAgentProduct(),
-					getBrowserLocale(), getDebugPort());
+					CEFLibrary.getTempPath(), configuration.UserAgentProduct,
+					configuration.Locale, configuration.DebugPort,
+					configuration.LogPath, configuration.LogLevel.getValue());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {
@@ -155,4 +148,5 @@ public class ChromiumStatic {
 		}
 
 	}
+
 }
