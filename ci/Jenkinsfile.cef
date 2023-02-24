@@ -14,16 +14,20 @@ pipeline {
     stage('Build CEF') {
       steps {
         container('rust') {        
-          dir('java-cef/org.eclipse.set.browser.cef.feature/res/bin/cef')
+          dir('java-cef/org.eclipse.set.browser.cef/res/cef')
           {
             // Download CEF distribution
-            downloadCEF versionFile: '../../../../../CEF_VERSION.txt',
+            downloadCEF versionFile: '../../../../CEF_VERSION.txt',
               files: ['Resources'],
               wildcards: [
                 'Release/*.dll',
                 'Release/*.bin'
               ]
-            sh 'rm -rf .gitkeep'
+            sh 'rm -rf ../.gitkeep'
+            
+          }
+          dir('java-cef/org.eclipse.set.browser.cef') {
+            sh 'find'
           }
         }
         container('maven') {

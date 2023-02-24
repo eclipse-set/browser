@@ -62,10 +62,9 @@ public class cef_browser_t {
 	 *            function name
 	 * @param id
 	 *            function id
-	 * @return whether the function was registered
 	 */
-	public static final native void cefswt_function(long browser,
-			String name, int id);
+	public static final native void cefswt_function(long browser, String name,
+			int id);
 
 	/**
 	 * @param browser

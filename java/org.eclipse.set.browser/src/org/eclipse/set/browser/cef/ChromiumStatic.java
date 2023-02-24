@@ -133,10 +133,11 @@ public class ChromiumStatic {
 			cookieVisitor = new CookieVisitor();
 
 			ChromiumLib.cefswt_init(app.get(),
-					CEFLibrary.getSubprocessExePath(), CEFLibrary.getCEFPath(),
-					CEFLibrary.getTempPath(), configuration.UserAgentProduct,
-					configuration.Locale, configuration.DebugPort,
-					configuration.LogPath, configuration.LogLevel.getValue());
+					CEFLibrary.getSubprocessExePath(),
+					CEFResource.getPath().toString(), CEFLibrary.getTempPath(),
+					configuration.UserAgentProduct, configuration.Locale,
+					configuration.DebugPort, configuration.LogPath,
+					configuration.LogLevel.getValue());
 
 			display.disposeExec(() -> {
 				if (ChromiumStatic.app == null || ChromiumStatic.shuttingDown) {

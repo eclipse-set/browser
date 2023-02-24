@@ -17,7 +17,9 @@
 
 	<modules>
 		<module>org.eclipse.set.browser.cef.feature</module>
+		<module>org.eclipse.set.browser.cef</module>
 		<module>org.eclipse.set.browser.cef.releng.repository</module>
+		<module>org.eclipse.set.browser.cef.releng.target</module>
 	</modules>
 
 	<build>
@@ -93,6 +95,30 @@
 						</goals>
 					</execution>
 				</executions>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>target-platform-configuration</artifactId>
+				<version>${tycho-version}</version>
+				<configuration>
+
+					<target>
+						<artifact>
+							<groupId>org.eclipse.set</groupId>
+							<artifactId>org.eclipse.set.browser.cef.releng.target</artifactId>
+							<version>${project.version}</version>
+						</artifact>
+					</target>
+
+					<environments>
+						<environment>
+							<os>win32</os>
+							<ws>win32</ws>
+							<arch>x86_64</arch>
+						</environment>
+					</environments>
+				</configuration>
 			</plugin>
 		</plugins>
 	</build>

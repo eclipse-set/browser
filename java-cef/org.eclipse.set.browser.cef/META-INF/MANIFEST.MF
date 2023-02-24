@@ -1,17 +1,17 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
-Bundle-Name: Bin
-Bundle-SymbolicName: org.eclipse.set.browser.lib
-Bundle-Version: 2.0.0.qualifier
-Automatic-Module-Name: org.eclipse.set.browser.bin
+Bundle-Name: Chromium Binaries
+Bundle-SymbolicName: org.eclipse.set.browser.cef
+Bundle-Version: 107.0.0.qualifier
+Automatic-Module-Name: org.eclipse.set.browser.cef
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt
 Import-Package: 
- org.eclipse.set.browser.cef,
  org.eclipse.swt.internal,
  org.osgi.framework
-Export-Package: org.eclipse.set.browser.lib
 Bundle-ClassPath: res/,
  .
 Bundle-Vendor: Eclipse Signalling Engineering Toolbox
+Export-Package: org.eclipse.set.browser.cef
+Eclipse-BundleShape: dir

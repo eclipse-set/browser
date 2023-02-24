@@ -13,10 +13,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.URL;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.set.browser.cef.CEFResource;
 
 /**
  * Helper class for accessing and loading CEF Binaries
@@ -24,18 +24,10 @@ import org.eclipse.core.runtime.FileLocator;
  * @author Stuecker
  */
 public class CEFLibrary {
-	private static Path cef_path;
 	private static final String CHROME_ELF = "chrome_elf";
 	private static final String CHROMIUM_SUBPROCESS = "chromium_subp.exe";
 	private static final String JNI_LIB = "chromium_jni";
 	private static final String LIBCEF = "libcef";
-
-	/**
-	 * @return the path to the CEF binaries/resources
-	 */
-	public static String getCEFPath() {
-		return cef_path.toAbsolutePath().toString();
-	}
 
 	/**
 	 * @return the path to the Chromium subprocess binary
@@ -54,14 +46,6 @@ public class CEFLibrary {
 	}
 
 	/**
-	 * @param cefPath
-	 *            path to CEF binaries
-	 */
-	public static void init(final Path cefPath) {
-		cef_path = cefPath;
-	}
-
-	/**
 	 * Loads the CEF Libraries
 	 * 
 	 * Make sure to call init() beforehand
@@ -74,7 +58,7 @@ public class CEFLibrary {
 
 	private static File getCEFLibraryFile(final String library) {
 		final String mapLibraryName = System.mapLibraryName(library);
-		return cef_path.resolve(mapLibraryName).toFile();
+		return CEFResource.getPath().resolve(mapLibraryName).toFile();
 	}
 
 	private static File getLibraryFile(final String library) {
