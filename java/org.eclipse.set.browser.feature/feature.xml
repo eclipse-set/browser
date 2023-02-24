@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.eclipse.set.browser.feature" label="Eclipse SET Browser" version="107.0.0.qualifier" provider-name="Eclipse SET Project">
+<feature id="org.eclipse.set.browser.feature" label="Eclipse SET Browser" version="2.0.0.qualifier" provider-name="Eclipse SET Project">
 
    <description>
       Eclipse Signalling Engineering Toolbox browser feature, containing an embedded web browser component for SWT.
