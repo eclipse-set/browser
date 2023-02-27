@@ -91,13 +91,7 @@ pipeline {
     always {
       // Publish JUnit test result
       junit testResults: 'java/*/target/surefire-reports/*.xml', allowEmptyResults: true
-      recordIssues aggregatingResults: true,
-        enabledForFailure: true,
-        tools: [
-          java(),
-          checkStyle(),
-          mavenConsole()],
-        qualityGates: [[threshold: 1, type: 'TOTAL', unstable: true]]
+      handleIssues()
     }
   }
 }
