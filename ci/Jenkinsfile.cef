@@ -14,7 +14,7 @@ pipeline {
     stage('Build CEF') {
       steps {
         container('rust') {        
-          dir('java-cef/org.eclipse.set.browser.cef/res/cef')
+          dir('java-cef/org.eclipse.set.browser.cef.win32/res/cef')
           {
             // Download CEF distribution
             downloadCEF versionFile: '../../../../CEF_VERSION.txt',
@@ -24,10 +24,6 @@ pipeline {
                 'Release/*.bin'
               ]
             sh 'rm -rf ../.gitkeep'
-            
-          }
-          dir('java-cef/org.eclipse.set.browser.cef') {
-            sh 'find'
           }
         }
         container('maven') {

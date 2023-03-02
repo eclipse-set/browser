@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.eclipse.set.browser.cef.handlers.AppHandler;
 import org.eclipse.set.browser.cef.handlers.CookieVisitor;
+import org.eclipse.set.browser.cef.win32.CEFResource;
 import org.eclipse.set.browser.lib.CEFLibrary;
 import org.eclipse.set.browser.lib.ChromiumLib;
 import org.eclipse.set.browser.lib.cef_cookie_visitor_t;

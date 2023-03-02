@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.eclipse.set.browser.feature" label="Eclipse SET Browser" version="2.0.0.qualifier" provider-name="Eclipse SET Project">
+<feature
+      id="org.eclipse.set.browser.feature"
+      label="Eclipse SET Browser"
+      version="2.0.0.qualifier"
+      provider-name="Eclipse SET Project">
 
    <description>
       Eclipse Signalling Engineering Toolbox browser feature, containing an embedded web browser component for SWT.
@@ -14,12 +18,18 @@ which accompanies this distribution, and is available at
 http://www.eclipse.org/legal/epl-v20.html
    </copyright>
 
-   <requires>
-      <import plugin="org.eclipse.set.browser.cef"/>
-   </requires>
+   <plugin
+         id="org.eclipse.set.browser"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
-   <plugin id="org.eclipse.set.browser" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
-
-   <plugin id="org.eclipse.set.browser.lib" download-size="0" install-size="0" version="0.0.0" unpack="false"/>
+   <plugin
+         id="org.eclipse.set.browser.lib"
+         download-size="0"
+         install-size="0"
+         version="0.0.0"
+         unpack="false"/>
 
 </feature>

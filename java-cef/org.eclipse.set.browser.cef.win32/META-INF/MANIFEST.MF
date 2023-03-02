@@ -1,17 +1,16 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: Chromium Binaries
-Bundle-SymbolicName: org.eclipse.set.browser.cef
+Bundle-SymbolicName: org.eclipse.set.browser.cef.win32;singleton:=true
 Bundle-Version: 107.0.0.qualifier
-Automatic-Module-Name: org.eclipse.set.browser.cef
+Automatic-Module-Name: org.eclipse.set.browser.win32
 Bundle-RequiredExecutionEnvironment: JavaSE-17
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.swt
 Import-Package: 
  org.eclipse.swt.internal,
  org.osgi.framework
-Bundle-ClassPath: res/,
- .
+Bundle-ClassPath: .
 Bundle-Vendor: Eclipse Signalling Engineering Toolbox
-Export-Package: org.eclipse.set.browser.cef
+Export-Package: org.eclipse.set.browser.cef.win32
 Eclipse-BundleShape: dir

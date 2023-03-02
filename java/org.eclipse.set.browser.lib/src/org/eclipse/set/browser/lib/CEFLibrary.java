@@ -16,7 +16,7 @@ import java.net.URL;
 import java.nio.file.Paths;
 
 import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.set.browser.cef.CEFResource;
+import org.eclipse.set.browser.cef.win32.CEFResource;
 
 /**
  * Helper class for accessing and loading CEF Binaries

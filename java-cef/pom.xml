@@ -17,7 +17,7 @@
 
 	<modules>
 		<module>org.eclipse.set.browser.cef.feature</module>
-		<module>org.eclipse.set.browser.cef</module>
+		<module>org.eclipse.set.browser.cef.win32</module>
 		<module>org.eclipse.set.browser.cef.releng.repository</module>
 		<module>org.eclipse.set.browser.cef.releng.target</module>
 	</modules>
