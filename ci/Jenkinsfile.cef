@@ -18,7 +18,7 @@ pipeline {
           {
             // Download CEF distribution
             downloadCEF versionFile: '../../../../CEF_VERSION.txt',
-              files: ['Resources', 'LICENSE.txt'],
+              files: ['Resources'],
               wildcards: [
                 'Release/*.dll',
                 'Release/*.bin'
