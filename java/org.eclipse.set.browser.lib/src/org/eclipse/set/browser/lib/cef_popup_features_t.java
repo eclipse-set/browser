@@ -18,7 +18,6 @@ package org.eclipse.set.browser.lib;
 ///
 @SuppressWarnings("javadoc")
 public class cef_popup_features_t {
-	public static final int sizeof = ChromiumLib.cef_popup_features_t_sizeof();
 	public int height;
 	public int heightSet;
 	public int menuBarVisible;
@@ -30,6 +29,5 @@ public class cef_popup_features_t {
 	public int x;
 	public int xSet;
 	public int y;
-
 	public int ySet;
 }

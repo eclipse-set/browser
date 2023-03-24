@@ -173,11 +173,6 @@ public class ChromiumLib extends C {
 			Object handler);
 
 	/**
-	 * @return the size of cef_popup_features_t in bytes
-	 */
-	public static final native int cef_popup_features_t_sizeof();
-
-	/**
 	 * @param callback
 	 *            cast=(void *)
 	 */
