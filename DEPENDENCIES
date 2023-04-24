@@ -2,7 +2,7 @@ maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.feature/1.1.0-SNAPSHO
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.lib/1.1.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser/1.1.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.osgi/org.osgi.service.prefs/1.1.2, Apache-2.0, approved, #2451
-maven/mavencentral/org.osgi/osgi.annotation/8.0.1, Apache-2.0, approved, clearlydefined
+maven/mavencentral/org.osgi/osgi.annotation/8.0.1, Apache-2.0, approved, #6909
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.contenttype/3.8.100.v20210910-0640, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.jobs/3.13.0.v20220512-1935, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.core.runtime/3.25.0.v20220506-1157, EPL-2.0, approved, eclipse.platform
@@ -10,7 +10,7 @@ p2/orbit/p2.eclipse.plugin/org.eclipse.equinox.app/1.6.100.v20211021-1418, EPL-2
 p2/orbit/p2.eclipse.plugin/org.eclipse.equinox.common/3.16.100.v20220315-2327, EPL-2.0, approved, eclipse.equinox
 p2/orbit/p2.eclipse.plugin/org.eclipse.equinox.preferences/3.10.0.v20220503-1634, EPL-2.0, approved, eclipse.equinox
 p2/orbit/p2.eclipse.plugin/org.eclipse.equinox.registry/3.11.100.v20211021-1418, EPL-2.0, approved, eclipse.equinox
-p2/orbit/p2.eclipse.plugin/org.eclipse.osgi/3.18.0.v20220516-2155, EPL-2.0, approved, eclipse.platform
+p2/orbit/p2.eclipse.plugin/org.eclipse.osgi/3.18.0.v20220516-2155, EPL-2.0, approved, eclipse.equinox
 p2/orbit/p2.eclipse.plugin/org.eclipse.swt.win32.win32.x86_64/3.120.0.v20220530-1036, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.swt/3.120.0.v20220530-1036, EPL-2.0, approved, eclipse.platform
 crate/cratesio/-/bytes/1.1.0, MIT, approved, clearlydefined
