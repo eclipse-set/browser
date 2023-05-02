@@ -49,6 +49,8 @@ pipeline {
           dir('java') {
             mvn goal: 'clean verify checkstyle:checkstyle -P sign', dependencies: 'dependencies/maven.deps'
           }
+
+          archiveArtifacts 'java/bundles/org.eclipse.set.browser.releng.repository/target/*.zip'
         }
       }
     }
@@ -82,7 +84,7 @@ pipeline {
       }
 
       steps {
-        deployP2Site name: "browser/${BRANCH_NAME}", path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
+        deployP2Site name: 'browser', branch: BRANCH_NAME, path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
       }
     }
   }

@@ -57,7 +57,7 @@ pipeline {
       }
 
       steps {
-        deployP2Site name: 'browser-cef/${BRANCH_NAME}', path: 'java-cef/org.eclipse.set.browser.cef.releng.repository/target/repository' 
+        deployP2Site name: 'browser-cef', branch: BRANCH_NAME, path: 'java-cef/org.eclipse.set.browser.cef.releng.repository/target/repository' 
       }
     }
   }
