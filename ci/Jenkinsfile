@@ -50,7 +50,7 @@ pipeline {
             mvn goal: 'clean verify checkstyle:checkstyle -P sign', dependencies: 'dependencies/maven.deps'
           }
 
-          archiveArtifacts 'java/bundles/org.eclipse.set.browser.releng.repository/target/*.zip'
+          archiveArtifacts 'java/org.eclipse.set.browser.releng.repository/target/*.zip'
         }
       }
     }
