@@ -35,16 +35,6 @@ pipeline {
       }
     }
 
-
-    stage('Remove Old Snapshot') {
-      when {
-        branch 'main'
-      }
-      steps {
-        removeOldSnapshot repo: 'browser-cef'
-      }
-    }
-
     stage('Deploy Snapshot')
     {
       when {
@@ -52,12 +42,11 @@ pipeline {
           buildingTag()
           branch 'main'
           branch pattern: 'release/[0-9.]+', comparator: 'REGEXP'
-          branch pattern: 'feature/\\w+', comparator: 'REGEXP'
         }
       }
 
       steps {
-        deployP2Site name: 'browser-cef/${BRANCH_NAME}', path: 'java-cef/org.eclipse.set.browser.cef.releng.repository/target/repository' 
+        deployP2Site name: 'browser-cef', branch: BRANCH_NAME, path: 'java-cef/org.eclipse.set.browser.cef.releng.repository/target/repository' 
       }
     }
   }

@@ -49,6 +49,8 @@ pipeline {
           dir('java') {
             mvn goal: 'clean verify -P sign', dependencies: 'dependencies/maven.deps'
           }
+          
+          archiveArtifacts 'java/org.eclipse.set.browser.releng.repository/target/*.zip'
         }
       }
     }
@@ -61,28 +63,17 @@ pipeline {
       }
     }
 
-    stage('Remove Old Snapshot') {
-      when {
-        branch 'main'
-      }
-
-      steps {
-        removeOldSnapshot repo: 'browser'
-      }
-    }
-
     stage('Deploy Snapshot') {
       when {
         anyOf {
           buildingTag()
           branch 'main'
-          branch pattern: 'release/[0-9.]+', comparator: 'REGEXP'          
-          branch pattern: 'feature/\\w+', comparator: 'REGEXP'
+          branch pattern: 'release/[0-9.]+', comparator: 'REGEXP'
         }
       }
 
       steps {
-        deployP2Site name: "browser/${BRANCH_NAME}", path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
+        deployP2Site name: 'browser', branch: BRANCH_NAME, path: 'java/org.eclipse.set.browser.releng.repository/target/repository'
       }
     }
   }
