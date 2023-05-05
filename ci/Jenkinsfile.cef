@@ -34,17 +34,7 @@ pipeline {
         }
       }
     }
-
-
-    stage('Remove Old Snapshot') {
-      when {
-        branch 'main'
-      }
-      steps {
-        removeOldSnapshot repo: 'browser-cef'
-      }
-    }
-
+    
     stage('Deploy Snapshot')
     {
       when {
