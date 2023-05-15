@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<feature id="org.eclipse.set.browser.cef.feature" label="CEF Binary Feature" version="107.0.0.qualifier" provider-name="Eclipse SET Project">
+<feature id="org.eclipse.set.browser.cef.feature" label="CEF Binary Feature" version="107.0.0" provider-name="Eclipse SET Project">
 
    <description>
       Repackaged Chromium Embedded Framework build for usage with the Eclipse Signalling Engineering Toolbox browser feature. 
