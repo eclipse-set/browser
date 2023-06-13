@@ -49,34 +49,6 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_ecl
         JValue::Int(source_object.heightSet),
     )
     .unwrap();
-    env.set_field(
-        destination,
-        "menuBarVisible",
-        "I",
-        JValue::Int(source_object.menuBarVisible),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "statusBarVisible",
-        "I",
-        JValue::Int(source_object.statusBarVisible),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "toolBarVisible",
-        "I",
-        JValue::Int(source_object.toolBarVisible),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "scrollbarsVisible",
-        "I",
-        JValue::Int(source_object.scrollbarsVisible),
-    )
-    .unwrap();
 }
 
 #[no_mangle]

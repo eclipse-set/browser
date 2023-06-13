@@ -794,11 +794,11 @@ pub struct _cef_settings_t {
     #[doc = " Comma delimited list of schemes supported by the associated"]
     #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0)"]
     #[doc = " the default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be"]
-    #[doc = " supported. Specifying a |cookieable_schemes_list| value and setting"]
+    #[doc = " supported. Not specifying a |cookieable_schemes_list| value and setting"]
     #[doc = " |cookieable_schemes_exclude_defaults| to true (1) will disable all loading"]
-    #[doc = " and saving of cookies for this manager. Can be overridden"]
-    #[doc = " for individual CefRequestContext instances via the"]
-    #[doc = " CefRequestContextSettings.cookieable_schemes_list and"]
+    #[doc = " and saving of cookies. These settings will only impact the global"]
+    #[doc = " CefRequestContext. Individual CefRequestContext instances can be"]
+    #[doc = " configured via the CefRequestContextSettings.cookieable_schemes_list and"]
     #[doc = " CefRequestContextSettings.cookieable_schemes_exclude_defaults values."]
     #[doc = ""]
     pub cookieable_schemes_list: cef_string_t,
@@ -856,10 +856,10 @@ pub struct _cef_request_context_settings_t {
     #[doc = " Comma delimited list of schemes supported by the associated"]
     #[doc = " CefCookieManager. If |cookieable_schemes_exclude_defaults| is false (0)"]
     #[doc = " the default schemes (\"http\", \"https\", \"ws\" and \"wss\") will also be"]
-    #[doc = " supported. Specifying a |cookieable_schemes_list| value and setting"]
+    #[doc = " supported. Not specifying a |cookieable_schemes_list| value and setting"]
     #[doc = " |cookieable_schemes_exclude_defaults| to true (1) will disable all loading"]
-    #[doc = " and saving of cookies for this manager. These values will be ignored if"]
-    #[doc = " |cache_path| matches the CefSettings.cache_path value."]
+    #[doc = " and saving of cookies. These values will be ignored if |cache_path|"]
+    #[doc = " matches the CefSettings.cache_path value."]
     #[doc = ""]
     pub cookieable_schemes_list: cef_string_t,
     pub cookieable_schemes_exclude_defaults: ::std::os::raw::c_int,
@@ -1147,13 +1147,13 @@ pub enum cef_errorcode_t {
     ERR_NETWORK_CHANGED = -21,
     ERR_BLOCKED_BY_ADMINISTRATOR = -22,
     ERR_SOCKET_IS_CONNECTED = -23,
-    ERR_BLOCKED_ENROLLMENT_CHECK_PENDING = -24,
     ERR_UPLOAD_STREAM_REWIND_NOT_SUPPORTED = -25,
     ERR_CONTEXT_SHUT_DOWN = -26,
     ERR_BLOCKED_BY_RESPONSE = -27,
     ERR_CLEARTEXT_NOT_PERMITTED = -29,
     ERR_BLOCKED_BY_CSP = -30,
     ERR_H2_OR_QUIC_REQUIRED = -31,
+    ERR_BLOCKED_BY_ORB = -32,
     ERR_CONNECTION_CLOSED = -100,
     ERR_CONNECTION_RESET = -101,
     ERR_CONNECTION_REFUSED = -102,
@@ -1308,7 +1308,7 @@ pub enum cef_errorcode_t {
     ERR_QUIC_GOAWAY_REQUEST_CAN_BE_RETRIED = -381,
     ERR_TOO_MANY_ACCEPT_CH_RESTARTS = -382,
     ERR_INCONSISTENT_IP_ADDRESS_SPACE = -383,
-    ERR_CACHED_IP_ADDRESS_SPACE_BLOCKED_BY_PRIVATE_NETWORK_ACCESS_POLICY = -384,
+    ERR_CACHED_IP_ADDRESS_SPACE_BLOCKED_BY_LOCAL_NETWORK_ACCESS_POLICY = -384,
     ERR_CACHE_MISS = -400,
     ERR_CACHE_READ_FAILURE = -401,
     ERR_CACHE_WRITE_FAILURE = -402,
@@ -1360,7 +1360,7 @@ pub enum cef_errorcode_t {
     ERR_DNS_SECURE_RESOLVER_HOSTNAME_RESOLUTION_FAILED = -808,
     ERR_DNS_NAME_HTTPS_ONLY = -809,
     ERR_DNS_REQUEST_CANCELLED = -810,
-    ERR_DNS_NO_MACHING_SUPPORTED_ALPN = -811,
+    ERR_DNS_NO_MATCHING_SUPPORTED_ALPN = -811,
 }
 #[repr(i32)]
 #[doc = ""]
@@ -2375,10 +2375,8 @@ pub struct _cef_popup_features_t {
     pub widthSet: ::std::os::raw::c_int,
     pub height: ::std::os::raw::c_int,
     pub heightSet: ::std::os::raw::c_int,
-    pub menuBarVisible: ::std::os::raw::c_int,
-    pub statusBarVisible: ::std::os::raw::c_int,
-    pub toolBarVisible: ::std::os::raw::c_int,
-    pub scrollbarsVisible: ::std::os::raw::c_int,
+    #[doc = " True (1) if browser interface elements should be hidden."]
+    pub isPopup: ::std::os::raw::c_int,
 }
 #[doc = ""]
 #[doc = " Popup window features."]
@@ -2568,7 +2566,7 @@ pub type cef_cursor_info_t = _cef_cursor_info_t;
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_pdf_print_margin_type_t {
     #[doc = ""]
-    #[doc = " Default margins."]
+    #[doc = " Default margins of 1cm (~0.4 inches)."]
     #[doc = ""]
     PDF_PRINT_MARGIN_DEFAULT = 0,
     #[doc = ""]
@@ -2576,72 +2574,92 @@ pub enum cef_pdf_print_margin_type_t {
     #[doc = ""]
     PDF_PRINT_MARGIN_NONE = 1,
     #[doc = ""]
-    #[doc = " Minimum margins."]
-    #[doc = ""]
-    PDF_PRINT_MARGIN_MINIMUM = 2,
-    #[doc = ""]
     #[doc = " Custom margins using the |margin_*| values from cef_pdf_print_settings_t."]
     #[doc = ""]
-    PDF_PRINT_MARGIN_CUSTOM = 3,
+    PDF_PRINT_MARGIN_CUSTOM = 2,
 }
 #[doc = ""]
-#[doc = " Structure representing PDF print settings."]
+#[doc = " Structure representing PDF print settings. These values match the parameters"]
+#[doc = " supported by the DevTools Page.printToPDF function. See"]
+#[doc = " https://chromedevtools.github.io/devtools-protocol/tot/Page/#method-printToPDF"]
 #[doc = ""]
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_pdf_print_settings_t {
     #[doc = ""]
-    #[doc = " Page title to display in the header. Only used if |header_footer_enabled|"]
-    #[doc = " is set to true (1)."]
+    #[doc = " Set to true (1) for landscape mode or false (0) for portrait mode."]
     #[doc = ""]
-    pub header_footer_title: cef_string_t,
+    pub landscape: ::std::os::raw::c_int,
     #[doc = ""]
-    #[doc = " URL to display in the footer. Only used if |header_footer_enabled| is set"]
-    #[doc = " to true (1)."]
+    #[doc = " Set to true (1) to print background graphics."]
     #[doc = ""]
-    pub header_footer_url: cef_string_t,
+    pub print_background: ::std::os::raw::c_int,
     #[doc = ""]
-    #[doc = " Output page size in microns. If either of these values is less than or"]
-    #[doc = " equal to zero then the default paper size (A4) will be used."]
-    #[doc = ""]
-    pub page_width: ::std::os::raw::c_int,
-    pub page_height: ::std::os::raw::c_int,
-    #[doc = ""]
-    #[doc = " The percentage to scale the PDF by before printing (e.g. 50 is 50%)."]
-    #[doc = " If this value is less than or equal to zero the default value of 100"]
+    #[doc = " The percentage to scale the PDF by before printing (e.g. .5 is 50%)."]
+    #[doc = " If this value is less than or equal to zero the default value of 1.0"]
     #[doc = " will be used."]
     #[doc = ""]
-    pub scale_factor: ::std::os::raw::c_int,
+    pub scale: f64,
     #[doc = ""]
-    #[doc = " Margins in points. Only used if |margin_type| is set to"]
-    #[doc = " PDF_PRINT_MARGIN_CUSTOM."]
+    #[doc = " Output paper size in inches. If either of these values is less than or"]
+    #[doc = " equal to zero then the default paper size (letter, 8.5 x 11 inches) will"]
+    #[doc = " be used."]
     #[doc = ""]
-    pub margin_top: ::std::os::raw::c_int,
-    pub margin_right: ::std::os::raw::c_int,
-    pub margin_bottom: ::std::os::raw::c_int,
-    pub margin_left: ::std::os::raw::c_int,
+    pub paper_width: f64,
+    pub paper_height: f64,
+    #[doc = ""]
+    #[doc = " Set to true (1) to prefer page size as defined by css. Defaults to false"]
+    #[doc = " (0), in which case the content will be scaled to fit the paper size."]
+    #[doc = ""]
+    pub prefer_css_page_size: ::std::os::raw::c_int,
     #[doc = ""]
     #[doc = " Margin type."]
     #[doc = ""]
     pub margin_type: cef_pdf_print_margin_type_t,
     #[doc = ""]
-    #[doc = " Set to true (1) to print headers and footers or false (0) to not print"]
-    #[doc = " headers and footers."]
+    #[doc = " Margins in inches. Only used if |margin_type| is set to"]
+    #[doc = " PDF_PRINT_MARGIN_CUSTOM."]
     #[doc = ""]
-    pub header_footer_enabled: ::std::os::raw::c_int,
+    pub margin_top: f64,
+    pub margin_right: f64,
+    pub margin_bottom: f64,
+    pub margin_left: f64,
     #[doc = ""]
-    #[doc = " Set to true (1) to print the selection only or false (0) to print all."]
+    #[doc = " Paper ranges to print, one based, e.g., '1-5, 8, 11-13'. Pages are printed"]
+    #[doc = " in the document order, not in the order specified, and no more than once."]
+    #[doc = " Defaults to empty string, which implies the entire document is printed."]
+    #[doc = " The page numbers are quietly capped to actual page count of the document,"]
+    #[doc = " and ranges beyond the end of the document are ignored. If this results in"]
+    #[doc = " no pages to print, an error is reported. It is an error to specify a range"]
+    #[doc = " with start greater than end."]
     #[doc = ""]
-    pub selection_only: ::std::os::raw::c_int,
+    pub page_ranges: cef_string_t,
     #[doc = ""]
-    #[doc = " Set to true (1) for landscape mode or false (0) for portrait mode."]
+    #[doc = " Set to true (1) to display the header and/or footer. Modify"]
+    #[doc = " |header_template| and/or |footer_template| to customize the display."]
     #[doc = ""]
-    pub landscape: ::std::os::raw::c_int,
+    pub display_header_footer: ::std::os::raw::c_int,
     #[doc = ""]
-    #[doc = " Set to true (1) to print background graphics or false (0) to not print"]
-    #[doc = " background graphics."]
+    #[doc = " HTML template for the print header. Only displayed if"]
+    #[doc = " |display_header_footer| is true (1). Should be valid HTML markup with"]
+    #[doc = " the following classes used to inject printing values into them:"]
     #[doc = ""]
-    pub backgrounds_enabled: ::std::os::raw::c_int,
+    #[doc = " - date: formatted print date"]
+    #[doc = " - title: document title"]
+    #[doc = " - url: document location"]
+    #[doc = " - pageNumber: current page number"]
+    #[doc = " - totalPages: total pages in the document"]
+    #[doc = ""]
+    #[doc = " For example, \"<span class=title></span>\" would generate a span containing"]
+    #[doc = " the title."]
+    #[doc = ""]
+    pub header_template: cef_string_t,
+    #[doc = ""]
+    #[doc = " HTML template for the print footer. Only displayed if"]
+    #[doc = " |display_header_footer| is true (1). Uses the same format as"]
+    #[doc = " |header_template|."]
+    #[doc = ""]
+    pub footer_template: cef_string_t,
 }
 #[repr(i32)]
 #[doc = ""]
@@ -3061,6 +3079,59 @@ pub struct _cef_media_sink_device_info_t {
     pub port: ::std::os::raw::c_int,
     pub model_name: cef_string_t,
 }
+impl cef_chrome_page_action_icon_type_t {
+    pub const CEF_CPAIT_MAX_VALUE: cef_chrome_page_action_icon_type_t =
+        cef_chrome_page_action_icon_type_t::CEF_CPAIT_SAVE_IBAN;
+}
+#[repr(i32)]
+#[doc = ""]
+#[doc = " Chrome page action icon types. Should be kept in sync with Chromium's"]
+#[doc = " PageActionIconType type."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_chrome_page_action_icon_type_t {
+    CEF_CPAIT_BOOKMARK_STAR = 0,
+    CEF_CPAIT_CLICK_TO_CALL = 1,
+    CEF_CPAIT_COOKIE_CONTROLS = 2,
+    CEF_CPAIT_FILE_SYSTEM_ACCESS = 3,
+    CEF_CPAIT_FIND = 4,
+    CEF_CPAIT_HIGH_EFFICIENCY = 5,
+    CEF_CPAIT_INTENT_PICKER = 6,
+    CEF_CPAIT_LOCAL_CARD_MIGRATION = 7,
+    CEF_CPAIT_MANAGE_PASSWORDS = 8,
+    CEF_CPAIT_PAYMENTS_OFFER_NOTIFICATION = 9,
+    CEF_CPAIT_PRICE_TRACKING = 10,
+    CEF_CPAIT_PWA_INSTALL = 11,
+    CEF_CPAIT_QR_CODE_GENERATOR = 12,
+    CEF_CPAIT_READER_MODE = 13,
+    CEF_CPAIT_SAVE_AUTOFILL_ADDRESS = 14,
+    CEF_CPAIT_SAVE_CARD = 15,
+    CEF_CPAIT_SEND_TAB_TO_SELF = 16,
+    CEF_CPAIT_SHARING_HUB = 17,
+    CEF_CPAIT_SIDE_SEARCH = 18,
+    CEF_CPAIT_SMS_REMOTE_FETCHER = 19,
+    CEF_CPAIT_TRANSLATE = 20,
+    CEF_CPAIT_VIRTUAL_CARD_ENROLL = 21,
+    CEF_CPAIT_VIRTUAL_CARD_MANUAL_FALLBACK = 22,
+    CEF_CPAIT_ZOOM = 23,
+    CEF_CPAIT_SAVE_IBAN = 24,
+}
+impl cef_chrome_toolbar_button_type_t {
+    pub const CEF_CTBT_MAX_VALUE: cef_chrome_toolbar_button_type_t =
+        cef_chrome_toolbar_button_type_t::CEF_CTBT_SIDE_PANEL;
+}
+#[repr(i32)]
+#[doc = ""]
+#[doc = " Chrome toolbar button types. Should be kept in sync with CEF's internal"]
+#[doc = " ToolbarButtonType type."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_chrome_toolbar_button_type_t {
+    CEF_CTBT_CAST = 0,
+    CEF_CTBT_DOWNLOAD = 1,
+    CEF_CTBT_SEND_TAB_TO_SELF = 2,
+    CEF_CTBT_SIDE_PANEL = 3,
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_touch_handle_state_t {
@@ -3117,6 +3188,19 @@ pub enum cef_permission_request_result_t {
     #[doc = " UI) then any related promises may remain unresolved."]
     #[doc = ""]
     CEF_PERMISSION_RESULT_IGNORE = 3,
+}
+#[repr(i32)]
+#[doc = ""]
+#[doc = " Preferences type passed to"]
+#[doc = " CefBrowserProcessHandler::OnRegisterCustomPreferences."]
+#[doc = ""]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_preferences_type_t {
+    #[doc = " Global preferences registered a single time at application startup."]
+    CEF_PREFERENCES_TYPE_GLOBAL = 0,
+    #[doc = " Request context preferences registered each time a new CefRequestContext"]
+    #[doc = " is created."]
+    CEF_PREFERENCES_TYPE_REQUEST_CONTEXT = 1,
 }
 #[doc = ""]
 #[doc = " CEF string maps are a set of key/value string pairs."]
@@ -5924,23 +6008,15 @@ pub struct _cef_frame_t {
     >,
     #[doc = ""]
     #[doc = " Create a new URL request that will be treated as originating from this"]
-    #[doc = " frame and the associated browser. This request may be intercepted by the"]
-    #[doc = " client via cef_resource_request_handler_t or cef_scheme_handler_factory_t."]
-    #[doc = " Use cef_urlrequest_t::Create instead if you do not want the request to"]
-    #[doc = " have this association, in which case it may be handled differently (see"]
-    #[doc = " documentation on that function). Requests may originate from both the"]
-    #[doc = " browser process and the render process."]
-    #[doc = ""]
-    #[doc = " For requests originating from the browser process:"]
+    #[doc = " frame and the associated browser. Use cef_urlrequest_t::Create instead if"]
+    #[doc = " you do not want the request to have this association, in which case it may"]
+    #[doc = " be handled differently (see documentation on that function). A request"]
+    #[doc = " created with this function may only originate from the browser process,"]
+    #[doc = " and will behave as follows:"]
+    #[doc = "   - It may be intercepted by the client via CefResourceRequestHandler or"]
+    #[doc = "     CefSchemeHandlerFactory."]
     #[doc = "   - POST data may only contain a single element of type PDE_TYPE_FILE or"]
     #[doc = "     PDE_TYPE_BYTES."]
-    #[doc = ""]
-    #[doc = " For requests originating from the render process:"]
-    #[doc = "   - POST data may only contain a single element of type PDE_TYPE_BYTES."]
-    #[doc = "   - If the response contains Content-Disposition or Mime-Type header"]
-    #[doc = "     values that would not normally be rendered then the response may"]
-    #[doc = "     receive special handling inside the browser (for example, via the"]
-    #[doc = "     file download code path instead of the URL request code path)."]
     #[doc = ""]
     #[doc = " The |request| object will be marked as read-only after calling this"]
     #[doc = " function."]
@@ -6965,13 +7041,6 @@ pub struct _cef_media_sink_t {
         unsafe extern "C" fn(self_: *mut _cef_media_sink_t) -> cef_string_userfree_t,
     >,
     #[doc = ""]
-    #[doc = " Returns the description of this sink."]
-    #[doc = ""]
-    #[doc = " The resulting string must be freed by calling cef_string_userfree_free()."]
-    pub get_description: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_media_sink_t) -> cef_string_userfree_t,
-    >,
-    #[doc = ""]
     #[doc = " Returns the icon type for this sink."]
     #[doc = ""]
     pub get_icon_type: ::std::option::Option<
@@ -7063,6 +7132,125 @@ pub struct _cef_media_source_t {
         unsafe extern "C" fn(self_: *mut _cef_media_source_t) -> ::std::os::raw::c_int,
     >,
 }
+#[doc = ""]
+#[doc = " Structure that manages custom preference registrations."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_preference_registrar_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_scoped_t,
+    #[doc = ""]
+    #[doc = " Register a preference with the specified |name| and |default_value|. To"]
+    #[doc = " avoid conflicts with built-in preferences the |name| value should contain"]
+    #[doc = " an application-specific prefix followed by a period (e.g. \"myapp.value\")."]
+    #[doc = " The contents of |default_value| will be copied. The data type for the"]
+    #[doc = " preference will be inferred from |default_value|'s type and cannot be"]
+    #[doc = " changed after registration. Returns true (1) on success. Returns false (0)"]
+    #[doc = " if |name| is already registered or if |default_value| has an invalid type."]
+    #[doc = " This function must be called from within the scope of the"]
+    #[doc = " cef_browser_process_handler_t::OnRegisterCustomPreferences callback."]
+    #[doc = ""]
+    pub add_preference: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_registrar_t,
+            name: *const cef_string_t,
+            default_value: *mut _cef_value_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+}
+#[doc = ""]
+#[doc = " Manage access to preferences. Many built-in preferences are registered by"]
+#[doc = " Chromium. Custom preferences can be registered in"]
+#[doc = " cef_browser_process_handler_t::OnRegisterCustomPreferences."]
+#[doc = ""]
+#[repr(C)]
+#[derive(Debug, Copy, Clone)]
+pub struct _cef_preference_manager_t {
+    #[doc = ""]
+    #[doc = " Base structure."]
+    #[doc = ""]
+    pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Returns true (1) if a preference with the specified |name| exists. This"]
+    #[doc = " function must be called on the browser process UI thread."]
+    #[doc = ""]
+    pub has_preference: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_manager_t,
+            name: *const cef_string_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Returns the value for the preference with the specified |name|. Returns"]
+    #[doc = " NULL if the preference does not exist. The returned object contains a copy"]
+    #[doc = " of the underlying preference value and modifications to the returned"]
+    #[doc = " object will not modify the underlying preference value. This function must"]
+    #[doc = " be called on the browser process UI thread."]
+    #[doc = ""]
+    pub get_preference: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_manager_t,
+            name: *const cef_string_t,
+        ) -> *mut _cef_value_t,
+    >,
+    #[doc = ""]
+    #[doc = " Returns all preferences as a dictionary. If |include_defaults| is true (1)"]
+    #[doc = " then preferences currently at their default value will be included. The"]
+    #[doc = " returned object contains a copy of the underlying preference values and"]
+    #[doc = " modifications to the returned object will not modify the underlying"]
+    #[doc = " preference values. This function must be called on the browser process UI"]
+    #[doc = " thread."]
+    #[doc = ""]
+    pub get_all_preferences: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_manager_t,
+            include_defaults: ::std::os::raw::c_int,
+        ) -> *mut _cef_dictionary_value_t,
+    >,
+    #[doc = ""]
+    #[doc = " Returns true (1) if the preference with the specified |name| can be"]
+    #[doc = " modified using SetPreference. As one example preferences set via the"]
+    #[doc = " command-line usually cannot be modified. This function must be called on"]
+    #[doc = " the browser process UI thread."]
+    #[doc = ""]
+    pub can_set_preference: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_manager_t,
+            name: *const cef_string_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Set the |value| associated with preference |name|. Returns true (1) if the"]
+    #[doc = " value is set successfully and false (0) otherwise. If |value| is NULL the"]
+    #[doc = " preference will be restored to its default value. If setting the"]
+    #[doc = " preference fails then |error| will be populated with a detailed"]
+    #[doc = " description of the problem. This function must be called on the browser"]
+    #[doc = " process UI thread."]
+    #[doc = ""]
+    pub set_preference: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_preference_manager_t,
+            name: *const cef_string_t,
+            value: *mut _cef_value_t,
+            error: *mut cef_string_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+}
+#[doc = ""]
+#[doc = " Manage access to preferences. Many built-in preferences are registered by"]
+#[doc = " Chromium. Custom preferences can be registered in"]
+#[doc = " cef_browser_process_handler_t::OnRegisterCustomPreferences."]
+#[doc = ""]
+pub type cef_preference_manager_t = _cef_preference_manager_t;
+extern "C" {
+    #[doc = ""]
+    #[doc = " Returns the global preference manager object."]
+    #[doc = ""]
+    pub fn cef_preference_manager_get_global() -> *mut cef_preference_manager_t;
+}
 #[repr(C)]
 #[derive(Debug, Copy, Clone)]
 pub struct _cef_request_context_handler_t {
@@ -7113,7 +7301,7 @@ pub struct _cef_request_context_t {
     #[doc = ""]
     #[doc = " Base structure."]
     #[doc = ""]
-    pub base: cef_base_ref_counted_t,
+    pub base: cef_preference_manager_t,
     #[doc = ""]
     #[doc = " Returns true (1) if this object is pointing to the same context as |that|"]
     #[doc = " object."]
@@ -7196,71 +7384,6 @@ pub struct _cef_request_context_t {
     #[doc = ""]
     pub clear_scheme_handler_factories: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_request_context_t) -> ::std::os::raw::c_int,
-    >,
-    #[doc = ""]
-    #[doc = " Returns true (1) if a preference with the specified |name| exists. This"]
-    #[doc = " function must be called on the browser process UI thread."]
-    #[doc = ""]
-    pub has_preference: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_context_t,
-            name: *const cef_string_t,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = ""]
-    #[doc = " Returns the value for the preference with the specified |name|. Returns"]
-    #[doc = " NULL if the preference does not exist. The returned object contains a copy"]
-    #[doc = " of the underlying preference value and modifications to the returned"]
-    #[doc = " object will not modify the underlying preference value. This function must"]
-    #[doc = " be called on the browser process UI thread."]
-    #[doc = ""]
-    pub get_preference: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_context_t,
-            name: *const cef_string_t,
-        ) -> *mut _cef_value_t,
-    >,
-    #[doc = ""]
-    #[doc = " Returns all preferences as a dictionary. If |include_defaults| is true (1)"]
-    #[doc = " then preferences currently at their default value will be included. The"]
-    #[doc = " returned object contains a copy of the underlying preference values and"]
-    #[doc = " modifications to the returned object will not modify the underlying"]
-    #[doc = " preference values. This function must be called on the browser process UI"]
-    #[doc = " thread."]
-    #[doc = ""]
-    pub get_all_preferences: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_context_t,
-            include_defaults: ::std::os::raw::c_int,
-        ) -> *mut _cef_dictionary_value_t,
-    >,
-    #[doc = ""]
-    #[doc = " Returns true (1) if the preference with the specified |name| can be"]
-    #[doc = " modified using SetPreference. As one example preferences set via the"]
-    #[doc = " command-line usually cannot be modified. This function must be called on"]
-    #[doc = " the browser process UI thread."]
-    #[doc = ""]
-    pub can_set_preference: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_context_t,
-            name: *const cef_string_t,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = ""]
-    #[doc = " Set the |value| associated with preference |name|. Returns true (1) if the"]
-    #[doc = " value is set successfully and false (0) otherwise. If |value| is NULL the"]
-    #[doc = " preference will be restored to its default value. If setting the"]
-    #[doc = " preference fails then |error| will be populated with a detailed"]
-    #[doc = " description of the problem. This function must be called on the browser"]
-    #[doc = " process UI thread."]
-    #[doc = ""]
-    pub set_preference: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_context_t,
-            name: *const cef_string_t,
-            value: *mut _cef_value_t,
-            error: *mut cef_string_t,
-        ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
     #[doc = " Clears all certificate exceptions that were added as part of handling"]
@@ -9874,6 +9997,54 @@ pub struct _cef_command_handler_t {
             disposition: cef_window_open_disposition_t,
         ) -> ::std::os::raw::c_int,
     >,
+    #[doc = ""]
+    #[doc = " Called to check if a Chrome app menu item should be visible. Values for"]
+    #[doc = " |command_id| can be found in the cef_command_ids.h file. Only called for"]
+    #[doc = " menu items that would be visible by default. Only used with the Chrome"]
+    #[doc = " runtime."]
+    #[doc = ""]
+    pub is_chrome_app_menu_item_visible: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_command_handler_t,
+            browser: *mut _cef_browser_t,
+            command_id: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called to check if a Chrome app menu item should be enabled. Values for"]
+    #[doc = " |command_id| can be found in the cef_command_ids.h file. Only called for"]
+    #[doc = " menu items that would be enabled by default. Only used with the Chrome"]
+    #[doc = " runtime."]
+    #[doc = ""]
+    pub is_chrome_app_menu_item_enabled: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_command_handler_t,
+            browser: *mut _cef_browser_t,
+            command_id: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called during browser creation to check if a Chrome page action icon"]
+    #[doc = " should be visible. Only called for icons that would be visible by default."]
+    #[doc = " Only used with the Chrome runtime."]
+    #[doc = ""]
+    pub is_chrome_page_action_icon_visible: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_command_handler_t,
+            icon_type: cef_chrome_page_action_icon_type_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Called during browser creation to check if a Chrome toolbar button should"]
+    #[doc = " be visible. Only called for buttons that would be visible by default. Only"]
+    #[doc = " used with the Chrome runtime."]
+    #[doc = ""]
+    pub is_chrome_toolbar_button_visible: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_command_handler_t,
+            button_type: cef_chrome_toolbar_button_type_t,
+        ) -> ::std::os::raw::c_int,
+    >,
 }
 #[doc = ""]
 #[doc = " Callback structure for asynchronous continuation of file dialog requests."]
@@ -12171,24 +12342,6 @@ pub struct _cef_request_handler_t {
         ) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
-    #[doc = " Called on the IO thread when JavaScript requests a specific storage quota"]
-    #[doc = " size via the webkitStorageInfo.requestQuota function. |origin_url| is the"]
-    #[doc = " origin of the page making the request. |new_size| is the requested quota"]
-    #[doc = " size in bytes. Return true (1) to continue the request and call"]
-    #[doc = " cef_callback_t functions either in this function or at a later time to"]
-    #[doc = " grant or deny the request. Return false (0) to cancel the request"]
-    #[doc = " immediately."]
-    #[doc = ""]
-    pub on_quota_request: ::std::option::Option<
-        unsafe extern "C" fn(
-            self_: *mut _cef_request_handler_t,
-            browser: *mut _cef_browser_t,
-            origin_url: *const cef_string_t,
-            new_size: int64,
-            callback: *mut _cef_callback_t,
-        ) -> ::std::os::raw::c_int,
-    >,
-    #[doc = ""]
     #[doc = " Called on the UI thread to handle requests for URLs with an invalid SSL"]
     #[doc = " certificate. Return true (1) and call cef_callback_t functions either in"]
     #[doc = " this function or at a later time to continue or cancel the request. Return"]
@@ -12523,14 +12676,14 @@ pub struct _cef_command_line_t {
         unsafe extern "C" fn(self_: *mut _cef_command_line_t, switches: cef_string_map_t),
     >,
     #[doc = ""]
-    #[doc = " Add a switch to the end of the command line. If the switch has no value"]
-    #[doc = " pass an NULL value string."]
+    #[doc = " Add a switch to the end of the command line."]
     #[doc = ""]
     pub append_switch: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_command_line_t, name: *const cef_string_t),
     >,
     #[doc = ""]
-    #[doc = " Add a switch with the specified value to the end of the command line."]
+    #[doc = " Add a switch with the specified value to the end of the command line. If"]
+    #[doc = " the switch has no value pass an NULL value string."]
     #[doc = ""]
     pub append_switch_with_value: ::std::option::Option<
         unsafe extern "C" fn(
@@ -12602,6 +12755,35 @@ pub struct _cef_browser_process_handler_t {
     #[doc = " Base structure."]
     #[doc = ""]
     pub base: cef_base_ref_counted_t,
+    #[doc = ""]
+    #[doc = " Provides an opportunity to register custom preferences prior to global and"]
+    #[doc = " request context initialization."]
+    #[doc = ""]
+    #[doc = " If |type| is CEF_PREFERENCES_TYPE_GLOBAL the registered preferences can be"]
+    #[doc = " accessed via cef_preference_manager_t::GetGlobalPreferences after"]
+    #[doc = " OnContextInitialized is called. Global preferences are registered a single"]
+    #[doc = " time at application startup. See related cef_settings_t.cache_path and"]
+    #[doc = " cef_settings_t.persist_user_preferences configuration."]
+    #[doc = ""]
+    #[doc = " If |type| is CEF_PREFERENCES_TYPE_REQUEST_CONTEXT the preferences can be"]
+    #[doc = " accessed via the cef_request_context_t after"]
+    #[doc = " cef_request_context_handler_t::OnRequestContextInitialized is called."]
+    #[doc = " Request context preferences are registered each time a new"]
+    #[doc = " cef_request_context_t is created. It is intended but not required that all"]
+    #[doc = " request contexts have the same registered preferences. See related"]
+    #[doc = " cef_request_context_settings_t.cache_path and"]
+    #[doc = " cef_request_context_settings_t.persist_user_preferences configuration."]
+    #[doc = ""]
+    #[doc = " Do not keep a reference to the |registrar| object. This function is called"]
+    #[doc = " on the browser process UI thread."]
+    #[doc = ""]
+    pub on_register_custom_preferences: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_process_handler_t,
+            type_: cef_preferences_type_t,
+            registrar: *mut _cef_preference_registrar_t,
+        ),
+    >,
     #[doc = ""]
     #[doc = " Called on the browser process UI thread immediately after the CEF context"]
     #[doc = " has been initialized."]
@@ -13289,6 +13471,12 @@ pub struct _cef_v8value_t {
         unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> ::std::os::raw::c_int,
     >,
     #[doc = ""]
+    #[doc = " True if the value type is a Promise."]
+    #[doc = ""]
+    pub is_promise: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
     #[doc = " Returns true (1) if this object is pointing to the same handle as |that|"]
     #[doc = " object."]
     #[doc = ""]
@@ -13606,6 +13794,33 @@ pub struct _cef_v8value_t {
             arguments: *const *mut _cef_v8value_t,
         ) -> *mut _cef_v8value_t,
     >,
+    #[doc = ""]
+    #[doc = " Resolve the Promise using the current V8 context. This function should"]
+    #[doc = " only be called from within the scope of a cef_v8handler_t or"]
+    #[doc = " cef_v8accessor_t callback, or in combination with calling enter() and"]
+    #[doc = " exit() on a stored cef_v8context_t reference. |arg| is the argument passed"]
+    #[doc = " to the resolved promise. Returns true (1) on success. Returns false (0) if"]
+    #[doc = " this function is called incorrectly or an exception is thrown."]
+    #[doc = ""]
+    pub resolve_promise: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_v8value_t,
+            arg: *mut _cef_v8value_t,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = ""]
+    #[doc = " Reject the Promise using the current V8 context. This function should only"]
+    #[doc = " be called from within the scope of a cef_v8handler_t or cef_v8accessor_t"]
+    #[doc = " callback, or in combination with calling enter() and exit() on a stored"]
+    #[doc = " cef_v8context_t reference. Returns true (1) on success. Returns false (0)"]
+    #[doc = " if this function is called incorrectly or an exception is thrown."]
+    #[doc = ""]
+    pub reject_promise: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_v8value_t,
+            errorMsg: *const cef_string_t,
+        ) -> ::std::os::raw::c_int,
+    >,
 }
 #[doc = ""]
 #[doc = " Structure representing a V8 value handle. V8 handles can only be accessed"]
@@ -13718,6 +13933,15 @@ extern "C" {
         name: *const cef_string_t,
         handler: *mut cef_v8handler_t,
     ) -> *mut cef_v8value_t;
+}
+extern "C" {
+    #[doc = ""]
+    #[doc = " Create a new cef_v8value_t object of type Promise. This function should only"]
+    #[doc = " be called from within the scope of a cef_render_process_handler_t,"]
+    #[doc = " cef_v8handler_t or cef_v8accessor_t callback, or in combination with calling"]
+    #[doc = " enter() and exit() on a stored cef_v8context_t reference."]
+    #[doc = ""]
+    pub fn cef_v8value_create_promise() -> *mut cef_v8value_t;
 }
 #[doc = ""]
 #[doc = " Structure representing a V8 stack trace handle. V8 handles can only be"]
@@ -14333,21 +14557,6 @@ extern "C" {
     #[doc = " application thread and only if cef_run_message_loop() was used."]
     #[doc = ""]
     pub fn cef_quit_message_loop();
-}
-extern "C" {
-    #[doc = ""]
-    #[doc = " Set to true (1) before calling Windows APIs like TrackPopupMenu that enter a"]
-    #[doc = " modal message loop. Set to false (0) after exiting the modal message loop."]
-    #[doc = ""]
-    pub fn cef_set_osmodal_loop(osModalLoop: ::std::os::raw::c_int);
-}
-extern "C" {
-    #[doc = ""]
-    #[doc = " Call during process startup to enable High-DPI support on Windows 7 or"]
-    #[doc = " newer. Older versions of Windows should be left DPI-unaware because they do"]
-    #[doc = " not support DirectWrite and GDI fonts are kerned very badly."]
-    #[doc = ""]
-    pub fn cef_enable_highdpi_support();
 }
 #[doc = ""]
 #[doc = " Structure used to make a URL request. URL requests are not associated with a"]

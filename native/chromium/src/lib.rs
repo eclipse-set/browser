@@ -131,3 +131,9 @@ impl<'a> ToJava<'a> for cef::cef_quick_menu_edit_state_flags_t {
         JValue::Int(unsafe { std::mem::transmute(value) })
     }
 }
+
+impl<'a> ToJava<'a> for cef::cef_preferences_type_t {
+    fn to_java(_env: JNIEnv, value: Self) -> JValue<'a> {
+        JValue::Int(unsafe { std::mem::transmute(value) })
+    }
+}

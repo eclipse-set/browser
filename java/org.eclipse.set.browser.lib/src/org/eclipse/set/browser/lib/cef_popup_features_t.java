@@ -20,10 +20,6 @@ package org.eclipse.set.browser.lib;
 public class cef_popup_features_t {
 	public int height;
 	public int heightSet;
-	public int menuBarVisible;
-	public int scrollbarsVisible;
-	public int statusBarVisible;
-	public int toolBarVisible;
 	public int width;
 	public int widthSet;
 	public int x;

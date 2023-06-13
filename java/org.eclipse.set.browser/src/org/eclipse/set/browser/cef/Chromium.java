@@ -711,9 +711,9 @@ public class Chromium extends WebBrowser {
 			event.widget = chromium;
 			event.required = false;
 			event.addressBar = false;
-			event.menuBar = popupFeatures.menuBarVisible == 1;
-			event.statusBar = popupFeatures.statusBarVisible == 1;
-			event.toolBar = popupFeatures.toolBarVisible == 1;
+			event.menuBar = false;
+			event.statusBar = false;
+			event.toolBar = false;
 			final int x = popupFeatures.xSet == 1 ? popupFeatures.x : 0;
 			final int y = popupFeatures.ySet == 1 ? popupFeatures.y : 0;
 			event.location = popupFeatures.xSet == 1 || popupFeatures.ySet == 1

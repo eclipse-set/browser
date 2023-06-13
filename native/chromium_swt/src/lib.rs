@@ -117,7 +117,6 @@ fn do_initialize(
     settings: cef::_cef_settings_t,
     app_raw: *mut cef::_cef_app_t,
 ) {
-    unsafe { cef::cef_enable_highdpi_support() };
     unsafe { cef::cef_initialize(&main_args, &settings, &mut (*app_raw), std::ptr::null_mut()) };
 }
 
