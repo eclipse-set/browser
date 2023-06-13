@@ -1,5 +1,5 @@
--/-/-/chromium/107.0.5304.110, unknown, restricted, none
--/-/chromiumembedded/cef/107.1.11, unknown, restricted, none
+-/-/-/chromium/113.0.5672.93, unknown, restricted, none
+-/-/chromiumembedded/cef/113.1.5, unknown, restricted, none
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.feature/2.0.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.lib/2.0.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser/2.0.0-SNAPSHOT, EPL-2.0, approved, technology.set
