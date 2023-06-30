@@ -333,7 +333,19 @@ pub fn cefswt_request_to_java(request: *mut chromium::cef::_cef_request_t) -> *m
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.cef_command_line_t")]
-pub fn cefswt_disable_component_update(command_line: *mut chromium::cef::_cef_command_line_t) {
-    let switch = chromium::utils::cef_string("disable-component-update");
-    unsafe { ((*command_line).append_switch.unwrap())(command_line, &switch) }
+pub fn cefswt_append_switch(
+    command_line: *mut chromium::cef::_cef_command_line_t,
+    switch: *const c_char,
+    value: *const c_char,
+) {
+    let switch = chromium::utils::cef_string_from_c(switch);
+
+    if !value.is_null() {
+        let value = chromium::utils::cef_string_from_c(value);
+        unsafe {
+            ((*command_line).append_switch_with_value.unwrap())(command_line, &switch, &value)
+        }
+    } else {
+        unsafe { ((*command_line).append_switch.unwrap())(command_line, &switch) }
+    }
 }

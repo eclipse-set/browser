@@ -18,7 +18,11 @@ public class cef_command_line_t {
 	 * 
 	 * @param command_line
 	 *            the command line
+	 * @param cmdSwitch
+	 * 			  the switch to append
+	 * @param value 
+	 * 				switch value (or null if no value)
 	 */
-	public static native void cefswt_disable_component_update(
-			final long command_line);
+	public static native void cefswt_append_switch(
+			final long command_line, final String cmdSwitch, String value);
 }
