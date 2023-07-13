@@ -44,7 +44,7 @@ jobs:
     - name: Download CEF
       if: steps.cache.outputs.cache-hit != 'true'
       run: | 
-        VERSION=$(grep -E -v ^# CEF_VERSION.txt)
+        VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
         wget https://cef-builds.spotifycdn.com/$VERSION.tar.bz2 -O cef.tar.bz2
         tar xf cef.tar.bz2 LICENSE.txt --strip-components 1
         tar xf cef.tar.bz2 Release/libcef.lib --strip-components 2
