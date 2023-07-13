@@ -30,6 +30,7 @@ jobs:
         mkdir -p cef/Release
         rm -rf java/org.eclipse.set.browser.cef.win32/res/cef
         mkdir -p java/org.eclipse.set.browser.cef.win32/res/cef
+        mkdir -p java/org.eclipse.set.browser.lib/res
 
     - name: Cache CEF 
       uses: actions/cache@v3
@@ -57,7 +58,6 @@ jobs:
 
     - name: Copy binaries
       run: |
-        mkdir -p java/org.eclipse.set.browser.lib/res
         cp native/target/x86_64-pc-windows-gnu/release/chromium_subp.exe java/org.eclipse.set.browser.lib/res/
         cp native/target/x86_64-pc-windows-gnu/release/chromium_jni.dll java/org.eclipse.set.browser.lib/res/
 
