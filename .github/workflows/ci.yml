@@ -1,0 +1,73 @@
+# This workflow will build the browser and publish it to GitHub Packages
+
+name: Build browser
+
+on: push
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Cache CEF 
+      uses: actions/cache@v3
+      with:
+        path: |
+          java/org.eclipse.set.browser.cef.win32/res/cef
+          cef/Release/libcef.lib
+          cef/Release/LICENSE.txt
+        key: ${{ hashFiles('CEF_VERSION.txt') }}
+
+    - name: Download CEF
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: | 
+        VERSION=$(grep -E -v ^# CEF_VERSION.txt)
+        wget https://cef-builds.spotifycdn.com/$VERSION.tar.bz2 -O cef.tar.bz2
+        tar xf cef.tar.bz2 LICENSE.txt --strip-components 1
+        tar xf cef.tar.bz2 Release/libcef.lib --strip-components 2
+        tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
+        rm -rf java/org.eclipse.set.browser.cef.win32/res/cef
+        mkdir -p java/org.eclipse.set.browser.cef.win32/res/cef
+        cp -r *.dll *.bin LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
+      working-directory: cef/Release
+
+    - name: Set up Rust
+      run: rustup target add x86_64-pc-windows-gnu
+
+    - name: Build Rust
+      run: cargo clean && cargo build --release --target x86_64-pc-windows-gnu
+      working-directory: native
+
+    - name: Copy binaries
+      run: |
+        mkdir -p java/org.eclipse.set.browser.lib/res
+        cp native/target/x86_64-pc-windows-gnu/release/chromium_subp.exe java/org.eclipse.set.browser.lib/res/
+        cp native/target/x86_64-pc-windows-gnu/release/chromium_jni.dll java/org.eclipse.set.browser.lib/res/
+
+    - name: Set up JDK
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: temurin
+        server-id: set-github
+        cache: maven
+
+    - name: Set up Maven
+      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
+      with:
+        maven-version: 3.9.3
+
+    - name: Build
+      run: mvn -T 1.5C -B clean verify
+      working-directory: java
+
+    - name: Publish
+      run: mvn -T 1.5C -B deploy
+      if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/')
+      working-directory: java
+      env:
+        GITHUB_TOKEN: ${{ github.token }}
