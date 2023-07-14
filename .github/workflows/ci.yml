@@ -35,6 +35,7 @@ jobs:
         mkdir -p java/org.eclipse.set.browser.lib/res
 
     - name: Cache CEF 
+      id: cef-cache
       uses: actions/cache@v3
       with:
         path: |
@@ -44,7 +45,7 @@ jobs:
         key: ${{ hashFiles('CEF_VERSION.txt') }}
 
     - name: Download CEF
-      if: steps.cache.outputs.cache-hit != 'true'
+      if: steps.cef-cache.outputs.cache-hit != 'true'
       run: | 
         VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
         wget https://cef-builds.spotifycdn.com/$VERSION.tar.bz2 -O cef.tar.bz2
