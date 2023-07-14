@@ -17,8 +17,7 @@ jobs:
       run: rustup target add x86_64-pc-windows-gnu
     
     - name: Install MinGW
-      run: |
-        apt-get install --assume-yes --no-install-recommends gcc-mingw-w64 libz-mingw-w64-dev
+      run: sudo apt-get install --assume-yes --no-install-recommends gcc-mingw-w64 libz-mingw-w64-dev
       
     - name: Set up JDK
       uses: actions/setup-java@v3
