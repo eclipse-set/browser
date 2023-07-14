@@ -13,9 +13,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-
     - name: Set up Rust
       run: rustup target add x86_64-pc-windows-gnu
+    
+    - name: Install MinGW
+      uses: egor-tensin/setup-mingw@84c781b557efd538dec66bde06988d81cd3138cf # v2.2.0
       
     - name: Set up JDK
       uses: actions/setup-java@v3
