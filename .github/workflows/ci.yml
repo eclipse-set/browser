@@ -1,4 +1,4 @@
-# This workflow will build the browser and publish it to GitHub Packages
+# This workflow will build the browser and publish it to GitHub Packages 
 
 name: Build browser
 
