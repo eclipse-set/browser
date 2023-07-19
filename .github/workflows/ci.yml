@@ -52,7 +52,7 @@ jobs:
         tar xf cef.tar.bz2 $VERSION/LICENSE.txt --strip-components 1
         tar xf cef.tar.bz2 $VERSION/Release/libcef.lib $VERSION/Resources --strip-components 2
         tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
-        cp -r *.dll *.bin LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
+        cp -r *.dll *.bin Resources LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
       working-directory: cef/Release
 
     - name: Build Rust
