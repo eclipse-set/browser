@@ -5,16 +5,62 @@ name: Build browser
 on: push
 
 jobs:
+  browser-jni:
+    runs-on: ubuntu-latest
+    container: sbx320/rust-x86_64-pc-windows-gnu
+    steps:
+    - name: Set up Rust
+      run: rustup target add x86_64-pc-windows-gnu
+    
+    - name: Set up Workspace
+      run: |
+        mkdir -p cef/Release
+        rm -rf java/org.eclipse.set.browser.cef.win32/res/cef
+        mkdir -p java/org.eclipse.set.browser.cef.win32/res/cef
+        mkdir -p java/org.eclipse.set.browser.lib/res
+
+    - name: Cache CEF 
+      id: cef-cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          java/org.eclipse.set.browser.cef.win32/res/cef
+          cef/Release/libcef.lib
+          cef/Release/LICENSE.txt
+        key: ${{ hashFiles('CEF_VERSION.txt') }}
+
+    - name: Download CEF
+      if: steps.cef-cache.outputs.cache-hit != 'true'
+      run: | 
+        VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
+        wget https://cef-builds.spotifycdn.com/$VERSION.tar.bz2 -O cef.tar.bz2
+        tar xf cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources --strip-components 1
+        tar xf cef.tar.bz2 $VERSION/Release/libcef.lib --strip-components 2
+        tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
+        cp -r *.dll *.bin Resources/* LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
+        ls -avl ../../java/org.eclipse.set.browser.cef.win32/res/cef
+      working-directory: cef/Release
+
+    - name: Build Rust
+      run: cargo clean && cargo build --release --target x86_64-pc-windows-gnu
+      working-directory: native
+
+    - name: Archive binaries
+      uses: actions/upload-artifact@v3
+      with:
+        name: chromium-swt-libs
+        path: native/target/x86_64-pc-windows-gnu/release/chromium_*.*
+        retention-days: 1
+        
   build:
+    needs: 
+    - browser-jni
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
     - uses: actions/checkout@v3
-
-    - name: Set up Rust
-      run: rustup target add x86_64-pc-windows-gnu
     
     - name: Install MinGW
       run: sudo apt-get install --assume-yes --no-install-recommends gcc-mingw-w64 libz-mingw-w64-dev
@@ -56,14 +102,11 @@ jobs:
         ls -avl ../../java/org.eclipse.set.browser.cef.win32/res/cef
       working-directory: cef/Release
 
-    - name: Build Rust
-      run: cargo clean && cargo build --release --target x86_64-pc-windows-gnu
-      working-directory: native
-
-    - name: Copy binaries
-      run: |
-        cp native/target/x86_64-pc-windows-gnu/release/chromium_subp.exe java/org.eclipse.set.browser.lib/res/
-        cp native/target/x86_64-pc-windows-gnu/release/chromium_jni.dll java/org.eclipse.set.browser.lib/res/
+    - name: Fetch Rust binaries
+      uses: actions/download-artifact@v3
+      with:
+        name: chromium-swt-libs
+        path: java/org.eclipse.set.browser.lib/res/
 
     - name: Set up Maven
       uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
