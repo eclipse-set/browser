@@ -22,7 +22,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: 
       - get-organisation-name
-    container: ghcr.io/${{ needs.get-organisation-name.outputs.organisation }}/rust:latest
+    container: ghcr.io/${{ needs.get-organisation-name.outputs.organisation }}/rust-x86_64-pc-windows-gnu:latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up Rust
