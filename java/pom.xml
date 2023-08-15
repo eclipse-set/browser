@@ -8,8 +8,8 @@
 	<packaging>pom</packaging>
 
 	<properties>
-		<tycho-version>4.0.0</tycho-version>
-		<tycho-extras-version>4.0.0</tycho-extras-version>
+		<tycho-version>4.0.1</tycho-version>
+		<tycho-extras-version>4.0.1</tycho-extras-version>
 		<deploy-plugin-version>3.1.1</deploy-plugin-version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<maven.build.timestamp.format>yyyyMMdd_HHmmssZ</maven.build.timestamp.format>
@@ -42,6 +42,12 @@
 					<release>17</release>
 					<log>plain</log>
 				</configuration>
+			</plugin>
+
+			<plugin>
+				<groupId>org.eclipse.tycho</groupId>
+				<artifactId>tycho-versions-plugin</artifactId>
+				<version>${tycho-version}</version>
 			</plugin>
 
 			<plugin>
