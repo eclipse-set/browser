@@ -4,25 +4,10 @@ name: Build browser
 
 on: push
 
-env:
-  REGISTRY: ghcr.io
-  ORGANISATION: ${{ github.repository_owner }}
-
 jobs:
-  get-organisation-name:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Set name to lowercase
-        run: |
-          echo "ORGANISATION=${GITHUB_REPOSITORY_OWNER,,}" >> ${GITHUB_ENV}
-    outputs:
-      organisation: ${{ env.ORGANISATION }}
-
   browser-jni:
-    runs-on: ubuntu-latest
-    needs: 
-      - get-organisation-name
-    container: ghcr.io/${{ needs.get-organisation-name.outputs.organisation }}/rust-x86_64-pc-windows-gnu:latest
+    runs-on: ubuntu-22.04
+    container: ghcr.io/eclipse-set/rust-x86_64-pc-windows-gnu:latest
     steps:
     - uses: actions/checkout@v3
     - name: Set up Rust
