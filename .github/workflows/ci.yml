@@ -6,8 +6,6 @@ on: push
 
 jobs:
   browser-jni:
-    permissions:
-      packages: read
     runs-on: ubuntu-22.04
     container: ghcr.io/eclipse-set/rust-x86_64-pc-windows-gnu:latest
     steps:
