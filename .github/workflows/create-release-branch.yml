@@ -21,4 +21,3 @@ jobs:
     with:
       version: ${{ inputs.version }}
       target: "java/org.eclipse.set.browser.releng.target/org.eclipse.set.browser.releng.target.target"
-      pom: java/pom.xml
