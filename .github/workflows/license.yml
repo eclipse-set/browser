@@ -15,4 +15,6 @@ jobs:
       issues: write
       pull-requests: write
     with:
-      pom: java/pom.xml      
+      pom: java/pom.xml
+    secrets:
+      gitlabAPIToken: ${{ secrets.GITLAB_API_TOKEN }}
