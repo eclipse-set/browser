@@ -64,13 +64,8 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     
-    - name: Set up JDK
-      uses: actions/setup-java@v3
-      with:
-        java-version: '17'
-        distribution: temurin
-        server-id: set-github
-        cache: maven
+    - name: Setup Java
+      uses: eclipse-set/build/.github/actions/setup-java@main
 
     - name: Set up Workspace
       run: |
@@ -107,18 +102,11 @@ jobs:
         name: chromium-swt-libs
         path: java/org.eclipse.set.browser.lib/res/
 
-    - name: Set up Maven
-      uses: stCarolas/setup-maven@07fbbe97d97ef44336b7382563d66743297e442f # v4.5
-      with:
-        maven-version: 3.9.3
-
     - name: Build
       run: mvn -T 1.5C -B clean verify
-      working-directory: java
 
     - name: Publish
       run: mvn -T 1.5C -B deploy -DaltDeploymentRepository=set-github::https://maven.pkg.github.com/${{ github.repository }}
       if: github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/heads/release/') || startsWith(github.ref, 'refs/tags/')
-      working-directory: java
       env:
         GITHUB_TOKEN: ${{ github.token }}

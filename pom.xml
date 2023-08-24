@@ -16,10 +16,10 @@
 	</properties>
 
 	<modules>
-		<module>org.eclipse.set.browser</module>
-		<module>org.eclipse.set.browser.lib</module>
-		<module>org.eclipse.set.browser.cef.win32</module>
-		<module>org.eclipse.set.browser.releng.target</module>
+		<module>java/org.eclipse.set.browser</module>
+		<module>java/org.eclipse.set.browser.lib</module>
+		<module>java/org.eclipse.set.browser.cef.win32</module>
+		<module>java/org.eclipse.set.browser.releng.target</module>
 	</modules>
 
 	<build>
