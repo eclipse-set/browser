@@ -6,13 +6,10 @@ on: push
 
 jobs:
   browser-jni:
-    runs-on: ubuntu-latest
-    container: sbx320/rust-x86_64-pc-windows-gnu
+    runs-on: ubuntu-22.04
+    container: ghcr.io/eclipse-set/rust-x86_64-pc-windows-gnu:latest
     steps:
     - uses: actions/checkout@v3
-    
-    - name: Set up Rust
-      run: rustup target add x86_64-pc-windows-gnu
     
     - name: Set up Workspace
       run: |
