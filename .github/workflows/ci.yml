@@ -6,8 +6,7 @@ on: push
 
 jobs:
   browser-jni:
-    runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-set/rust-x86_64-pc-windows-gnu:latest
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3
     
@@ -17,6 +16,7 @@ jobs:
         rm -rf java/org.eclipse.set.browser.cef.win32/res/cef
         mkdir -p java/org.eclipse.set.browser.cef.win32/res/cef
         mkdir -p java/org.eclipse.set.browser.lib/res
+      shell: bash
 
     - name: Cache CEF 
       id: cef-cache
@@ -39,16 +39,18 @@ jobs:
         cp -r *.dll *.bin Resources/* LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
         ls -avl ../../java/org.eclipse.set.browser.cef.win32/res/cef
       working-directory: cef/Release
+      shell: bash
 
     - name: Build Rust
-      run: cargo clean && cargo build --release --target x86_64-pc-windows-gnu
+      run: cargo clean && cargo build --release
       working-directory: native
+      shell: bash
 
     - name: Archive binaries
       uses: actions/upload-artifact@v3
       with:
         name: chromium-swt-libs
-        path: native/target/x86_64-pc-windows-gnu/release/chromium_*.*
+        path: native/target/release/chromium_*.*
         retention-days: 1
         
   build:
