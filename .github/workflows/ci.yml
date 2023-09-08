@@ -6,8 +6,7 @@ on: push
 
 jobs:
   browser-jni:
-    runs-on: ubuntu-22.04
-    container: ghcr.io/eclipse-set/rust-x86_64-pc-windows-gnu:latest
+    runs-on: windows-2022
     steps:
     - uses: actions/checkout@v3
     
@@ -17,6 +16,7 @@ jobs:
         rm -rf java/org.eclipse.set.browser.cef.win32/res/cef
         mkdir -p java/org.eclipse.set.browser.cef.win32/res/cef
         mkdir -p java/org.eclipse.set.browser.lib/res
+      shell: bash
 
     - name: Cache CEF 
       id: cef-cache
@@ -32,23 +32,25 @@ jobs:
       if: steps.cef-cache.outputs.cache-hit != 'true'
       run: | 
         VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
-        wget https://cef-builds.spotifycdn.com/$VERSION.tar.bz2 -O cef.tar.bz2
+        curl -o cef.tar.bz2 https://cef-builds.spotifycdn.com/$VERSION.tar.bz2
         tar xf cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources --strip-components 1
         tar xf cef.tar.bz2 $VERSION/Release/libcef.lib --strip-components 2
         tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
         cp -r *.dll *.bin Resources/* LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
         ls -avl ../../java/org.eclipse.set.browser.cef.win32/res/cef
       working-directory: cef/Release
+      shell: bash
 
     - name: Build Rust
-      run: cargo clean && cargo build --release --target x86_64-pc-windows-gnu
+      run: cargo clean && cargo build --release
       working-directory: native
+      shell: bash
 
     - name: Archive binaries
       uses: actions/upload-artifact@v3
       with:
         name: chromium-swt-libs
-        path: native/target/x86_64-pc-windows-gnu/release/chromium_*.*
+        path: native/target/release/chromium_*.*
         retention-days: 1
         
   build:
