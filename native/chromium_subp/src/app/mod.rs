@@ -17,6 +17,7 @@ use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
 
+#[repr(C)]
 pub struct Base {}
 
 impl Base {
@@ -31,6 +32,7 @@ impl Base {
     }
 }
 
+#[repr(C)]
 pub struct App {
     cef: chromium::cef::_cef_app_t,
     render_process_handler: RenderProcessHandler,
@@ -76,10 +78,12 @@ impl App {
     }
 }
 
+#[repr(C)]
 #[derive(Clone, Copy)]
 struct Browser(*mut chromium::cef::_cef_browser_t);
 unsafe impl Send for Browser {}
 
+#[repr(C)]
 struct RenderProcessHandler {
     cef: chromium::cef::_cef_render_process_handler_t,
     function_handler: Option<V8Handler>,
@@ -307,6 +311,7 @@ unsafe fn convert_type(
     }
 }
 
+#[repr(C)]
 struct V8Handler {
     cef: chromium::cef::_cef_v8handler_t,
     browser: *mut chromium::cef::_cef_browser_t,
