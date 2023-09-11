@@ -116,5 +116,5 @@ jobs:
       with:
         token: ${{ secrets.GH_BOT_TOKEN  }}
         repository: eclipse-set/set
-        event-type: "Rebuild with browser update"
+        event-type: "Rebuild with browser update ${{ github.run_number }}"
         
