@@ -13,5 +13,5 @@ cef_cache/
 hs_err_pid*.log
 
 # Do not commit CEF binaries
-/java-cef/org.eclipse.set.browser.cef/cef
+/java/org.eclipse.set.browser.cef.win32/cef
 /cef

@@ -40,12 +40,14 @@ impl ReturnType {
     }
 }
 
+#[repr(C)]
 #[derive(Debug, PartialEq, Eq)]
 pub struct ReturnSt {
     pub kind: ReturnType,
     pub str_value: CString,
 }
 
+#[repr(C)]
 #[derive(Debug, PartialEq, Eq)]
 struct ReturnMsg {
     kind: ReturnType,

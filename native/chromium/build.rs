@@ -110,6 +110,7 @@ fn gen_cef(cef_path: std::path::Display) {
     dst.write(new_data.as_bytes()).expect("Cannot write mod.rs");
 }
 
+#[repr(C)]
 #[derive(Debug)]
 struct ToJavaCallbacks();
 
