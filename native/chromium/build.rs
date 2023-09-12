@@ -13,6 +13,10 @@
  */
 #[cfg(feature = "gen")]
 extern crate bindgen;
+#[cfg(feature = "gen")]
+use bindgen::callbacks::DeriveInfo;
+#[cfg(feature = "gen")]
+use bindgen::Formatter;
 
 #[cfg(feature = "gen")]
 fn main() {
@@ -116,7 +120,8 @@ struct ToJavaCallbacks();
 
 #[cfg(feature = "gen")]
 impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
-    fn add_derives(&self, name: &str) -> Vec<String> {
+    fn add_derives(&self, info: &DeriveInfo) -> Vec<String> {
+        let name = info.name;
         if vec![
             "_cef_app_t",
             "_cef_request_handler_t",
@@ -165,7 +170,7 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .parse_callbacks(Box::new(callbacks))
         .with_codegen_config(config)
         .rustified_enum(".*")
-        .rustfmt_bindings(true)
+        .formatter(Formatter::Rustfmt)
         .derive_debug(true)
         .trust_clang_mangling(false)
         .layout_tests(false)
