@@ -10,6 +10,7 @@ extern crate proc_macro;
 
 use proc_macro::TokenStream;
 use quote::ToTokens;
+use syn::Meta;
 use syn::Type::Group;
 use syn::Type::Path;
 use syn::{
@@ -65,8 +66,7 @@ pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
         pound_token: Default::default(),
         style: syn::AttrStyle::Outer,
         bracket_token: Default::default(),
-        path: syn::parse_str("no_mangle").unwrap(),
-        tokens: proc_macro2::TokenStream::new(),
+        meta: Meta::Path(syn::parse_str("no_mangle").unwrap()),
     });
 
     function.into_token_stream().into()
