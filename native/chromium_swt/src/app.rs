@@ -59,8 +59,8 @@ pub fn create_browser(
         databases: cef::cef_state_t::STATE_DEFAULT,
         webgl: cef::cef_state_t::STATE_DEFAULT,
         background_color: bg,
-        accept_language_list: chromium::utils::cef_string_empty(),
         chrome_status_bubble: cef::cef_state_t::STATE_DISABLED,
+        chrome_zoom_bubble: cef::cef_state_t::STATE_DEFAULT,
     };
 
     let url_cef = chromium::utils::cef_string(url);
