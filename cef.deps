@@ -1,5 +1,5 @@
 # Listed below are the current CEF and Chromium versions for Eclipse Dash
 # The CEF version should match CEF_VERSION.txt 
 # The Chromium version should match the Chromium version used to build CEF
--/-/chromiumembedded/cef/113.1.5
--/-/-/chromium/113.0.5672.93
+-/-/chromiumembedded/cef/118.7.1
+-/-/-/chromium/118.0.5993.119

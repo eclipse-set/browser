@@ -74,7 +74,6 @@ pub fn cefswt_init(
         command_line_args_disabled: 0,
         cache_path: cache_dir_cef,
         root_cache_path: cache_dir_cef,
-        user_data_path: chromium::utils::cef_string_empty(),
         persist_session_cookies: 1,
         persist_user_preferences: 1,
         user_agent: chromium::utils::cef_string_empty(),
@@ -94,6 +93,8 @@ pub fn cefswt_init(
         user_agent_product: chromium::utils::cef_string_from_c(user_agent_product),
         cookieable_schemes_list: chromium::utils::cef_string_empty(),
         cookieable_schemes_exclude_defaults: 0,
+        log_items: chromium::cef::cef_log_items_t::LOG_ITEMS_DEFAULT,
+        chrome_policy_id: chromium::utils::cef_string_empty(),
     };
 
     do_initialize(main_args, settings, japp);
