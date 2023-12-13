@@ -1,5 +1,5 @@
--/-/-/chromium/113.0.5672.93, unknown, restricted, none
--/-/chromiumembedded/cef/113.1.5, unknown, restricted, none
+-/-/-/chromium/118.0.5993.119, None, approved, #11486
+-/-/chromiumembedded/cef/118.7.1, BSD-3-Clause AND MIT AND Apache-2.0 AND LicenseRef-BSD-style AND CC0-1.0, approved, #11485
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.cef.win32/2.2.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.eclipse.set/org.eclipse.set.browser.lib/2.2.0-SNAPSHOT, EPL-2.0, approved, technology.set
 maven/mavencentral/org.osgi/org.osgi.service.prefs/1.1.2, Apache-2.0, approved, #2451
