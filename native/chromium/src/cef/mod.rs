@@ -492,7 +492,7 @@ pub enum cef_content_setting_types_t {
     CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_LAST_PICKED_DIRECTORY = 63,
     #[doc = " Controls access to the getDisplayMedia API when {preferCurrentTab: true}\n is specified."]
     CEF_CONTENT_SETTING_TYPE_DISPLAY_CAPTURE = 64,
-    #[doc = " Website setting to store permissions metadata granted to paths on the\n local file system via the File System Access API.\n |FILE_SYSTEM_WRITE_GUARD| is the corresponding \"guard\" setting."]
+    #[doc = " Website setting to store permissions metadata granted to paths on the\n local file system via the File System Access API.\n |FILE_SYSTEM_WRITE_GUARD| is the corresponding \"guard\" setting. The stored\n data represents valid permission only if\n |FILE_SYSTEM_ACCESS_EXTENDED_PERMISSION| is enabled via user opt-in.\n Otherwise, they represent \"recently granted but revoked permission\", which\n are used to restore the permission."]
     CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_ACCESS_CHOOSER_DATA = 65,
     #[doc = " Stores a grant that allows a relying party to send a request for identity\n information to specified identity providers, potentially through any\n anti-tracking measures that would otherwise prevent it. This setting is\n associated with the relying party's origin."]
     CEF_CONTENT_SETTING_TYPE_FEDERATED_IDENTITY_SHARING = 66,
@@ -546,8 +546,12 @@ pub enum cef_content_setting_types_t {
     CEF_CONTENT_SETTING_TYPE_AUTO_PICTURE_IN_PICTURE = 90,
     #[doc = " Content Setting for 3PC accesses granted by metadata delivered via the\n component updater service. This type will only be used when\n `net::features::kTpcdMetadataGrants` is enabled."]
     CEF_CONTENT_SETTING_TYPE_TPCD_METADATA_GRANTS = 91,
-    #[doc = " Content Setting for 3PC accesses granted by metadata delivered via the\n component updater service. This type will only be used when\n `net::features::kTpcdMetadataGrants` is enabled."]
-    CEF_CONTENT_SETTING_TYPE_NUM_TYPES = 92,
+    #[doc = " Whether user has opted into keeping file/directory permissions persistent\n between visits for a given origin. When enabled, permission metadata\n stored under |FILE_SYSTEM_ACCESS_CHOOSER_DATA| can auto-grant incoming\n permission request."]
+    CEF_CONTENT_SETTING_TYPE_FILE_SYSTEM_ACCESS_EXTENDED_PERMISSION = 92,
+    #[doc = " Content Setting for temporary 3PC accesses granted by user behavior\n heuristics."]
+    CEF_CONTENT_SETTING_TYPE_TPCD_HEURISTICS_GRANTS = 93,
+    #[doc = " Content Setting for temporary 3PC accesses granted by user behavior\n heuristics."]
+    CEF_CONTENT_SETTING_TYPE_NUM_TYPES = 94,
 }
 #[repr(i32)]
 #[doc = "\n Supported content setting values. Should be kept in sync with Chromium's\n ContentSetting type.\n"]
@@ -637,9 +641,9 @@ pub struct _cef_settings_t {
     pub windowless_rendering_enabled: ::std::os::raw::c_int,
     #[doc = "\n Set to true (1) to disable configuration of browser process features using\n standard CEF and Chromium command-line arguments. Configuration can still\n be specified using CEF data structures or via the\n CefApp::OnBeforeCommandLineProcessing() method.\n"]
     pub command_line_args_disabled: ::std::os::raw::c_int,
-    #[doc = "\n The location where data for the global browser cache will be stored on\n disk. If this value is non-empty then it must be an absolute path that is\n either equal to or a child directory of CefSettings.root_cache_path. If\n this value is empty then browsers will be created in \"incognito mode\"\n where in-memory caches are used for storage and no data is persisted to\n disk. HTML5 databases such as localStorage will only persist across\n sessions if a cache path is specified. Can be overridden for individual\n CefRequestContext instances via the CefRequestContextSettings.cache_path\n value. When using the Chrome runtime the \"default\" profile will be used if\n |cache_path| and |root_cache_path| have the same value.\n"]
+    #[doc = "\n The directory where data for the global browser cache will be stored on\n disk. If this value is non-empty then it must be an absolute path that is\n either equal to or a child directory of CefSettings.root_cache_path. If\n this value is empty then browsers will be created in \"incognito mode\"\n where in-memory caches are used for storage and no profile-specific data\n is persisted to disk (installation-specific data will still be persisted\n in root_cache_path). HTML5 databases such as localStorage will only\n persist across sessions if a cache path is specified. Can be overridden\n for individual CefRequestContext instances via the\n CefRequestContextSettings.cache_path value. When using the Chrome runtime\n any child directory value will be ignored and the \"default\" profile (also\n a child directory) will be used instead.\n"]
     pub cache_path: cef_string_t,
-    #[doc = "\n The root directory that all CefSettings.cache_path and\n CefRequestContextSettings.cache_path values must have in common. If this\n value is empty and CefSettings.cache_path is non-empty then it will\n default to the CefSettings.cache_path value. If both values are empty\n then the default platform-specific directory will be used\n (\"~/.config/cef_user_data\" directory on Linux, \"~/Library/Application\n Support/CEF/User Data\" directory on MacOS, \"AppData\\Local\\CEF\\User Data\"\n directory under the user profile directory on Windows). If this value is\n non-empty then it must be an absolute path. Failure to set this value\n correctly may result in the sandbox blocking read/write access to certain\n files.\n"]
+    #[doc = "\n The root directory for installation-specific data and the parent directory\n for profile-specific data. All CefSettings.cache_path and\n CefRequestContextSettings.cache_path values must have this parent\n directory in common. If this value is empty and CefSettings.cache_path is\n non-empty then it will default to the CefSettings.cache_path value. Any\n non-empty value must be an absolute path. If both values are empty then\n the default platform-specific directory will be used\n (\"~/.config/cef_user_data\" directory on Linux, \"~/Library/Application\n Support/CEF/User Data\" directory on MacOS, \"AppData\\Local\\CEF\\User Data\"\n directory under the user profile directory on Windows). Use of the default\n directory is not recommended in production applications (see below).\n\n Multiple application instances writing to the same root_cache_path\n directory could result in data corruption. A process singleton lock based\n on the root_cache_path value is therefore used to protect against this.\n This singleton behavior applies to all CEF-based applications using\n version 120 or newer. You should customize root_cache_path for your\n application and implement CefBrowserProcessHandler::\n OnAlreadyRunningAppRelaunch, which will then be called on any app relaunch\n with the same root_cache_path value.\n\n Failure to set the root_cache_path value correctly may result in startup\n crashes or other unexpected behaviors (for example, the sandbox blocking\n read/write access to certain files).\n"]
     pub root_cache_path: cef_string_t,
     #[doc = "\n To persist session cookies (cookies without an expiry date or validity\n interval) by default when using the global cookie manager set this value\n to true (1). Session cookies are generally intended to be transient and\n most Web browsers do not persist them. A |cache_path| value must also be\n specified to enable this feature. Also configurable using the\n \"persist-session-cookies\" command-line switch. Can be overridden for\n individual CefRequestContext instances via the\n CefRequestContextSettings.persist_session_cookies value.\n"]
     pub persist_session_cookies: ::std::os::raw::c_int,
@@ -678,6 +682,8 @@ pub struct _cef_settings_t {
     pub cookieable_schemes_exclude_defaults: ::std::os::raw::c_int,
     #[doc = "\n Specify an ID to enable Chrome policy management via Platform and OS-user\n policies. On Windows, this is a registry key like\n \"SOFTWARE\\\\Policies\\\\Google\\\\Chrome\". On MacOS, this is a bundle ID like\n \"com.google.Chrome\". On Linux, this is an absolute directory path like\n \"/etc/opt/chrome/policies\". Only supported with the Chrome runtime. See\n https://support.google.com/chrome/a/answer/9037717 for details.\n\n Chrome Browser Cloud Management integration, when enabled via the\n \"enable-chrome-browser-cloud-management\" command-line flag, will also use\n the specified ID. See https://support.google.com/chrome/a/answer/9116814\n for details.\n"]
     pub chrome_policy_id: cef_string_t,
+    #[doc = "\n Specify an ID for an ICON resource that can be loaded from the main\n executable and used when creating default Chrome windows such as DevTools\n and Task Manager. If unspecified the default Chromium ICON (IDR_MAINFRAME\n [101]) will be loaded from libcef.dll. Only supported with the Chrome\n runtime on Windows.\n"]
+    pub chrome_app_icon_id: ::std::os::raw::c_int,
 }
 #[doc = "\n Request context initialization settings. Specify NULL or 0 to get the\n recommended default values.\n"]
 #[repr(C)]
@@ -685,7 +691,7 @@ pub struct _cef_settings_t {
 pub struct _cef_request_context_settings_t {
     #[doc = "\n Size of this structure.\n"]
     pub size: usize,
-    #[doc = "\n The location where cache data for this request context will be stored on\n disk. If this value is non-empty then it must be an absolute path that is\n either equal to or a child directory of CefSettings.root_cache_path. If\n this value is empty then browsers will be created in \"incognito mode\"\n where in-memory caches are used for storage and no data is persisted to\n disk. HTML5 databases such as localStorage will only persist across\n sessions if a cache path is specified. To share the global browser cache\n and related configuration set this value to match the\n CefSettings.cache_path value.\n"]
+    #[doc = "\n The directory where cache data for this request context will be stored on\n disk. If this value is non-empty then it must be an absolute path that is\n either equal to or a child directory of CefSettings.root_cache_path. If\n this value is empty then browsers will be created in \"incognito mode\"\n where in-memory caches are used for storage and no profile-specific data\n is persisted to disk (installation-specific data will still be persisted\n in root_cache_path). HTML5 databases such as localStorage will only\n persist across sessions if a cache path is specified. To share the global\n browser cache and related configuration set this value to match the\n CefSettings.cache_path value.\n"]
     pub cache_path: cef_string_t,
     #[doc = "\n To persist session cookies (cookies without an expiry date or validity\n interval) by default when using the global cookie manager set this value\n to true (1). Session cookies are generally intended to be transient and\n most Web browsers do not persist them. Can be set globally using the\n CefSettings.persist_session_cookies value. This value will be ignored if\n |cache_path| is empty or if it matches the CefSettings.cache_path value.\n"]
     pub persist_session_cookies: ::std::os::raw::c_int,
@@ -1097,33 +1103,37 @@ pub enum cef_cert_status_t {
     #[doc = " Bit 18 was CERT_STATUS_IS_DNSSEC"]
     CERT_STATUS_CT_COMPLIANCE_FAILED = 1048576,
 }
+impl cef_window_open_disposition_t {
+    pub const CEF_WOD_MAX_VALUE: cef_window_open_disposition_t =
+        cef_window_open_disposition_t::CEF_WOD_NEW_PICTURE_IN_PICTURE;
+}
 #[repr(i32)]
 #[doc = "\n The manner in which a link click should be opened. These constants match\n their equivalents in Chromium's window_open_disposition.h and should not be\n renumbered.\n"]
 #[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
 pub enum cef_window_open_disposition_t {
-    WOD_UNKNOWN = 0,
+    CEF_WOD_UNKNOWN = 0,
     #[doc = "\n Current tab. This is the default in most cases.\n"]
-    WOD_CURRENT_TAB = 1,
+    CEF_WOD_CURRENT_TAB = 1,
     #[doc = "\n Indicates that only one tab with the url should exist in the same window.\n"]
-    WOD_SINGLETON_TAB = 2,
+    CEF_WOD_SINGLETON_TAB = 2,
     #[doc = "\n Shift key + Middle mouse button or meta/ctrl key while clicking.\n"]
-    WOD_NEW_FOREGROUND_TAB = 3,
+    CEF_WOD_NEW_FOREGROUND_TAB = 3,
     #[doc = "\n Middle mouse button or meta/ctrl key while clicking.\n"]
-    WOD_NEW_BACKGROUND_TAB = 4,
+    CEF_WOD_NEW_BACKGROUND_TAB = 4,
     #[doc = "\n New popup window.\n"]
-    WOD_NEW_POPUP = 5,
+    CEF_WOD_NEW_POPUP = 5,
     #[doc = "\n Shift key while clicking.\n"]
-    WOD_NEW_WINDOW = 6,
+    CEF_WOD_NEW_WINDOW = 6,
     #[doc = "\n Alt key while clicking.\n"]
-    WOD_SAVE_TO_DISK = 7,
+    CEF_WOD_SAVE_TO_DISK = 7,
     #[doc = "\n New off-the-record (incognito) window.\n"]
-    WOD_OFF_THE_RECORD = 8,
+    CEF_WOD_OFF_THE_RECORD = 8,
     #[doc = "\n Special case error condition from the renderer.\n"]
-    WOD_IGNORE_ACTION = 9,
+    CEF_WOD_IGNORE_ACTION = 9,
     #[doc = "\n Activates an existing tab containing the url, rather than navigating.\n This is similar to SINGLETON_TAB, but searches across all windows from\n the current profile and anonymity (instead of just the current one);\n closes the current tab on switching if the current tab was the NTP with\n no session history; and behaves like CURRENT_TAB instead of\n NEW_FOREGROUND_TAB when no existing tab is found.\n"]
-    WOD_SWITCH_TO_TAB = 10,
+    CEF_WOD_SWITCH_TO_TAB = 10,
     #[doc = "\n Creates a new document picture-in-picture window showing a child WebView.\n"]
-    WOD_NEW_PICTURE_IN_PICTURE = 11,
+    CEF_WOD_NEW_PICTURE_IN_PICTURE = 11,
 }
 #[repr(i32)]
 #[doc = "\n \"Verb\" of a drag-and-drop operation as negotiated between the source and\n destination. These constants match their equivalents in WebCore's\n DragActions.h and should not be renumbered.\n"]
@@ -1656,6 +1666,44 @@ pub enum cef_dom_node_type_t {
     DOM_NODE_TYPE_DOCUMENT = 7,
     DOM_NODE_TYPE_DOCUMENT_TYPE = 8,
     DOM_NODE_TYPE_DOCUMENT_FRAGMENT = 9,
+}
+#[repr(i32)]
+#[doc = "\n DOM form control types. Should be kept in sync with Chromium's\n blink::mojom::FormControlType type.\n"]
+#[derive(Debug, Copy, Clone, Hash, PartialEq, Eq)]
+pub enum cef_dom_form_control_type_t {
+    DOM_FORM_CONTROL_TYPE_UNSUPPORTED = 0,
+    DOM_FORM_CONTROL_TYPE_BUTTON_BUTTON = 1,
+    DOM_FORM_CONTROL_TYPE_BUTTON_SUBMIT = 2,
+    DOM_FORM_CONTROL_TYPE_BUTTON_RESET = 3,
+    DOM_FORM_CONTROL_TYPE_BUTTON_SELECT_LIST = 4,
+    DOM_FORM_CONTROL_TYPE_FIELDSET = 5,
+    DOM_FORM_CONTROL_TYPE_INPUT_BUTTON = 6,
+    DOM_FORM_CONTROL_TYPE_INPUT_CHECKBOX = 7,
+    DOM_FORM_CONTROL_TYPE_INPUT_COLOR = 8,
+    DOM_FORM_CONTROL_TYPE_INPUT_DATE = 9,
+    DOM_FORM_CONTROL_TYPE_INPUT_DATETIME_LOCAL = 10,
+    DOM_FORM_CONTROL_TYPE_INPUT_EMAIL = 11,
+    DOM_FORM_CONTROL_TYPE_INPUT_FILE = 12,
+    DOM_FORM_CONTROL_TYPE_INPUT_HIDDEN = 13,
+    DOM_FORM_CONTROL_TYPE_INPUT_IMAGE = 14,
+    DOM_FORM_CONTROL_TYPE_INPUT_MONTH = 15,
+    DOM_FORM_CONTROL_TYPE_INPUT_NUMBER = 16,
+    DOM_FORM_CONTROL_TYPE_INPUT_PASSWORD = 17,
+    DOM_FORM_CONTROL_TYPE_INPUT_RADIO = 18,
+    DOM_FORM_CONTROL_TYPE_INPUT_RANGE = 19,
+    DOM_FORM_CONTROL_TYPE_INPUT_RESET = 20,
+    DOM_FORM_CONTROL_TYPE_INPUT_SEARCH = 21,
+    DOM_FORM_CONTROL_TYPE_INPUT_SUBMIT = 22,
+    DOM_FORM_CONTROL_TYPE_INPUT_TELEPHONE = 23,
+    DOM_FORM_CONTROL_TYPE_INPUT_TEXT = 24,
+    DOM_FORM_CONTROL_TYPE_INPUT_TIME = 25,
+    DOM_FORM_CONTROL_TYPE_INPUT_URL = 26,
+    DOM_FORM_CONTROL_TYPE_INPUT_WEEK = 27,
+    DOM_FORM_CONTROL_TYPE_OUTPUT = 28,
+    DOM_FORM_CONTROL_TYPE_SELECT_ONE = 29,
+    DOM_FORM_CONTROL_TYPE_SELECT_MULTIPLE = 30,
+    DOM_FORM_CONTROL_TYPE_SELECT_LIST = 31,
+    DOM_FORM_CONTROL_TYPE_TEXT_AREA = 32,
 }
 #[repr(i32)]
 #[doc = "\n Supported file dialog modes.\n"]
@@ -2582,6 +2630,10 @@ pub struct _cef_binary_value_t {
     #[doc = "\n Returns a copy of this object. The data in this object will also be\n copied.\n"]
     pub copy: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_binary_value_t) -> *mut _cef_binary_value_t,
+    >,
+    #[doc = "\n Returns a pointer to the beginning of the memory block. The returned\n pointer is valid as long as the cef_binary_value_t is alive.\n"]
+    pub get_raw_data: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_binary_value_t) -> *const ::std::os::raw::c_void,
     >,
     #[doc = "\n Returns the data size.\n"]
     pub get_size:
@@ -3548,9 +3600,9 @@ pub struct _cef_domnode_t {
     pub is_form_control_element: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_domnode_t) -> ::std::os::raw::c_int,
     >,
-    #[doc = "\n Returns the type of this form control element node.\n\n The resulting string must be freed by calling cef_string_userfree_free()."]
+    #[doc = "\n Returns the type of this form control element node.\n"]
     pub get_form_control_element_type: ::std::option::Option<
-        unsafe extern "C" fn(self_: *mut _cef_domnode_t) -> cef_string_userfree_t,
+        unsafe extern "C" fn(self_: *mut _cef_domnode_t) -> cef_dom_form_control_type_t,
     >,
     #[doc = "\n Returns true (1) if this object is pointing to the same handle as |that|\n object.\n"]
     pub is_same: ::std::option::Option<
@@ -5449,6 +5501,21 @@ pub struct _cef_browser_host_t {
             will_cause_resize: ::std::os::raw::c_int,
         ),
     >,
+    #[doc = "\n Returns true (1) if a Chrome command is supported and enabled. Values for\n |command_id| can be found in the cef_command_ids.h file. This function can\n only be called on the UI thread. Only used with the Chrome runtime.\n"]
+    pub can_execute_chrome_command: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_host_t,
+            command_id: ::std::os::raw::c_int,
+        ) -> ::std::os::raw::c_int,
+    >,
+    #[doc = "\n Execute a Chrome command. Values for |command_id| can be found in the\n cef_command_ids.h file. |disposition| provides information about the\n intended command target. Only used with the Chrome runtime.\n"]
+    pub execute_chrome_command: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_host_t,
+            command_id: ::std::os::raw::c_int,
+            disposition: cef_window_open_disposition_t,
+        ),
+    >,
 }
 extern "C" {
     #[doc = "\n Create a new browser using the window parameters specified by |windowInfo|.\n All values will be copied internally and the actual window (if any) will be\n created on the UI thread. If |request_context| is NULL the global request\n context will be used. This function can be called on any browser process\n thread and will not block. The optional |extra_info| parameter provides an\n opportunity to specify extra information specific to the created browser\n that will be passed to cef_render_process_handler_t::on_browser_created() in\n the render process.\n"]
@@ -6938,6 +7005,18 @@ pub struct _cef_life_span_handler_t {
             no_javascript_access: *mut ::std::os::raw::c_int,
         ) -> ::std::os::raw::c_int,
     >,
+    #[doc = "\n Called on the UI thread before a new DevTools popup browser is created.\n The |browser| value represents the source of the popup request. Optionally\n modify |windowInfo|, |client|, |settings| and |extra_info| values. The\n |client|, |settings| and |extra_info| values will default to the source\n browser's values. Any modifications to |windowInfo| will be ignored if the\n parent browser is Views-hosted (wrapped in a cef_browser_view_t).\n\n The |extra_info| parameter provides an opportunity to specify extra\n information specific to the created popup browser that will be passed to\n cef_render_process_handler_t::on_browser_created() in the render process.\n The existing |extra_info| object, if any, will be read-only but may be\n replaced with a new object.\n\n Views-hosted source browsers will create Views-hosted DevTools popups\n unless |use_default_window| is set to to true (1). DevTools popups can be\n blocked by returning true (1) from cef_command_handler_t::OnChromeCommand\n for IDC_DEV_TOOLS. Only used with the Chrome runtime.\n"]
+    pub on_before_dev_tools_popup: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_life_span_handler_t,
+            browser: *mut _cef_browser_t,
+            windowInfo: *mut _cef_window_info_t,
+            client: *mut *mut _cef_client_t,
+            settings: *mut _cef_browser_settings_t,
+            extra_info: *mut *mut _cef_dictionary_value_t,
+            use_default_window: *mut ::std::os::raw::c_int,
+        ),
+    >,
     #[doc = "\n Called after a new browser is created. It is now safe to begin performing\n actions with |browser|. cef_frame_handler_t callbacks related to initial\n main frame creation will arrive before this callback. See\n cef_frame_handler_t documentation for additional usage information.\n"]
     pub on_after_created: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_life_span_handler_t, browser: *mut _cef_browser_t),
@@ -7925,6 +8004,14 @@ pub struct _cef_browser_process_handler_t {
             command_line: *mut _cef_command_line_t,
         ),
     >,
+    #[doc = "\n Implement this function to provide app-specific behavior when an already\n running app is relaunched with the same CefSettings.root_cache_path value.\n For example, activate an existing app window or create a new app window.\n |command_line| will be read-only. Do not keep a reference to\n |command_line| outside of this function. Return true (1) if the relaunch\n is handled or false (0) for default relaunch behavior. Default behavior\n will create a new default styled Chrome window.\n\n To avoid cache corruption only a single app instance is allowed to run for\n a given CefSettings.root_cache_path value. On relaunch the app checks a\n process singleton lock and then forwards the new launch arguments to the\n already running app process before exiting early. Client apps should\n therefore check the cef_initialize() return value for early exit before\n proceeding.\n\n This function will be called on the browser process UI thread.\n"]
+    pub on_already_running_app_relaunch: ::std::option::Option<
+        unsafe extern "C" fn(
+            self_: *mut _cef_browser_process_handler_t,
+            command_line: *mut _cef_command_line_t,
+            current_directory: *const cef_string_t,
+        ) -> ::std::os::raw::c_int,
+    >,
     #[doc = "\n Called from any thread when work has been scheduled for the browser\n process main (UI) thread. This callback is used in combination with\n cef_settings_t.external_message_pump and cef_do_message_loop_work() in\n cases where the CEF message loop must be integrated into an existing\n application message loop (see additional comments and warnings on\n CefDoMessageLoopWork). This callback should schedule a\n cef_do_message_loop_work() call to happen on the main (UI) thread.\n |delay_ms| is the requested delay in milliseconds. If |delay_ms| is <= 0\n then the call should happen reasonably soon. If |delay_ms| is > 0 then the\n call should be scheduled to happen after the specified delay and any\n currently pending scheduled call should be cancelled.\n"]
     pub on_schedule_message_pump_work: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_browser_process_handler_t, delay_ms: i64),
@@ -8460,6 +8547,13 @@ pub struct _cef_v8value_t {
     pub neuter_array_buffer: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> ::std::os::raw::c_int,
     >,
+    #[doc = "\n Returns the length (in bytes) of the ArrayBuffer.\n"]
+    pub get_array_buffer_byte_length:
+        ::std::option::Option<unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> usize>,
+    #[doc = "\n Returns a pointer to the beginning of the memory block for this\n ArrayBuffer backing store. The returned pointer is valid as long as the\n cef_v8value_t is alive.\n"]
+    pub get_array_buffer_data: ::std::option::Option<
+        unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> *mut ::std::os::raw::c_void,
+    >,
     #[doc = "\n Returns the function name.\n\n The resulting string must be freed by calling cef_string_userfree_free()."]
     pub get_function_name: ::std::option::Option<
         unsafe extern "C" fn(self_: *mut _cef_v8value_t) -> cef_string_userfree_t,
@@ -8842,7 +8936,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    #[doc = "\n This function should be called on the main application thread to initialize\n the CEF browser process. The |application| parameter may be NULL. A return\n value of true (1) indicates that it succeeded and false (0) indicates that\n it failed. The |windows_sandbox_info| parameter is only used on Windows and\n may be NULL (see cef_sandbox_win.h for details).\n"]
+    #[doc = "\n This function should be called on the main application thread to initialize\n the CEF browser process. The |application| parameter may be NULL. Returns\n true (1) if initialization succeeds. Returns false (0) if initialization\n fails or if early exit is desired (for example, due to process singleton\n relaunch behavior). If this function returns false (0) then the application\n should exit immediately without calling any other CEF functions. The\n |windows_sandbox_info| parameter is only used on Windows and may be NULL\n (see cef_sandbox_win.h for details).\n"]
     pub fn cef_initialize(
         args: *const cef_main_args_t,
         settings: *const _cef_settings_t,
@@ -8851,7 +8945,7 @@ extern "C" {
     ) -> ::std::os::raw::c_int;
 }
 extern "C" {
-    #[doc = "\n This function should be called on the main application thread to shut down\n the CEF browser process before the application exits.\n"]
+    #[doc = "\n This function should be called on the main application thread to shut down\n the CEF browser process before the application exits. Do not call any other\n CEF functions after calling this function.\n"]
     pub fn cef_shutdown();
 }
 extern "C" {
