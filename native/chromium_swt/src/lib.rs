@@ -95,6 +95,7 @@ pub fn cefswt_init(
         cookieable_schemes_exclude_defaults: 0,
         log_items: chromium::cef::cef_log_items_t::LOG_ITEMS_DEFAULT,
         chrome_policy_id: chromium::utils::cef_string_empty(),
+        chrome_app_icon_id: 0,
     };
 
     do_initialize(main_args, settings, japp);
