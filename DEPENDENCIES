@@ -1,5 +1,5 @@
--/-/-/chromium/118.0.5993.119, None, approved, #11486
--/-/chromiumembedded/cef/118.7.1, BSD-3-Clause AND MIT AND Apache-2.0 AND LicenseRef-BSD-style AND CC0-1.0, approved, #11485
+git/github/chromium/chromium/120.0.6099.199, None, approved, #12677
+git/github/chromiumembedded/cef/c12930456b29253152def3e57d2a106644c3f498, BSD-3-Clause AND MIT AND Apache-2.0 AND LicenseRef-MIT-style AND LicenseRef-Public-domain, approved, #12678
 maven/mavencentral/com.ibm.icu/icu4j/72.1, ICU, approved, #4354
 maven/mavencentral/jakarta.servlet/jakarta.servlet-api/4.0.4, EPL-2.0 OR GPL-2.0-only with Classpath-exception-2.0, approved, ee4j.servlet
 maven/mavencentral/javax.servlet.jsp/javax.servlet.jsp-api/2.3.3, Apache-2.0 or CDDL-1.0, approved, CQ7385
