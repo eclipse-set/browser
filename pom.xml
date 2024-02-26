@@ -66,8 +66,8 @@
 							<showWarnings>true</showWarnings>
 							<showDeprecation>true</showDeprecation>
 							<useProjectSettings>true</useProjectSettings>
-							<compilerVersion>17</compilerVersion>
-							<release>17</release>
+							<compilerVersion>21</compilerVersion>
+							<release>21</release>
 							<log>plain</log>
 						</configuration>
 					</plugin>

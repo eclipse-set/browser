@@ -17,6 +17,8 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -427,9 +429,9 @@ public class Chromium extends WebBrowser {
 		event.doit = true;
 		String protocol = "http";
 		try {
-			final URL u = new URL(this.url);
+			final URL u = new URI(this.url).toURL();
 			protocol = u.getProtocol();
-		} catch (final MalformedURLException e) {
+		} catch (final MalformedURLException | URISyntaxException e) {
 			return 0;
 		}
 		final String hostStr = host != 0
@@ -780,6 +782,35 @@ public class Chromium extends WebBrowser {
 					"Are you sure you want to leave this page?", msg, 0,
 					callback);
 			disposing = Dispose.UnloadClosed;
+			return 1;
+		}
+		return 0;
+	}
+
+	/**
+	 * Handles a console message
+	 * 
+	 * @param id
+	 *            this browser id
+	 * @param severity
+	 *            log severity
+	 * @param message
+	 *            message
+	 * @param source
+	 *            source file
+	 * @param line
+	 *            source line
+	 * @return 1 if the message was handled externally, 0 otherwise
+	 */
+	public int on_console_message(final long id, final int severity,
+			final long message, final long source, final int line) {
+		if (consoleListener != null) {
+			final String msg = message == 0 ? ""
+					: ChromiumLib.cefswt_cefstring_to_java(message);
+			final String src = source == 0 ? ""
+					: ChromiumLib.cefswt_cefstring_to_java(source);
+			consoleListener.onConsoleMessage(severity, msg, src, line);
+			// Return true to stop the message from being output to the console.
 			return 1;
 		}
 		return 0;
@@ -1341,35 +1372,6 @@ public class Chromium extends WebBrowser {
 
 	boolean isDisposed() {
 		return chromium == null || chromium.isDisposed();
-	}
-
-	/**
-	 * Handles a console message
-	 * 
-	 * @param id
-	 *            this browser id
-	 * @param severity
-	 *            log severity
-	 * @param message
-	 *            message
-	 * @param source
-	 *            source file
-	 * @param line
-	 *            source line
-	 * @return 1 if the message was handled externally, 0 otherwise
-	 */
-	public int on_console_message(final long id, final int severity,
-			final long message, final long source, final int line) {
-		if (consoleListener != null) {
-			final String msg = message == 0 ? ""
-					: ChromiumLib.cefswt_cefstring_to_java(message);
-			final String src = source == 0 ? ""
-					: ChromiumLib.cefswt_cefstring_to_java(source);
-			consoleListener.onConsoleMessage(severity, msg, src, line);
-			// Return true to stop the message from being output to the console.
-			return 1;
-		}
-		return 0;
 	}
 
 }
