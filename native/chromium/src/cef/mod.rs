@@ -16,6 +16,7 @@ use crate::ToJava;
 use jni::objects::GlobalRef;
 use jni::objects::JObject;
 use chromium_jni_utils::jni_unwrap;
+use std::ops::DerefMut;
 pub mod win;
 pub use self::win::_cef_window_info_t;
 pub use self::win::_cef_main_args_t;
