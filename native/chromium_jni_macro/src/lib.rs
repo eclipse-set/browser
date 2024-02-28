@@ -29,10 +29,10 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
 
 #[proc_macro_attribute]
 pub fn jni_name(attr: TokenStream, item: TokenStream) -> TokenStream {
-    jni_name::jni_name(attr.into(), item.into()).into()
+    jni_name::jni_name(attr, item)
 }
 
 #[proc_macro_attribute]
 pub fn jni_wrapper(attr: TokenStream, item: TokenStream) -> TokenStream {
-    jni_wrap_impl::jni_wrap_attr_impl(attr.into(), item.into()).into()
+    jni_wrap_impl::jni_wrap_attr_impl(attr, item)
 }

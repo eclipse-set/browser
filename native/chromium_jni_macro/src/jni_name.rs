@@ -14,7 +14,6 @@ use syn::Meta;
 use syn::Type::Group;
 use syn::Type::Path;
 use syn::{
-    self,
     parse::{Parse, ParseStream},
     parse_macro_input, Result, Token,
 };

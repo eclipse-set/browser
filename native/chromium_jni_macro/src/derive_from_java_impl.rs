@@ -11,7 +11,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    self, parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput,
+    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput,
     Field, Fields,
 };
 

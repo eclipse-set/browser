@@ -11,3 +11,8 @@ path = "src/bin/chromium_subp.rs"
 [dependencies]
 chromium = { path = "../chromium/" }
 winapi = { version = "0.3.9", features = ["winuser", "libloaderapi"] }
+
+[lints.clippy]
+missing_safety_doc = "allow"
+not_unsafe_ptr_arg_deref = "allow"
+too_many_arguments = "allow"

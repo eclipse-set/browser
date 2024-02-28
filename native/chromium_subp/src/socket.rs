@@ -62,17 +62,13 @@ fn read_struct<T, R: Read>(mut read: R) -> ::std::io::Result<(usize, T)> {
     let num_bytes = ::std::mem::size_of::<T>();
     unsafe {
         let mut s = ::std::mem::MaybeUninit::<T>::uninit();
-        let buffer =
-            ::std::slice::from_raw_parts_mut(s.as_mut_ptr() as *mut T as *mut u8, num_bytes);
+        let buffer = ::std::slice::from_raw_parts_mut(s.as_mut_ptr() as *mut u8, num_bytes);
         match read.read_exact(buffer) {
             Ok(()) => {
                 let s = s.assume_init();
                 Ok((num_bytes, s))
             }
-            Err(e) => {
-                ::std::mem::forget(s);
-                Err(e)
-            }
+            Err(e) => Err(e),
         }
     }
 }

@@ -43,7 +43,7 @@ pub fn cefswt_init(
     let cef_path = chromium::utils::str_from_c(cef_path);
     let temp_path = chromium::utils::str_from_c(temp_path);
     let log_path = chromium::utils::str_from_c(log_path);
-    let log_level = unsafe { std::mem::transmute(log_level as i32) };
+    let log_level = unsafe { std::mem::transmute(log_level) };
 
     let main_args = chromium::utils::prepare_args();
 
@@ -307,6 +307,7 @@ pub fn cefswt_set_intptr(ptr: *mut ::std::os::raw::c_int, value: c_int) {
 
 #[jni_name("org.eclipse.set.browser.lib.ChromiumLib")]
 #[no_mangle]
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn cefswt_cstring_to_java(
     _env: jni::JNIEnv,
     _class: jni::objects::JClass,

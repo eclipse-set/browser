@@ -114,10 +114,6 @@ fn gen_cef(cef_path: std::path::Display) {
     dst.write(new_data.as_bytes()).expect("Cannot write mod.rs");
 }
 
-#[repr(C)]
-#[derive(Debug)]
-struct ToJavaCallbacks();
-
 #[cfg(feature = "gen")]
 impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
     fn add_derives(&self, info: &DeriveInfo) -> Vec<String> {

@@ -36,7 +36,7 @@ macro_rules! jni_deallocate {
             _class: JClass,
             object: *mut chromium::cef::_cef_display_handler_t,
         ) {
-            unsafe { Box::from_raw(object) };
+            unsafe { drop(Box::from_raw(object)) };
         }
     };
 }

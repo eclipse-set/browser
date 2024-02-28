@@ -12,7 +12,7 @@ use crate::utils::unzip4::Unzip4;
 use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
-use syn::{self, parse_macro_input, FnArg, Type};
+use syn::{parse_macro_input, FnArg, Type};
 
 pub fn jni_wrap_attr_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     let JNIName { namespace, suffix } = parse_macro_input!(attr as JNIName);
