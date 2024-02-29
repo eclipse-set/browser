@@ -45,7 +45,7 @@ jobs:
       shell: bash
 
     - name: Build Rust
-      run: cargo clean && cargo clippy && cargo build --release --features gen
+      run: cargo clean && cargo clippy --all-features && cargo build --release --features gen
       working-directory: native
       shell: bash
 
