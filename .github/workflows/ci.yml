@@ -4,6 +4,9 @@ name: Build browser
 
 on: push
 
+env:
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   browser-jni:
     runs-on: windows-2022
@@ -42,7 +45,7 @@ jobs:
       shell: bash
 
     - name: Build Rust
-      run: cargo clean && cargo build --release
+      run: cargo clean && cargo clippy && cargo build --release --features gen
       working-directory: native
       shell: bash
 
