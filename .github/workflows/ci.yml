@@ -36,7 +36,7 @@ jobs:
       run: | 
         VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
         curl -o cef.tar.bz2 https://cef-builds.spotifycdn.com/$VERSION.tar.bz2
-        tar xf cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources --strip-components 1
+        tar xf cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources $VERSION/include --strip-components 1
         tar xf cef.tar.bz2 $VERSION/Release/libcef.lib --strip-components 2
         tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
         cp -r *.dll *.bin Resources/* LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
