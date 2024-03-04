@@ -29,6 +29,7 @@ jobs:
           java/org.eclipse.set.browser.cef.win32/res/cef
           cef/Release/libcef.lib
           cef/Release/LICENSE.txt
+          cef/include
         key: ${{ hashFiles('CEF_VERSION.txt') }}
     
     - name: Download CEF
