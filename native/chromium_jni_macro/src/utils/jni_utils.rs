@@ -45,7 +45,7 @@ pub fn jni_signature(field: &Field) -> String {
         .map(|arg| jni_type_signature(&arg.ty))
         .collect::<String>();
 
-    return format!("({}){}", argsigs, jni_result_signature(field));
+    format!("({}){}", argsigs, jni_result_signature(field))
 }
 
 fn get_type_parameter(p: &Path) -> Punctuated<GenericArgument, Comma> {

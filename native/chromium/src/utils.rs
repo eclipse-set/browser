@@ -88,5 +88,5 @@ pub fn str_from_cef(cefstring: *const cef::cef_string_t) -> String {
     unsafe {
         cef::cef_string_userfree_utf8_free(utf8);
     }
-    return str;
+    str
 }

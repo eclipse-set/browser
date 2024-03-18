@@ -38,12 +38,12 @@ pub trait ToJava<'a> {
 
 impl<'a, T> ToJava<'a> for *mut T {
     fn to_java(_env: JNIEnv, value: Self) -> JValue<'a> {
-        JValue::Long(unsafe { std::mem::transmute(value) })
+        JValue::Long(value as i64)
     }
 }
 impl<'a, T> ToJava<'a> for *const T {
     fn to_java(_env: JNIEnv, value: Self) -> JValue<'a> {
-        JValue::Long(unsafe { std::mem::transmute(value) })
+        JValue::Long(value as i64)
     }
 }
 

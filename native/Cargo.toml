@@ -1,5 +1,6 @@
 [workspace]
 members = ["chromium", "chromium_subp", "chromium_swt", "chromium_jni", "chromium_jni_macro", "chromium_jni_utils"]
+resolver = "2"
 
 [profile.release]
 lto = true

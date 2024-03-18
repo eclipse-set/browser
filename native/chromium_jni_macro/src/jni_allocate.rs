@@ -12,7 +12,7 @@ use proc_macro::TokenStream;
 use proc_macro2::{Ident, Span};
 use quote::quote;
 use syn::{
-    self, parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput,
+    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput,
     Field, Fields, Type,
 };
 use crate::utils::jni_utils::{ extract_arguments, extract_result, jni_signature};

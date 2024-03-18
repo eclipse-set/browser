@@ -4,6 +4,9 @@ name: Build browser
 
 on: push
 
+env:
+  RUSTFLAGS: "-Dwarnings"
+
 jobs:
   browser-jni:
     runs-on: windows-2022
@@ -26,23 +29,31 @@ jobs:
           java/org.eclipse.set.browser.cef.win32/res/cef
           cef/Release/libcef.lib
           cef/Release/LICENSE.txt
+          cef/include
         key: ${{ hashFiles('CEF_VERSION.txt') }}
-
+    
     - name: Download CEF
       if: steps.cef-cache.outputs.cache-hit != 'true'
       run: | 
-        VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
+        VERSION=$(grep -E -v ^# ../CEF_VERSION.txt)
         curl -o cef.tar.bz2 https://cef-builds.spotifycdn.com/$VERSION.tar.bz2
-        tar xf cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources --strip-components 1
-        tar xf cef.tar.bz2 $VERSION/Release/libcef.lib --strip-components 2
-        tar xf cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
+        tar xf cef.tar.bz2 $VERSION/include --strip-components 1
+      working-directory: cef
+      shell: bash
+
+    - name: Extract CEF
+      if: steps.cef-cache.outputs.cache-hit != 'true'
+      run: | 
+        VERSION=$(grep -E -v ^# ../../CEF_VERSION.txt)
+        tar xf ../cef.tar.bz2 $VERSION/LICENSE.txt $VERSION/Resources --strip-components 1
+        tar xf ../cef.tar.bz2 $VERSION/Release/libcef.lib --strip-components 2
+        tar xf ../cef.tar.bz2 --wildcards $VERSION/Release/*.dll --wildcards $VERSION/Release/*.bin --strip-components 2
         cp -r *.dll *.bin Resources/* LICENSE.txt ../../java/org.eclipse.set.browser.cef.win32/res/cef
-        ls -avl ../../java/org.eclipse.set.browser.cef.win32/res/cef
       working-directory: cef/Release
       shell: bash
 
     - name: Build Rust
-      run: cargo clean && cargo build --release
+      run: cargo clean && cargo clippy --all-features && cargo build --release --features gen
       working-directory: native
       shell: bash
 

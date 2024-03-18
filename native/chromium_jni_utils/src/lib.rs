@@ -23,9 +23,10 @@ pub struct JNIWrapperType<T> {
     pub jvm: JavaVM,
 }
 
-pub unsafe fn jni_unwrap<T>(ptr: *mut T) -> *mut JNIWrapperType<T> {
-    return ptr as *mut JNIWrapperType<T>;
+pub fn jni_unwrap<T>(ptr: *mut T) -> *mut JNIWrapperType<T> {
+    ptr as *mut JNIWrapperType<T>
 }
+
 pub trait JNICEFCallback {
     fn jni_allocate(env: JNIEnv, object: GlobalRef) -> JNIWrapperType<Self>
     where
@@ -53,7 +54,7 @@ pub trait FromJavaValue {
 impl FromJavaValue for i32 {
     fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
         match object {
-            JValue::Int(i) => i.into(),
+            JValue::Int(i) => i,
             JValue::Byte(b) => b.into(),
             JValue::Short(b) => b.into(),
             JValue::Bool(b) => b.into(),
@@ -65,7 +66,7 @@ impl FromJavaValue for i32 {
 impl FromJavaValue for i64 {
     fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
         match object {
-            JValue::Long(l) => l.into(),
+            JValue::Long(l) => l,
             JValue::Int(i) => i.into(),
             JValue::Byte(b) => b.into(),
             JValue::Short(b) => b.into(),

@@ -15,3 +15,8 @@ chromium = { path = "../chromium/" }
 chromium_subp = { path = "../chromium_subp/" }
 chromium_jni_macro = { path = "../chromium_jni_macro/" }
 winapi = { version = "0.3.9", features = ["winuser"] }
+
+[lints.clippy]
+missing_safety_doc = "allow"
+not_unsafe_ptr_arg_deref = "allow"
+too_many_arguments = "allow"

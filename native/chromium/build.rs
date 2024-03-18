@@ -111,9 +111,11 @@ fn gen_cef(cef_path: std::path::Display) {
     // Recreate the file and dump the processed contents to it
     let mut dst = std::fs::File::create(std::path::Path::new("src").join("cef").join("mod.rs"))
         .expect("Cannot create mod.rs file");
-    dst.write(new_data.as_bytes()).expect("Cannot write mod.rs");
+    dst.write_all(new_data.as_bytes())
+        .expect("Cannot write mod.rs");
 }
 
+#[cfg(feature = "gen")]
 #[repr(C)]
 #[derive(Debug)]
 struct ToJavaCallbacks();
@@ -145,7 +147,7 @@ impl bindgen::callbacks::ParseCallbacks for ToJavaCallbacks {
             return vec!["JNICEFCallback".into()];
         }
 
-        if vec!["_cef_base_ref_counted_t"].contains(&name) {
+        if ["_cef_base_ref_counted_t"].contains(&name) {
             return vec!["FromJava".into()];
         }
 

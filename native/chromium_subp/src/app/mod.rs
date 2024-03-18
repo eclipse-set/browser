@@ -17,18 +17,13 @@ use std::ffi::{CStr, CString};
 use std::mem;
 use std::os::raw::c_int;
 
-#[repr(C)]
-pub struct Base {}
-
-impl Base {
-    pub fn new(size: usize) -> chromium::cef::_cef_base_ref_counted_t {
-        chromium::cef::_cef_base_ref_counted_t {
-            size,
-            add_ref: Option::None,
-            has_one_ref: Option::None,
-            release: Option::None,
-            has_at_least_one_ref: Option::None,
-        }
+pub fn new_cef_base_ref_counted(size: usize) -> chromium::cef::_cef_base_ref_counted_t {
+    chromium::cef::_cef_base_ref_counted_t {
+        size,
+        add_ref: Option::None,
+        has_one_ref: Option::None,
+        release: Option::None,
+        has_at_least_one_ref: Option::None,
     }
 }
 
@@ -38,6 +33,11 @@ pub struct App {
     render_process_handler: RenderProcessHandler,
 }
 
+impl Default for App {
+    fn default() -> Self {
+        Self::new()
+    }
+}
 impl App {
     pub fn new() -> App {
         App {
@@ -68,7 +68,7 @@ impl App {
         }
 
         chromium::cef::cef_app_t {
-            base: Base::new(mem::size_of::<chromium::cef::cef_app_t>()),
+            base: new_cef_base_ref_counted(mem::size_of::<chromium::cef::cef_app_t>()),
             on_before_command_line_processing: Option::Some(on_before_command_line_processing),
             on_register_custom_schemes: Option::None,
             get_resource_bundle_handler: Option::None,
@@ -77,11 +77,6 @@ impl App {
         }
     }
 }
-
-#[repr(C)]
-#[derive(Clone, Copy)]
-struct Browser(*mut chromium::cef::_cef_browser_t);
-unsafe impl Send for Browser {}
 
 #[repr(C)]
 struct RenderProcessHandler {
@@ -185,7 +180,9 @@ impl RenderProcessHandler {
         }
 
         chromium::cef::_cef_render_process_handler_t {
-            base: Base::new(mem::size_of::<chromium::cef::_cef_render_process_handler_t>()),
+            base: new_cef_base_ref_counted(mem::size_of::<
+                chromium::cef::_cef_render_process_handler_t,
+            >()),
             on_web_kit_initialized: Option::None,
             on_browser_created: Option::None,
             on_browser_destroyed: Option::None,
@@ -354,7 +351,7 @@ impl V8Handler {
                 let v8val = arguments.wrapping_add(i);
 
                 if !v8val.is_null() {
-                    let ptr = v8val.read() as *mut chromium::cef::_cef_v8value_t;
+                    let ptr = v8val.read();
                     let (cstr, kind) = convert_type(ptr, 0, ::std::ptr::null_mut());
                     let s = (*args).set_int.unwrap()(args, 1 + i * 2 + 1, kind as i32);
                     assert_eq!(s, 1);
@@ -391,7 +388,7 @@ impl V8Handler {
         }
 
         chromium::cef::_cef_v8handler_t {
-            base: Base::new(mem::size_of::<chromium::cef::_cef_v8handler_t>()),
+            base: new_cef_base_ref_counted(mem::size_of::<chromium::cef::_cef_v8handler_t>()),
             execute: Option::Some(execute),
         }
     }
