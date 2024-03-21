@@ -12,9 +12,9 @@ use jni::JNIEnv;
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_eclipse_set_browser_lib_cef_1popup_1features_1t_2J(
-    env: JNIEnv,
+    mut env: JNIEnv,
     _class: JClass,
-    destination: JObject,
+    destination: &JObject,
     source: *mut chromium::cef::_cef_popup_features_t,
 ) {
     let source_object = unsafe { *source };
@@ -53,10 +53,10 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_ecl
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1function_1id(
-    _env: JNIEnv,
+    mut _env: JNIEnv,
     _class: JClass,
     arg0: jlong,
-    arg1: JObject,
+    arg1: &JObject,
 ) {
     // IMPROVE: Avoid creating this object here
     let mut func_st = chromium_swt::FunctionSt {

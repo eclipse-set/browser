@@ -8,7 +8,7 @@
  */
 use jni::objects::GlobalRef;
 use jni::objects::JObject;
-use jni::objects::JValue;
+use jni::objects::JValueGen;
 use jni::JNIEnv;
 use jni::JavaVM;
 
@@ -35,54 +35,54 @@ pub trait JNICEFCallback {
 /// Allows extracting an object from a Java field
 pub trait FromJavaMember {
     /// Constructs `Self` from the field `name` in the JNI object `object`
-    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> Self;
+    fn from_java_member(env: &mut JNIEnv, object: &JObject, name: &str) -> Self;
 }
 
 /// Allows constructing an object from a Java object
 pub trait FromJava {
     /// Constructs `Self` from the JNI object `object`
-    fn from_java(env: JNIEnv, object: JObject) -> Self;
+    fn from_java(env: &mut JNIEnv, object: &JObject) -> Self;
 }
 
 /// Allows constructing an object from a Java object
 pub trait FromJavaValue {
     /// Constructs `Self` from the JNI object `object`
-    fn from_java_value(env: JNIEnv, object: JValue) -> Self;
+    fn from_java_value<O>(env: &JNIEnv, object: JValueGen<O>) -> Self;
 }
 
 impl FromJavaValue for i32 {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value<O>(mut _env: &JNIEnv, object: JValueGen<O>) -> Self {
         match object {
-            JValue::Int(i) => i.into(),
-            JValue::Byte(b) => b.into(),
-            JValue::Short(b) => b.into(),
-            JValue::Bool(b) => b.into(),
+            JValueGen::Int(i) => i.into(),
+            JValueGen::Byte(b) => b.into(),
+            JValueGen::Short(b) => b.into(),
+            JValueGen::Bool(b) => b.into(),
             _ => panic!("Wrong type for from_java_value"),
         }
     }
 }
 
 impl FromJavaValue for i64 {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value<O>(mut _env: &JNIEnv, object: JValueGen<O>) -> Self {
         match object {
-            JValue::Long(l) => l.into(),
-            JValue::Int(i) => i.into(),
-            JValue::Byte(b) => b.into(),
-            JValue::Short(b) => b.into(),
-            JValue::Bool(b) => b.into(),
+            JValueGen::Long(l) => l.into(),
+            JValueGen::Int(i) => i.into(),
+            JValueGen::Byte(b) => b.into(),
+            JValueGen::Short(b) => b.into(),
+            JValueGen::Bool(b) => b.into(),
             _ => panic!("Wrong type for from_java_value"),
         }
     }
 }
 
 impl<T> FromJavaValue for *mut T {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value<O>(mut _env: &JNIEnv, object: JValueGen<O>) -> Self {
         object.j().unwrap() as *mut T
     }
 }
 
 impl FromJavaMember for usize {
-    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> usize {
+    fn from_java_member(env: &mut JNIEnv, object: &JObject, name: &str) -> usize {
         // Read an integer field
         return env
             .get_field(object, name, "I")
@@ -95,8 +95,8 @@ impl FromJavaMember for usize {
 // IMPROVE: Is there a better way to generalize across an arbitrary number of function args
 impl<T, U> FromJavaMember for Option<unsafe extern "C" fn(T) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T) -> U> {
         let field_value = env
@@ -112,8 +112,8 @@ impl<T, U> FromJavaMember for Option<unsafe extern "C" fn(T) -> U> {
 
 impl<T, U, V> FromJavaMember for Option<unsafe extern "C" fn(T, V) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V) -> U> {
         let field_value = env
@@ -129,8 +129,8 @@ impl<T, U, V> FromJavaMember for Option<unsafe extern "C" fn(T, V) -> U> {
 
 impl<T, U, V, W> FromJavaMember for Option<unsafe extern "C" fn(T, V, W) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W) -> U> {
         let field_value = env
@@ -146,8 +146,8 @@ impl<T, U, V, W> FromJavaMember for Option<unsafe extern "C" fn(T, V, W) -> U> {
 
 impl<T, U, V, W, Q> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q) -> U> {
         let field_value = env
@@ -163,8 +163,8 @@ impl<T, U, V, W, Q> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q) -
 
 impl<T, U, V, W, Q, R> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q, R) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R) -> U> {
         let field_value = env
@@ -180,8 +180,8 @@ impl<T, U, V, W, Q, R> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q
 
 impl<T, U, V, W, Q, R, S> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q, R, S) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S) -> U> {
         let field_value = env
@@ -199,8 +199,8 @@ impl<T, U, V, W, Q, R, S, A> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A) -> U> {
         let field_value = env
@@ -218,8 +218,8 @@ impl<T, U, V, W, Q, R, S, A, B> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B) -> U> {
         let field_value = env
@@ -237,8 +237,8 @@ impl<T, U, V, W, Q, R, S, A, B, C> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C) -> U> {
         let field_value = env
@@ -256,8 +256,8 @@ impl<T, U, V, W, Q, R, S, A, B, C, D> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D) -> U> {
         let field_value = env
@@ -275,8 +275,8 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E) -> U> {
         let field_value = env
@@ -294,8 +294,8 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F) -> U> {
         let field_value = env
@@ -313,8 +313,8 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F, G> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut JNIEnv,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U> {
         let field_value = env
