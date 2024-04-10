@@ -1,3 +1,3 @@
 # This file contains the CEF browser version used for Jenkins
 #
-cef_binary_122.1.8+g40272b5+chromium-122.0.6261.69_windows64_minimal
+cef_binary_123.0.8+g43f22da+chromium-123.0.6312.46_windows64_minimal
