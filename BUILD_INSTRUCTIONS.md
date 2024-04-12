@@ -5,10 +5,10 @@ First, instructions on how to work on the component locally using the Eclipse ID
 
 ## Prerequisites
 
-- A Java Development Kit 17 (or higher)
-- Maven (4.0+) 
-- Eclipse IDE (2022-06+)
-- Rust Toolchain (for Windows, either MSVC or MinGW, 1.62+)
+- A Java Development Kit 21
+- Maven (4.0.6) 
+- Eclipse IDE (2023-12)
+- Rust Toolchain (for Windows, either MSVC or MinGW, 1.67)
 
 # Development
 
@@ -24,8 +24,6 @@ This is the recommended way to build and debug for development.
 6. Import projects from `java/` via File -> Import -> Existing Projects into Workspace
 7. Import the Checkstyle configuration from the SET repository (`releng/eclipse/CheckstyleEclipse.xml`) via Window -> Preferences -> Checkstyle
 8. Build all projects
-
-The example project is a great starting point for trying out new functionality. 
 
 # Production build
 
