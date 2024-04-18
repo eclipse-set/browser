@@ -20,10 +20,7 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_cefswt_1cookie_1visitor_1t_ce
     cookie: *mut chromium::cef::_cef_cookie_t,
 ) -> jstring {
     let value = unsafe { CStr::from_ptr(cefswt_cookie_value(cookie)) };
-    return env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner();
+    return env.new_string(value.to_str().unwrap()).unwrap().into_raw();
 }
 
 #[no_mangle]
@@ -33,10 +30,7 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_cefswt_1cookie_1visitor_1t_ce
     cookie: *mut chromium::cef::_cef_cookie_t,
 ) -> jstring {
     let value = unsafe { CStr::from_ptr(cefswt_cookie_to_java(cookie)) };
-    return env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner();
+    return env.new_string(value.to_str().unwrap()).unwrap().into_raw();
 }
 
 fn cefswt_cookie_to_java(cookie: *mut chromium::cef::_cef_cookie_t) -> *mut c_char {
