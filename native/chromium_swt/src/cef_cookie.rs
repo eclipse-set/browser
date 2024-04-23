@@ -128,8 +128,8 @@ pub fn cefswt_get_cookie(
     }
 }
 
-pub fn cefswt_cookie_value(cookie: *mut chromium::cef::_cef_cookie_t) -> *mut c_char {
-    unsafe { chromium::utils::cstr_from_cef(&(*cookie).value) }
+pub unsafe fn cefswt_cookie_value(cookie: *mut chromium::cef::_cef_cookie_t) -> *mut c_char {
+    chromium::utils::cstr_from_cef(&(*cookie).value)
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.cefswt_cookie_visitor_t")]
