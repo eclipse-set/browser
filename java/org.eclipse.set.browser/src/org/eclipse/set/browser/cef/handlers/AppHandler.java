@@ -40,15 +40,17 @@ public class AppHandler {
 	private long get_browser_process_handler(final long app) {
 		return browserProcessHandler.get();
 	}
-	
+
 	@SuppressWarnings({ "unused", "static-method" }) // Called via JNI
 	private void on_before_command_line_processing(final long app, final long process_type, final long command_line) {
 		// Disable updating Chromium components from Google servers
+		cef_command_line_t.cefswt_append_switch(command_line, "use-gl", "angle");
+		cef_command_line_t.cefswt_append_switch(command_line, "use-angle", "vulkan");
+
 		cef_command_line_t.cefswt_append_switch(command_line, "disable-component-update", null);
-		
+
 		// If debugging is enabled, allow remote debugging
-		if(ChromiumStatic.getCEFConfiguration().DebugPort != 0)
-		{
+		if (ChromiumStatic.getCEFConfiguration().DebugPort != 0) {
 			cef_command_line_t.cefswt_append_switch(command_line, "remote-allow-origins", "*");
 		}
 	}
