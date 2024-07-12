@@ -7,4 +7,7 @@ edition = "2021"
 jni = "0.19.0"
 
 [lib]
-crate_type = ["rlib"]
+crate-type = ["rlib"]
+
+[lints.clippy]
+missing_transmute_annotations = "allow"

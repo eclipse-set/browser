@@ -11,8 +11,8 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 use quote::quote;
 use syn::{
-    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput,
-    Field, Fields,
+    parse_macro_input, punctuated::Punctuated, token::Comma, Data, DataStruct, DeriveInput, Field,
+    Fields,
 };
 
 /// Implementation for derive(FromJava)
@@ -52,7 +52,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
 fn build_initialization(
     fields: &Punctuated<Field, Comma>,
 ) -> impl Iterator<Item = proc_macro2::TokenStream> + '_ {
-    let fields = fields.iter().enumerate().map(move |(_i, field)| {
+    let fields = fields.iter().map(move |field| {
         let field_ident = field.ident.as_ref().unwrap();
         quote! { #field_ident: FromJavaMember::from_java_member(env, object, stringify!(#field_ident)) }
     });
