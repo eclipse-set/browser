@@ -13,6 +13,7 @@
  */
 package org.eclipse.set.browser.cef;
 
+import java.io.IOException;
 import java.net.HttpCookie;
 import java.time.Instant;
 import java.util.HashMap;
@@ -146,6 +147,11 @@ public class ChromiumStatic {
 					return;
 				}
 				ChromiumStatic.shutdown();
+				try {
+					CEFLibrary.cleanTempPath();
+				} catch (IOException e) {
+					// ignore failed deletion
+				}
 			});
 		}
 
