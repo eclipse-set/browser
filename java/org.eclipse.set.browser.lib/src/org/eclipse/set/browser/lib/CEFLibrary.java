@@ -66,12 +66,12 @@ public class CEFLibrary {
 				}
 
 				try {
-					// Check if process is still running
+					// Check if process is still running, but not this process
 					// This may find another process, with a reused PID, however
 					// this acceptable, as over time all directories will be
 					// cleaned up
 					final long pid = Long.parseLong(p.getFileName().toString());
-					return ProcessHandle.of(pid).isEmpty();
+					return ProcessHandle.current().pid() == pid || ProcessHandle.of(pid).isEmpty();
 				} catch (NumberFormatException e) {
 					return true;
 				}
