@@ -11,7 +11,7 @@ chromium_jni_macro = { path = "../chromium_jni_macro/" }
 chromium_jni_utils = { path = "../chromium_jni_utils/" }
 
 [lib]
-crate-type = ["cdylib"]
+crate_type = ["cdylib"]
 
 [lints.clippy]
 missing_safety_doc = "allow"

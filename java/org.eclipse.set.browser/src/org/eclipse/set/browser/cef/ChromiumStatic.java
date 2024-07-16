@@ -135,7 +135,7 @@ public class ChromiumStatic {
 
 			ChromiumLib.cefswt_init(app.get(),
 					CEFLibrary.getSubprocessExePath(),
-					CEFResource.getPath().toAbsolutePath().normalize().toString(),
+					CEFResource.getPath().toAbsolutePath().normalize().toString(), CEFLibrary.getTempPath(),
 					configuration.UserAgentProduct, configuration.Locale,
 					configuration.DebugPort, configuration.LogPath,
 					configuration.LogLevel.getValue());
