@@ -19,9 +19,9 @@ use jni::JNIEnv;
 macro_rules! jni_allocate {
     ($name:tt, $type:ty) => {
         #[jni_name($name, $type)]
-        pub extern "C" fn allocate(env: JNIEnv, _class: JClass, object: JObject) -> jlong {
-            let object: JNIWrapperType<$type> =
-                JNICEFCallback::jni_allocate(env, env.new_global_ref(object).unwrap());
+        pub extern "C" fn allocate(env: JNIEnv, _class: JClass, object: &JObject) -> jlong {
+            let global_ref = env.new_global_ref(object).unwrap();
+            let object: JNIWrapperType<$type> = JNICEFCallback::jni_allocate(env, global_ref);
             return Box::into_raw(Box::new(object)) as jlong;
         }
     };
@@ -32,7 +32,7 @@ macro_rules! jni_deallocate {
     ($name:tt, $type:ty) => {
         #[jni_name($name, $type)]
         pub extern "C" fn deallocate(
-            _env: JNIEnv,
+            mut _env: JNIEnv,
             _class: JClass,
             object: *mut chromium::cef::_cef_display_handler_t,
         ) {
