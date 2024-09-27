@@ -54,7 +54,7 @@ pub trait FromJavaValue {
 impl FromJavaValue for i32 {
     fn from_java_value<O>(mut _env: &JNIEnv, object: JValueGen<O>) -> Self {
         match object {
-            JValueGen::Int(i) => i.into(),
+            JValueGen::Int(i) => i,
             JValueGen::Byte(b) => b.into(),
             JValueGen::Short(b) => b.into(),
             JValueGen::Bool(b) => b.into(),
@@ -66,7 +66,7 @@ impl FromJavaValue for i32 {
 impl FromJavaValue for i64 {
     fn from_java_value<O>(mut _env: &JNIEnv, object: JValueGen<O>) -> Self {
         match object {
-            JValueGen::Long(l) => l.into(),
+            JValueGen::Long(l) => l,
             JValueGen::Int(i) => i.into(),
             JValueGen::Byte(b) => b.into(),
             JValueGen::Short(b) => b.into(),
