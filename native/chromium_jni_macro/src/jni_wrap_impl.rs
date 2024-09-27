@@ -56,7 +56,7 @@ pub fn jni_wrap_attr_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     );
     let q = quote! {
         #[no_mangle]
-        pub unsafe extern fn #fname(mut _env: jni::JNIEnv, _class: jni::objects::JClass, #(#func_args, )*) #ret_expr {
+        pub extern fn #fname(_env: jni::JNIEnv, _class: jni::objects::JClass, #(#func_args, )*) #ret_expr {
             #(#param_prepare; )*
             #call_expr
             #(#param_cleanup; )*
@@ -88,7 +88,7 @@ fn setup_argument(
     };
     let arg = Ident::new(&format!("arg{}", index), Span::call_site());
     let param = Ident::new(&format!("param{}", index), Span::call_site());
-    let (arg_type, prepare, cleanup) = handle_arg(&arg, ty);
+    let (arg_type, prepare, cleanup) = handle_arg(&arg, &param, ty);
 
     (
         // JNI Function argument: arg[index]: type
@@ -110,11 +110,11 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
         Some(t) => match t.as_str() {
             "String" => (
                 quote! { -> jni::sys::jstring },
-                quote! { return _env.new_string(result).unwrap().into_raw(); },
+                quote! { return _env.new_string(result).unwrap().into_inner(); },
             ),
             "CStr" => (
                 quote! { -> jni::sys::jstring },
-                quote! { return _env.new_string(result.to_str().unwrap()).unwrap().into_raw(); },
+                quote! { return _env.new_string(result.to_str().unwrap()).unwrap().into_inner(); },
             ),
             "* mut c_char" | "* const c_char" => (
                 quote! { -> jni::sys::jstring },
@@ -123,7 +123,7 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
                         return std::ptr::null_mut();
                     }
                     let result = unsafe { CStr::from_ptr(result) };
-                    return _env.new_string(result.to_str().unwrap()).unwrap().into_raw();
+                    return _env.new_string(result.to_str().unwrap()).unwrap().into_inner();
                 },
             ),
             "cef :: cef_string_userfree_t" => (
@@ -131,7 +131,7 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
                 quote! {
                     let str: String = chromium::utils::str_from_cef(result);
                     unsafe { cef::cef_string_userfree_utf16_free(result) };
-                    return _env.new_string(str).unwrap().into_raw();
+                    return _env.new_string(str).unwrap().into_inner();
                 },
             ),
             "c_int" | "i32" => (
@@ -157,6 +157,7 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
 /// result is (paramType, mapping, cleanup)
 fn handle_arg(
     arg: &Ident,
+    param: &Ident,
     ty: &Type,
 ) -> (
     proc_macro2::TokenStream,
@@ -186,18 +187,20 @@ fn handle_arg(
             quote! {},
         ),
         "* const c_char" => (
-            quote! { &jni::objects::JString },
-            quote! { _env.get_string_unchecked(#arg).map(|strs| strs.into_raw()).unwrap_or(std::ptr::null_mut()) },
-            quote! {},
+            quote! { jni::objects::JString },
+            quote! { _env.get_string_utf_chars(#arg).unwrap_or(std::ptr::null_mut()) },
+            quote! { if !#param.is_null() {
+                _env.release_string_utf_chars(#arg, #param).unwrap()
+            }},
         ),
         "Option < Vec < u8 > >" => (
-            quote! { jni::objects::JByteArray },
-            quote! { _env.convert_byte_array(&#arg).map(|arr| Some(arr)).unwrap_or(None) },
+            quote! { jni::sys::jbyteArray },
+            quote! { _env.convert_byte_array(#arg).map(|arr| Some(arr)).unwrap_or(None) },
             quote! {},
         ),
         "Vec < u8 >" => (
-            quote! { jni::objects::JByteArray },
-            quote! { _env.convert_byte_array(&#arg).unwrap() },
+            quote! { jni::sys::jbyteArray },
+            quote! { _env.convert_byte_array(#arg).unwrap() },
             quote! {},
         ),
         _ => {

@@ -38,7 +38,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
 
     let modified = quote! {
         impl FromJava for #name {
-            fn from_java(env: &mut JNIEnv, object: &JObject) -> #name {
+            fn from_java(env: JNIEnv, object: JObject) -> #name {
                 return #name {
                     #(#query_parts, )*
                 };
