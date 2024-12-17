@@ -16,6 +16,7 @@ use crate::ToJava;
 use jni::objects::GlobalRef;
 use jni::objects::JObject;
 use chromium_jni_utils::jni_unwrap;
+use std::ops::DerefMut;
 use crate::cef::cef_string_t;
 
 pub type DWORD = ::std::os::raw::c_ulong;

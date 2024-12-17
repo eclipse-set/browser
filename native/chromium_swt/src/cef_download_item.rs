@@ -27,12 +27,12 @@ pub unsafe extern "C" fn get_full_path(
     env
         .new_string(value.to_str().unwrap())
         .unwrap()
-        .into_inner()
+        .into_raw()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn is_cancelled(
-    _env: JNIEnv,
+    mut _env: JNIEnv,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jboolean {
@@ -41,7 +41,7 @@ pub unsafe extern "C" fn is_cancelled(
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn is_complete(
-    _env: JNIEnv,
+    mut _env: JNIEnv,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jboolean {
@@ -59,24 +59,25 @@ pub unsafe extern "C" fn get_url(
     env
         .new_string(value.to_str().unwrap())
         .unwrap()
-        .into_inner()
+        .into_raw()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn before_download_callback(
-    _env: JNIEnv,
+    mut _env: JNIEnv,
     _class: JClass,
     callback: *mut chromium::cef::_cef_before_download_callback_t,
     jpath: JString,
 ) {
-    let rpath = _env
-        .get_string_utf_chars(jpath)
-        .unwrap_or(std::ptr::null_mut());
+    let rpath = _env.get_string_unchecked(&jpath);
 
-    let path = chromium::utils::cef_string_from_c(rpath);
+    let strs = match rpath {
+        Ok(value) => value.into_raw(),
+        Err(_e) => std::ptr::null_mut(),
+    };
+
+    let path = chromium::utils::cef_string_from_c(strs);
     (*callback).cont.unwrap()(callback, &path, 0);
-
-    _env.release_string_utf_chars(jpath, rpath).unwrap();
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.cef_download_item_t")]
