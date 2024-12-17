@@ -27,7 +27,7 @@ pub unsafe extern "C" fn get_full_path(
     env
         .new_string(value.to_str().unwrap())
         .unwrap()
-        .into_inner()
+        .into_raw()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
@@ -59,7 +59,7 @@ pub unsafe extern "C" fn get_url(
     env
         .new_string(value.to_str().unwrap())
         .unwrap()
-        .into_inner()
+        .into_raw()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
