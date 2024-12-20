@@ -51,8 +51,8 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
 
     let modified = quote! {
         impl JNICEFCallback for #name {
-            fn jni_allocate(mut env: JNIEnv, object: GlobalRef) -> chromium_jni_utils::JNIWrapperType<#name> {
-                let class = &env.get_object_class(object.as_obj()).unwrap();
+            fn jni_allocate(env: JNIEnv, object: GlobalRef) -> chromium_jni_utils::JNIWrapperType<#name> {
+                let class = env.get_object_class(object.as_obj()).unwrap();
                 
                 #(#jni_callbacks)*
 
@@ -92,7 +92,7 @@ fn build_initialization(
         let signature = jni_signature(field);
         
         quote! { #field_ident: match env.get_method_id(class, stringify!(#field_ident), #signature) {
-                Err(_e) => {
+                Err(e) => {
                     // Attempting to get the method id of a method that does not exists results 
                     // in a NoSuchMethodException. As we do not want to throw this, clear the exception 
                     env.exception_clear().unwrap();
@@ -140,8 +140,9 @@ fn build_jni_callback(
 
         let retline = match result {
             None => quote! {},
-            Some(_) => quote! { return chromium_jni_utils::FromJavaValue::from_java_value(&env, result); }
+            Some(_) => quote! { return chromium_jni_utils::FromJavaValue::from_java_value(env, result); }
         };
+        
         let func_ident = syn::Ident::new(&format!("jni_{}", field_ident), Span::call_site());
         
         let signature = jni_signature(field);
@@ -149,8 +150,8 @@ fn build_jni_callback(
             /// C-Callback which calls the Java function via JNI
             unsafe extern "C" fn #func_ident(#args) #result_tag {
                 let wrapper = jni_unwrap(self_);
-                let mut guard = (*wrapper).jvm.attach_current_thread().unwrap();
-                let env: &mut JNIEnv = guard.deref_mut();
+                let guard = (*wrapper).jvm.attach_current_thread().unwrap();
+                let env: JNIEnv = *guard;
                 let result = env.call_method((*wrapper).this.as_obj(), stringify!(#field_ident), #signature, &[#(#argnames, )*]).expect(stringify!(#func_ident));
                 #retline
             };

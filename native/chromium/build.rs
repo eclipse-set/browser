@@ -193,5 +193,4 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .raw_line("use jni::objects::GlobalRef;")
         .raw_line("use jni::objects::JObject;")
         .raw_line("use chromium_jni_utils::jni_unwrap;")
-        .raw_line("use std::ops::DerefMut;")
 }
