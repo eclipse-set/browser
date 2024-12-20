@@ -424,8 +424,8 @@ p2/orbit/p2.eclipse.plugin/org.eclipse.text.quicksearch.source/1.2.200.v20230701
 p2/orbit/p2.eclipse.plugin/org.eclipse.text.quicksearch/1.2.200.v20230701-1052, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.text.source/3.13.100.v20230801-1334, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.text/3.13.100.v20230801-1334, EPL-2.0, approved, eclipse.platform
-p2/orbit/p2.eclipse.plugin/org.eclipse.tools.layout.spy.source/1.2.200.v20231108-1957, EPL-2.0, approved, eclipse.pde
-p2/orbit/p2.eclipse.plugin/org.eclipse.tools.layout.spy/1.2.200.v20231108-1957, EPL-2.0, approved, eclipse.pde
+p2/orbit/p2.eclipse.plugin/org.eclipse.tools.layout.spy.source/1.2.200.v20231108-1957, EPL-2.0, approved, tools.cdt
+p2/orbit/p2.eclipse.plugin/org.eclipse.tools.layout.spy/1.2.200.v20231108-1957, EPL-2.0, approved, tools.cdt
 p2/orbit/p2.eclipse.plugin/org.eclipse.ui.browser.source/3.8.100.v20230727-0604, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.ui.browser/3.8.100.v20230727-0604, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.ui.cheatsheets.source/3.8.200.v20231106-1240, EPL-2.0, approved, eclipse.platform
