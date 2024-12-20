@@ -14,7 +14,6 @@
 extern crate chromium;
 use chromium::cef;
 use chromium_jni_macro::{jni_name, jni_wrapper};
-use jni::objects::JString;
 
 mod app;
 pub mod cef_browser;
@@ -308,16 +307,19 @@ pub fn cefswt_set_intptr(ptr: *mut ::std::os::raw::c_int, value: c_int) {
 
 #[jni_name("org.eclipse.set.browser.lib.ChromiumLib")]
 #[no_mangle]
-pub extern "C" fn cefswt_cstring_to_java<'local>(
-    mut _env: jni::JNIEnv<'local>,
+#[allow(clippy::not_unsafe_ptr_arg_deref)]
+pub extern "C" fn cefswt_cstring_to_java(
+    _env: jni::JNIEnv,
     _class: jni::objects::JClass,
     string: *const c_char,
-) -> JString<'local> {
+) -> jni::sys::jstring {
     if string.is_null() {
-        return jni::objects::JObject::null().into();
+        return std::ptr::null_mut();
     }
     let string = unsafe { CStr::from_ptr(string) };
-    _env.new_string(string.to_str().unwrap()).unwrap()
+    _env.new_string(string.to_str().unwrap())
+        .unwrap()
+        .into_inner()
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.ChromiumLib")]
