@@ -1,5 +1,3 @@
-git/github/chromium/chromium/122.0.6261.69, None, approved, #13447
-git/github/chromiumembedded/cef/40272b5bc5890fc897011f81ee4e6f86e2f7ece9, BSD-3-Clause AND MIT AND Apache-2.0 AND LicenseRef-BSD-style AND CC0-1.0, approved, #13448
 maven/mavencentral/com.jcraft/jsch/0.1.55, BSD-3-Clause, approved, CQ19435
 maven/mavencentral/commons-io/commons-io/2.11.0, Apache-2.0, approved, CQ23745
 maven/mavencentral/commons-logging/commons-logging/1.0.4, Apache-2.0, approved, CQ1029
@@ -405,12 +403,12 @@ p2/orbit/p2.eclipse.plugin/org.eclipse.rcp/4.30.0.v20231201-0110, EPL-2.0, appro
 p2/orbit/p2.eclipse.plugin/org.eclipse.sdk/4.30.0.v20231201-0110, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.search.source/3.16.0.v20230921-2245, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.search/3.16.0.v20230921-2245, EPL-2.0, approved, eclipse.platform
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.cef.win32.source/2.5.0, EPL-2.0, approved, technology.set
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.cef.win32/2.5.0, EPL-2.0, approved, technology.set
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.lib.source/2.5.0, EPL-2.0, approved, technology.set
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.lib/2.5.0, EPL-2.0, approved, technology.set
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.source/2.5.0, EPL-2.0, approved, technology.set
-p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser/2.5.0, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.cef.win32.source/2.5.0.qualifier, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.cef.win32/2.5.0.qualifier, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.lib.source/2.5.0.qualifier, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.lib/2.5.0.qualifier, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser.source/2.5.0.qualifier, EPL-2.0, approved, technology.set
+p2/orbit/p2.eclipse.plugin/org.eclipse.set.browser/2.5.0.qualifier, EPL-2.0, approved, technology.set
 p2/orbit/p2.eclipse.plugin/org.eclipse.swt.win32.win32.x86_64.source/3.124.200.v20231113-1355, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.swt.win32.win32.x86_64/3.124.200.v20231113-1355, EPL-2.0, approved, eclipse.platform
 p2/orbit/p2.eclipse.plugin/org.eclipse.swt/3.124.200.v20231113-1355, EPL-2.0, approved, eclipse.platform
