@@ -34,7 +34,7 @@ fn link() {
     }
 
     // Tell cargo to tell rustc to link the system shared library.
-    println!("cargo:rustc-link-search={}", cef_path.display());
+    println!("cargo:rustc-link-search={cef_path.display()}");
     println!("cargo:rustc-link-lib=libcef");
 
     // Set up compiler flags to use the Windows subsystem & Windows CRT
