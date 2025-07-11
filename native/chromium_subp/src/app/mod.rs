@@ -203,7 +203,7 @@ fn register_function(
     handler: &mut V8Handler,
 ) {
     // Add the "myfunc" function to the "window" object.
-    let handler_name = chromium::utils::cef_string(&format!("{}", id));
+    let handler_name = chromium::utils::cef_string(&format!("{id}"));
     let func =
         unsafe { chromium::cef::cef_v8value_create_function(&handler_name, handler.as_ptr()) };
     let s = unsafe {
