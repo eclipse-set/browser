@@ -291,7 +291,7 @@ unsafe fn convert_type(
             let vali = (*array_val).get_value_byindex.unwrap()(array_val, i);
             let (valcstr, valtyp) = convert_type(vali, _eval_id, context);
             let typ = valtyp as u32;
-            let  = valcstr.into_string().unwrap();
+            let valstr = valcstr.into_string().unwrap();
             let valstr = format!("'{typ},{valstr}'");
             if i > 0 {
                 arraystr.push(';');
