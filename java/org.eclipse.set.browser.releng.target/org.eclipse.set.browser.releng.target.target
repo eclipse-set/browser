@@ -3,9 +3,9 @@
 <target name="org.eclipse.set.browser.releng.target" sequenceNumber="1656422776">
   <locations>
     <location includeAllPlatforms="false" includeConfigurePhase="false" includeMode="slicer" includeSource="true" type="InstallableUnit">
-      <unit id="org.eclipse.sdk.feature.group" version="4.30.0.v20231201-0512"/>
+      <unit id="org.eclipse.sdk.feature.group" version="4.36.0.v20250528-2229"/>
       <unit id="org.apache.commons.io" version="2.8.0.v20210415-0900"/>
-      <repository location="https://download.eclipse.org/releases/2023-12/"/>
+      <repository location="https://download.eclipse.org/releases/2025-06/"/>
     </location>
   </locations>
 </target>
