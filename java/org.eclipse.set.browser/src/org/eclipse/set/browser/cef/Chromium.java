@@ -71,6 +71,7 @@ import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.internal.C;
 import org.eclipse.swt.internal.Callback;
 import org.eclipse.swt.internal.DPIUtil;
+import org.eclipse.swt.internal.Win32DPIUtils;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
@@ -590,8 +591,9 @@ public class Chromium extends WebBrowser {
 
 			if (event.size != null && !event.size.equals(new Point(0, 0))) {
 				final Point size = event.size;
-				chromium.getShell().setSize(
-						chromium.getShell().computeSize(size.x, size.y));
+				chromium.getShell()
+						.setSize(chromium.getShell()
+								.computeSize(size.x, size.y));
 			}
 
 			for (final VisibilityWindowListener listener : visibilityWindowListeners) {
@@ -1232,13 +1234,13 @@ public class Chromium extends WebBrowser {
 	@SuppressWarnings("hiding")
 	private CompletableFuture<Void> doSetUrl(final String url,
 			final String postData, final String[] headers) {
-		return enableProgress.thenRun(() -> {
-			doSetUrlPost(browser, url, postData, headers);
-		});
+		return enableProgress
+				.thenRun(() -> doSetUrlPost(browser, url, postData, headers));
 	}
 
 	private Point getChromiumSize() {
-		return DPIUtil.autoScaleUp(chromium.getSize());
+		return Win32DPIUtils.pointToPixelAsSize(chromium.getSize(),
+				DPIUtil.getDeviceZoom());
 	}
 
 	private Object mapType(final int type, final String value)
@@ -1282,18 +1284,18 @@ public class Chromium extends WebBrowser {
 			final long callback) {
 		int style = SWT.ICON_WORKING;
 		switch (dialog_type) {
-		case ChromiumLib.JSDIALOGTYPE_ALERT:
-			style = SWT.ICON_INFORMATION;
-			break;
-		case ChromiumLib.JSDIALOGTYPE_CONFIRM:
-			style = SWT.ICON_WARNING;
-			break;
-		case ChromiumLib.JSDIALOGTYPE_PROMPT:
-			style = SWT.ICON_QUESTION | SWT.YES | SWT.NO;
-			break;
-		default:
-			style = SWT.ICON_QUESTION;
-			break;
+			case ChromiumLib.JSDIALOGTYPE_ALERT:
+				style = SWT.ICON_INFORMATION;
+				break;
+			case ChromiumLib.JSDIALOGTYPE_CONFIRM:
+				style = SWT.ICON_WARNING;
+				break;
+			case ChromiumLib.JSDIALOGTYPE_PROMPT:
+				style = SWT.ICON_QUESTION | SWT.YES | SWT.NO;
+				break;
+			default:
+				style = SWT.ICON_QUESTION;
+				break;
 		}
 		final Consumer<Integer> close = open -> {
 			final int r = open == SWT.OK || open == SWT.YES ? 1 : 0;
