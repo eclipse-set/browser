@@ -83,7 +83,6 @@ pub fn cefswt_set_cookie(
     }
 
     let cookie = chromium::cef::_cef_cookie_t {
-        size: std::mem::size_of::<chromium::cef::_cef_cookie_t>(),
         name,
         value,
         domain,

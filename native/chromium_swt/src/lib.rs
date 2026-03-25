@@ -73,7 +73,6 @@ pub fn cefswt_init(
         windowless_rendering_enabled: 0,
         command_line_args_disabled: 0,
         cache_path: cache_dir_cef,
-        disable_signal_handlers: 0,
         root_cache_path: cache_dir_cef,
         persist_session_cookies: 1,
         user_agent: chromium::utils::cef_string_empty(),
