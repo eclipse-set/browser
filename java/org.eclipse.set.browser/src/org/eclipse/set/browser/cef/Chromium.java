@@ -1239,8 +1239,11 @@ public class Chromium extends WebBrowser {
 	}
 
 	private Point getChromiumSize() {
-		return Win32DPIUtils.pointToPixelAsSize(chromium.getSize(),
-				DPIUtil.getDeviceZoom());
+		int zoom = DPIUtil.getDeviceZoom();
+		Point size = Point.OfFloat.from(chromium.getSize());
+		size.x = DPIUtil.pointToPixel(size.x, zoom);
+		size.y = DPIUtil.pointToPixel(size.y, zoom);
+		return size;
 	}
 
 	private Object mapType(final int type, final String value)
