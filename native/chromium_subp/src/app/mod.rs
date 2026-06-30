@@ -82,7 +82,7 @@ impl App {
 struct RenderProcessHandler {
     cef: chromium::cef::_cef_render_process_handler_t,
     function_handler: Option<V8Handler>,
-    context: *mut chromium::cef::cef_v8context_t,
+    context: *mut chromium::cef::cef_v8_context_t,
     functions: Vec<(c_int, chromium::cef::cef_string_userfree_t)>,
 }
 
@@ -105,7 +105,7 @@ impl RenderProcessHandler {
             self_: *mut chromium::cef::_cef_render_process_handler_t,
             browser: *mut chromium::cef::_cef_browser_t,
             frame: *mut chromium::cef::_cef_frame_t,
-            context: *mut chromium::cef::_cef_v8context_t,
+            context: *mut chromium::cef::_cef_v8_context_t,
         ) {
             if (*frame).is_main.unwrap()(frame) == 1 {
                 let rph = self_ as *mut RenderProcessHandler;
@@ -199,13 +199,13 @@ impl RenderProcessHandler {
 fn register_function(
     id: c_int,
     name: *mut chromium::cef::cef_string_t,
-    global: *mut chromium::cef::cef_v8value_t,
+    global: *mut chromium::cef::cef_v8_value_t,
     handler: &mut V8Handler,
 ) {
     // Add the "myfunc" function to the "window" object.
     let handler_name = chromium::utils::cef_string(&format!("{id}"));
     let func =
-        unsafe { chromium::cef::cef_v8value_create_function(&handler_name, handler.as_ptr()) };
+        unsafe { chromium::cef::cef_v8_value_create_function(&handler_name, handler.as_ptr()) };
     let s = unsafe {
         (*global).set_value_bykey.unwrap()(
             global,
@@ -227,7 +227,7 @@ unsafe fn handle_eval(
     let code = (*args).get_string.unwrap()(args, 2);
 
     let frame = (*browser).get_main_frame.unwrap()(browser);
-    let context = (*frame).get_v8context.unwrap()(frame);
+    let context = (*frame).get_v8_context.unwrap()(frame);
     let url_cef = chromium::utils::cef_string("http://text/");
     let mut ret = ::std::ptr::null_mut();
     let mut ex = ::std::ptr::null_mut();
@@ -246,9 +246,9 @@ unsafe fn handle_eval(
 }
 
 unsafe fn convert_type(
-    ret: *mut chromium::cef::cef_v8value_t,
+    ret: *mut chromium::cef::cef_v8_value_t,
     _eval_id: c_int,
-    context: *mut chromium::cef::cef_v8context_t,
+    context: *mut chromium::cef::cef_v8_context_t,
 ) -> (CString, socket::ReturnType) {
     if (*ret).is_null.expect("is_null")(ret) == 1 || (*ret).is_undefined.unwrap()(ret) == 1 {
         let ret_str = CString::new("").unwrap();
@@ -312,7 +312,7 @@ unsafe fn convert_type(
 
 #[repr(C)]
 struct V8Handler {
-    cef: chromium::cef::_cef_v8handler_t,
+    cef: chromium::cef::_cef_v8_handler_t,
     browser: *mut chromium::cef::_cef_browser_t,
 }
 
@@ -324,18 +324,18 @@ impl V8Handler {
         }
     }
 
-    pub fn as_ptr(&mut self) -> &mut chromium::cef::_cef_v8handler_t {
+    pub fn as_ptr(&mut self) -> &mut chromium::cef::_cef_v8_handler_t {
         &mut self.cef
     }
 
-    fn cef_function_handler() -> chromium::cef::_cef_v8handler_t {
+    fn cef_function_handler() -> chromium::cef::_cef_v8_handler_t {
         unsafe extern "C" fn execute(
-            self_: *mut chromium::cef::_cef_v8handler_t,
+            self_: *mut chromium::cef::_cef_v8_handler_t,
             name: *const chromium::cef::cef_string_t,
-            _object: *mut chromium::cef::_cef_v8value_t,
+            _object: *mut chromium::cef::_cef_v8_value_t,
             arguments_count: usize,
-            arguments: *const *mut chromium::cef::_cef_v8value_t,
-            retval: *mut *mut chromium::cef::_cef_v8value_t,
+            arguments: *const *mut chromium::cef::_cef_v8_value_t,
+            retval: *mut *mut chromium::cef::_cef_v8_value_t,
             exception: *mut chromium::cef::cef_string_t,
         ) -> c_int {
             let handler = self_ as *mut V8Handler;
@@ -389,8 +389,8 @@ impl V8Handler {
             1
         }
 
-        chromium::cef::_cef_v8handler_t {
-            base: new_cef_base_ref_counted(mem::size_of::<chromium::cef::_cef_v8handler_t>()),
+        chromium::cef::_cef_v8_handler_t {
+            base: new_cef_base_ref_counted(mem::size_of::<chromium::cef::_cef_v8_handler_t>()),
             execute: Option::Some(execute),
         }
     }
@@ -399,26 +399,26 @@ impl V8Handler {
 unsafe fn map_type(
     kind: socket::ReturnType,
     str_value: &str,
-) -> Result<*mut chromium::cef::cef_v8value_t, &str> {
+) -> Result<*mut chromium::cef::cef_v8_value_t, &str> {
     match kind {
-        socket::ReturnType::Null => Ok(chromium::cef::cef_v8value_create_null()),
+        socket::ReturnType::Null => Ok(chromium::cef::cef_v8_value_create_null()),
         socket::ReturnType::Bool => {
             let boolean = str_value.parse::<i32>().expect("cannot parse i32");
-            Ok(chromium::cef::cef_v8value_create_bool(boolean))
+            Ok(chromium::cef::cef_v8_value_create_bool(boolean))
         }
         socket::ReturnType::Double => {
             let double = str_value.parse::<f64>().expect("cannot parse f64");
-            Ok(chromium::cef::cef_v8value_create_double(double))
+            Ok(chromium::cef::cef_v8_value_create_double(double))
         }
         socket::ReturnType::Str => {
             let str_cef = chromium::utils::cef_string(str_value);
-            Ok(chromium::cef::cef_v8value_create_string(&str_cef))
+            Ok(chromium::cef::cef_v8_value_create_string(&str_cef))
         }
         socket::ReturnType::Array => {
             let rstr = str_value;
             let rstr = rstr.get(1..rstr.len() - 1).expect("not quoted");
             let v = split(rstr, '"', ';');
-            let array = chromium::cef::cef_v8value_create_array(v.len() as i32);
+            let array = chromium::cef::cef_v8_value_create_array(v.len() as i32);
             for (i, str) in v.iter().enumerate() {
                 let elem_unquoted = str.get(1..str.len() - 1).expect("elem not quoted");
                 let parts = splitn(elem_unquoted, 2, '\'', ',');
