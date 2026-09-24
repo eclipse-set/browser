@@ -101,6 +101,7 @@ pub fn cefswt_set_cookie(
         },
         same_site: chromium::cef::cef_cookie_same_site_t::CEF_COOKIE_SAME_SITE_NO_RESTRICTION,
         priority: chromium::cef::cef_cookie_priority_t::CEF_COOKIE_PRIORITY_MEDIUM,
+        size:  std::mem::size_of::<chromium::cef::_cef_cookie_t>()
     };
     unsafe {
         (*manager).set_cookie.expect("null set_cookie")(

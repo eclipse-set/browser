@@ -83,7 +83,6 @@ fn gen_cef(cef_path: std::path::Display) {
         .blocklist_type("char16")
         .blocklist_type("u?int64")
         .blocklist_type("DWORD")
-        .blocklist_type("HWND.*")
         .blocklist_type("HINSTANCE.*")
         .blocklist_type("HMENU.*")
         .blocklist_type("HICON.*")
@@ -103,6 +102,9 @@ fn gen_cef(cef_path: std::path::Display) {
         .raw_line("pub type time_t = i64;")
         .raw_line("pub type int64 = ::std::os::raw::c_longlong;")
         .raw_line("pub type uint64 = ::std::os::raw::c_ulonglong;")
+        // The API Version should be change by update CEF version.
+        // See: https://github.com/chromiumembedded/cef/blob/master/cef_api_versions.json
+        .raw_line("pub const CEF_API_VERSION: std::os::raw::c_int = 14500;")
         .generate()
         .expect("Failed to gencef")
         .to_string();
@@ -164,8 +166,21 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .clang_arg(format!("-I{cef_path}"))
         .clang_arg(format!(
             "-I{}",
-            "C:\\Program Files (x86)\\Microsoft SDKs\\Windows\\v7.1A\\Include"
+            "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include"
         ))
+        .clang_arg(format!(
+            "-I{}",
+            "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\shared"
+        ))
+        .clang_arg(format!(
+            "-I{}",
+            "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\um"
+        ))
+        .clang_arg(format!(
+            "-I{}",
+            "C:\\Program Files (x86)\\Windows Kits\\10\\Include\\10.0.26100.0\\ucrt"
+        ))
+        .clang_arg("--target=x86_64-pc-windows-msvc")
         .clang_arg("-fparse-all-comments")
         .clang_arg("-Wno-nonportable-include-path")
         .clang_arg("-Wno-invalid-token-paste")

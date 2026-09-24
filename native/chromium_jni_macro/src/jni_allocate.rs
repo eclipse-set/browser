@@ -59,7 +59,7 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
                 return chromium_jni_utils::JNIWrapperType {
                     value: #name {
                         base: _cef_base_ref_counted_t {
-                            size: std::mem::size_of::<JNIWrapperType<#name>>(),
+                            size: std::mem::size_of::<#name>(),
                             add_ref: None,
                             release: None,
                             has_one_ref: None,
