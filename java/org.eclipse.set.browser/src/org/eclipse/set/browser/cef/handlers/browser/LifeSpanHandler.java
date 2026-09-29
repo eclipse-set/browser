@@ -83,7 +83,7 @@ public class LifeSpanHandler {
 
 	@SuppressWarnings("unused") // Called from JNI
 	private int on_before_popup(final long self, final long id,
-			final long frame, final long target_url,
+			final long frame, final int popupId, final long target_url,
 			final long target_frame_name, final int target_disposition,
 			final int user_gesture, final long popupFeaturesPtr,
 			final long windowInfo, final long client, final long settings,
