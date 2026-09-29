@@ -54,16 +54,19 @@ public class DownloadHandler {
 	}
 
 	@SuppressWarnings({ "unused" }) // Called from JNI
-	private void on_before_download(final long download_handler, final long id,
+	private int on_before_download(final long download_handler, final long id,
 			final long download_item, final long suggested_name,
 			final long callback) {
 		final Optional<Path> optPath = browser.getDownloadListener()
 				.beforeDownload(
 						ChromiumLib.cefswt_cefstring_to_java(suggested_name),
 						cef_download_item_t.get_url(download_item));
-
-		optPath.ifPresent(path -> cef_download_item_t.before_download_callback(
-				callback, path.toAbsolutePath().toString()));
+		if (optPath.isPresent()) {
+			cef_download_item_t.before_download_callback(callback,
+					optPath.get().toAbsolutePath().toString());
+			return 1;
+		}
+		return 0;
 	}
 
 	@SuppressWarnings({ "unused" }) // Called from JNI
@@ -76,8 +79,8 @@ public class DownloadHandler {
 		if (complete || cancelled) {
 			final String path = cef_download_item_t
 					.get_full_path(download_item);
-			browser.getDownloadListener().downloadFinished(!cancelled,
-					Path.of(path));
+			browser.getDownloadListener()
+					.downloadFinished(!cancelled, Path.of(path));
 		}
 	}
 

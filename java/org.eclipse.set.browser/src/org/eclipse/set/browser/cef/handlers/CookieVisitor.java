@@ -60,7 +60,7 @@ public class CookieVisitor {
 
 	@SuppressWarnings("unused")
 	private int visit(final long self, final long cefcookie, final int count,
-			final int total, final int delete) {
+			final int total, final long delete) {
 		final String name = cef_cookie_visitor_t
 				.cefswt_cookie_to_java(cefcookie);
 		if (WebBrowser.CookieName != null

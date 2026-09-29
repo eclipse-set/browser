@@ -58,7 +58,7 @@ public class JSDialogHandler {
 	private int on_jsdialog(final long self_, final long id,
 			final long origin_url, final int dialog_type,
 			final long message_text, final long default_prompt_text,
-			final long callback, final int suppress_message) {
+			final long callback, final long suppress_message) {
 		return browser.on_jsdialog(origin_url, dialog_type, message_text,
 				default_prompt_text, callback);
 	}
