@@ -6,10 +6,11 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v20.html
  */
-use jni::objects::GlobalRef;
+use jni::objects::Global;
 use jni::objects::JObject;
-use jni::objects::JValue;
-use jni::JNIEnv;
+use jni::objects::JValueOwned;
+use jni::strings::JNIString;
+use jni::Env;
 use jni::JavaVM;
 
 /// Wrapper type for a CEF ref counted struct, which includes a
@@ -19,7 +20,7 @@ use jni::JavaVM;
 #[repr(C)]
 pub struct JNIWrapperType<T> {
     pub value: T,
-    pub this: GlobalRef,
+    pub this: Global<JObject<'static>>,
     pub jvm: JavaVM,
 }
 
@@ -28,7 +29,10 @@ pub fn jni_unwrap<T>(ptr: *mut T) -> *mut JNIWrapperType<T> {
 }
 
 pub trait JNICEFCallback {
-    fn jni_allocate(env: JNIEnv, object: GlobalRef) -> JNIWrapperType<Self>
+    fn jni_allocate(
+        env: &mut Env,
+        object: Global<JObject<'static>>,
+    ) -> JNIWrapperType<Self>
     where
         Self: Sized;
 }
@@ -36,73 +40,79 @@ pub trait JNICEFCallback {
 /// Allows extracting an object from a Java field
 pub trait FromJavaMember {
     /// Constructs `Self` from the field `name` in the JNI object `object`
-    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> Self;
+    fn from_java_member(env: &mut Env, object: &JObject, name: &str) -> Self;
 }
 
 /// Allows constructing an object from a Java object
 pub trait FromJava {
     /// Constructs `Self` from the JNI object `object`
-    fn from_java(env: JNIEnv, object: JObject) -> Self;
+    fn from_java(env: &mut Env, object: JObject) -> Self;
 }
 
 /// Allows constructing an object from a Java object
 pub trait FromJavaValue {
     /// Constructs `Self` from the JNI object `object`
-    fn from_java_value(env: JNIEnv, object: JValue) -> Self;
+    fn from_java_value(env: &mut Env, object: JValueOwned) -> Self;
 }
 
 impl FromJavaValue for i32 {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value(_env: &mut Env, object: JValueOwned) -> Self {
         match object {
-            JValue::Int(i) => i,
-            JValue::Byte(b) => b.into(),
-            JValue::Short(b) => b.into(),
-            JValue::Bool(b) => b.into(),
+            JValueOwned::Int(i) => i,
+            JValueOwned::Byte(b) => b.into(),
+            JValueOwned::Short(b) => b.into(),
+            JValueOwned::Bool(b) => b.into(),
             _ => panic!("Wrong type for from_java_value"),
         }
     }
 }
 
 impl FromJavaValue for i64 {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value(_env: &mut Env, object: JValueOwned) -> Self {
         match object {
-            JValue::Long(l) => l,
-            JValue::Int(i) => i.into(),
-            JValue::Byte(b) => b.into(),
-            JValue::Short(b) => b.into(),
-            JValue::Bool(b) => b.into(),
+            JValueOwned::Long(l) => l,
+            JValueOwned::Int(i) => i.into(),
+            JValueOwned::Byte(b) => b.into(),
+            JValueOwned::Short(b) => b.into(),
+            JValueOwned::Bool(b) => b.into(),
             _ => panic!("Wrong type for from_java_value"),
         }
     }
 }
 
 impl<T> FromJavaValue for *mut T {
-    fn from_java_value(_env: JNIEnv, object: JValue) -> Self {
+    fn from_java_value(_env: &mut Env, object: JValueOwned) -> Self {
         object.j().unwrap() as *mut T
     }
 }
 
 impl FromJavaMember for usize {
-    fn from_java_member(env: JNIEnv, object: JObject, name: &str) -> usize {
-        // Read an integer field
-        env
-            .get_field(object, name, "I")
-            .and_then(|v| v.i())
-            .unwrap() as usize
+    fn from_java_member(env: &mut Env, object: &JObject, name: &str) -> usize {
+        get_int_field(env, object, name).unwrap() as usize
     }
+}
+
+fn get_int_field(env: &mut Env, object: &JObject, name: &str) -> jni::errors::Result<i32> {
+    let name = JNIString::new(name);
+    env.get_field(object, &name, jni::jni_sig!("I"))
+        .and_then(|value| value.i())
+}
+
+fn get_long_field(env: &mut Env, object: &JObject, name: &str) -> jni::errors::Result<i64> {
+    let name = JNIString::new(name);
+    env.get_field(object, &name, jni::jni_sig!("J"))
+        .and_then(|value| value.j())
 }
 
 // A list of implementations for function pointers for functions of various arity follows
 // IMPROVE: Is there a better way to generalize across an arbitrary number of function args
 impl<T, U> FromJavaMember for Option<unsafe extern "C" fn(T) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -113,13 +123,11 @@ impl<T, U> FromJavaMember for Option<unsafe extern "C" fn(T) -> U> {
 
 impl<T, U, V> FromJavaMember for Option<unsafe extern "C" fn(T, V) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -130,13 +138,11 @@ impl<T, U, V> FromJavaMember for Option<unsafe extern "C" fn(T, V) -> U> {
 
 impl<T, U, V, W> FromJavaMember for Option<unsafe extern "C" fn(T, V, W) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -147,13 +153,11 @@ impl<T, U, V, W> FromJavaMember for Option<unsafe extern "C" fn(T, V, W) -> U> {
 
 impl<T, U, V, W, Q> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -164,13 +168,11 @@ impl<T, U, V, W, Q> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q) -
 
 impl<T, U, V, W, Q, R> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q, R) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -181,13 +183,11 @@ impl<T, U, V, W, Q, R> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q
 
 impl<T, U, V, W, Q, R, S> FromJavaMember for Option<unsafe extern "C" fn(T, V, W, Q, R, S) -> U> {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -200,13 +200,11 @@ impl<T, U, V, W, Q, R, S, A> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -219,13 +217,11 @@ impl<T, U, V, W, Q, R, S, A, B> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -238,13 +234,11 @@ impl<T, U, V, W, Q, R, S, A, B, C> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -257,13 +251,11 @@ impl<T, U, V, W, Q, R, S, A, B, C, D> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -276,13 +268,11 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -295,13 +285,11 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),
@@ -314,13 +302,11 @@ impl<T, U, V, W, Q, R, S, A, B, C, D, E, F, G> FromJavaMember
     for Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U>
 {
     fn from_java_member(
-        env: JNIEnv,
-        object: JObject,
+        env: &mut Env,
+        object: &JObject,
         name: &str,
     ) -> Option<unsafe extern "C" fn(T, V, W, Q, R, S, A, B, C, D, E, F, G) -> U> {
-        let field_value = env
-            .get_field(object, name, "J")
-            .and_then(|v| v.j())
+        let field_value = get_long_field(env, object, name)
             .map(|v| v as *const ());
         match field_value {
             Ok(ptr) => Some(unsafe { std::mem::transmute(ptr) }),

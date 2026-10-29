@@ -8,52 +8,49 @@
  */
 use jni::objects::{JClass, JObject, JValue};
 use jni::sys::jlong;
-use jni::JNIEnv;
+use jni::strings::JNIString;
+use jni::errors::ThrowRuntimeExAndDefault;
+use jni::EnvUnowned;
+
+fn set_int_field(
+    env: &mut jni::Env,
+    object: &JObject,
+    name: &str,
+    value: i32,
+) -> jni::errors::Result<()> {
+    env.set_field(
+        object,
+        JNIString::new(name),
+        jni::jni_sig!("I"),
+        JValue::Int(value),
+    )
+}
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_memmove__Lorg_eclipse_set_browser_lib_cef_1popup_1features_1t_2J(
-    env: JNIEnv,
+    mut env: EnvUnowned,
     _class: JClass,
     destination: JObject,
     source: *mut chromium::cef::_cef_popup_features_t,
 ) {
     let source_object = unsafe { *source };
-    env.set_field(destination, "x", "I", JValue::Int(source_object.x))
-        .unwrap();
-    env.set_field(destination, "xSet", "I", JValue::Int(source_object.xSet))
-        .unwrap();
-    env.set_field(destination, "y", "I", JValue::Int(source_object.y))
-        .unwrap();
-    env.set_field(destination, "ySet", "I", JValue::Int(source_object.ySet))
-        .unwrap();
-    env.set_field(destination, "width", "I", JValue::Int(source_object.width))
-        .unwrap();
-    env.set_field(
-        destination,
-        "widthSet",
-        "I",
-        JValue::Int(source_object.widthSet),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "height",
-        "I",
-        JValue::Int(source_object.height),
-    )
-    .unwrap();
-    env.set_field(
-        destination,
-        "heightSet",
-        "I",
-        JValue::Int(source_object.heightSet),
-    )
-    .unwrap();
+    env.with_env(|env| -> jni::errors::Result<()> {
+        set_int_field(env, &destination, "x", source_object.x)?;
+        set_int_field(env, &destination, "xSet", source_object.xSet)?;
+        set_int_field(env, &destination, "y", source_object.y)?;
+        set_int_field(env, &destination, "ySet", source_object.ySet)?;
+        set_int_field(env, &destination, "width", source_object.width)?;
+        set_int_field(env, &destination, "widthSet", source_object.widthSet)?;
+        set_int_field(env, &destination, "height", source_object.height)?;
+        set_int_field(env, &destination, "heightSet", source_object.heightSet)?;
+        Ok(())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1function_1id(
-    _env: JNIEnv,
+    mut _env: EnvUnowned,
     _class: JClass,
     arg0: jlong,
     arg1: JObject,
@@ -70,15 +67,11 @@ pub extern "C" fn Java_org_eclipse_set_browser_lib_ChromiumLib_cefswt_1function_
             &mut func_st,
         );
     }
-    _env.set_field(
-        arg1,
-        "args",
-        "I",
-        JValue::Int(func_st.args.try_into().unwrap()),
-    )
-    .unwrap();
-    _env.set_field(arg1, "id", "I", JValue::Int(func_st.id))
-        .unwrap();
-    _env.set_field(arg1, "port", "I", JValue::Int(func_st.port))
-        .unwrap();
+    _env.with_env(|env| -> jni::errors::Result<()> {
+        set_int_field(env, &arg1, "args", func_st.args.try_into().unwrap())?;
+        set_int_field(env, &arg1, "id", func_st.id)?;
+        set_int_field(env, &arg1, "port", func_st.port)?;
+        Ok(())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>();
 }

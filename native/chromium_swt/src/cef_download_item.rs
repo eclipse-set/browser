@@ -10,73 +10,74 @@ use chromium_jni_macro::jni_name;
 use chromium_jni_macro::jni_wrapper;
 use jni::objects::JClass;
 use jni::objects::JString;
+use jni::errors::ThrowRuntimeExAndDefault;
 use jni::sys::jboolean;
 use jni::sys::jstring;
-use jni::JNIEnv;
+use jni::EnvUnowned;
 use std::ffi::CStr;
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn get_full_path(
-    env: JNIEnv,
+    mut env: EnvUnowned,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jstring {
     let path = (*item).get_full_path.unwrap()(item);
 
     let value = CStr::from_ptr(crate::cefswt_cefstring_to_java(path));
-    env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner()
+    env.with_env(|env| -> jni::errors::Result<_> {
+        Ok(env.new_string(value.to_str().unwrap())?.into_raw())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn is_cancelled(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jboolean {
-    (*item).is_canceled.unwrap()(item) as jboolean
+    ((*item).is_canceled.unwrap()(item) != 0) as jboolean
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn is_complete(
-    _env: JNIEnv,
+    _env: EnvUnowned,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jboolean {
-    (*item).is_complete.unwrap()(item) as jboolean
+    ((*item).is_complete.unwrap()(item) != 0) as jboolean
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn get_url(
-    env: JNIEnv,
+    mut env: EnvUnowned,
     _class: JClass,
     item: *mut chromium::cef::_cef_download_item_t,
 ) -> jstring {
     let url = (*item).get_url.unwrap()(item);
     let value = CStr::from_ptr(crate::cefswt_cefstring_to_java(url));
-    env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner()
+    env.with_env(|env| -> jni::errors::Result<_> {
+        Ok(env.new_string(value.to_str().unwrap())?.into_raw())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 #[jni_name("org.eclipse.set.browser.lib.cef_download_item_t")]
 pub unsafe extern "C" fn before_download_callback(
-    _env: JNIEnv,
+    mut _env: EnvUnowned,
     _class: JClass,
     callback: *mut chromium::cef::_cef_before_download_callback_t,
     jpath: JString,
 ) {
-    let rpath = _env
-        .get_string_utf_chars(jpath)
-        .unwrap_or(std::ptr::null_mut());
-
-    let path = chromium::utils::cef_string_from_c(rpath);
-    (*callback).cont.unwrap()(callback, &path, 0);
-
-    _env.release_string_utf_chars(jpath, rpath).unwrap();
+    _env.with_env(|env| -> jni::errors::Result<()> {
+        let value = jpath.try_to_string(env)?;
+        let value = std::ffi::CString::new(value).unwrap();
+        let path = chromium::utils::cef_string_from_c(value.as_ptr());
+        unsafe { (*callback).cont.unwrap()(callback, &path, 0) };
+        Ok(())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>();
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.cef_download_item_t")]

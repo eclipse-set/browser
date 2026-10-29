@@ -308,7 +308,7 @@ pub fn cefswt_set_intptr(ptr: *mut ::std::os::raw::c_int, value: c_int) {
 #[no_mangle]
 #[allow(clippy::not_unsafe_ptr_arg_deref)]
 pub extern "C" fn cefswt_cstring_to_java(
-    _env: jni::JNIEnv,
+    mut _env: jni::EnvUnowned,
     _class: jni::objects::JClass,
     string: *const c_char,
 ) -> jni::sys::jstring {
@@ -316,9 +316,10 @@ pub extern "C" fn cefswt_cstring_to_java(
         return std::ptr::null_mut();
     }
     let string = unsafe { CStr::from_ptr(string) };
-    _env.new_string(string.to_str().unwrap())
-        .unwrap()
-        .into_inner()
+    _env.with_env(|env| -> jni::errors::Result<_> {
+        Ok(env.new_string(string.to_str().unwrap())?.into_raw())
+    })
+    .resolve::<jni::errors::ThrowRuntimeExAndDefault>()
 }
 
 #[jni_wrapper("org.eclipse.set.browser.lib.ChromiumLib")]

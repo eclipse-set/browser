@@ -11,18 +11,26 @@ use chromium_jni_utils::JNICEFCallback;
 use chromium_jni_utils::JNIWrapperType;
 use jni::objects::JClass;
 use jni::objects::JObject;
+use jni::errors::ThrowRuntimeExAndDefault;
 use jni::sys::jlong;
-use jni::JNIEnv;
+use jni::EnvUnowned;
 
 /// Implements a JNI function allocate_[typename] which allocates a type on the heap and returns its
 /// address. Must be freed manually (via jni_deallocate)!
 macro_rules! jni_allocate {
     ($name:tt, $type:ty) => {
         #[jni_name($name, $type)]
-        pub extern "C" fn allocate(env: JNIEnv, _class: JClass, object: JObject) -> jlong {
-            let object: JNIWrapperType<$type> =
-                JNICEFCallback::jni_allocate(env, env.new_global_ref(object).unwrap());
-            return Box::into_raw(Box::new(object)) as jlong;
+        pub extern "C" fn allocate(
+            mut env: EnvUnowned,
+            _class: JClass,
+            object: JObject,
+        ) -> jlong {
+            env.with_env(|env| -> jni::errors::Result<_> {
+                let object = env.new_global_ref(&object)?;
+                let object: JNIWrapperType<$type> = JNICEFCallback::jni_allocate(env, object);
+                Ok(Box::into_raw(Box::new(object)) as jlong)
+            })
+            .resolve::<ThrowRuntimeExAndDefault>()
         }
     };
 }
@@ -32,7 +40,7 @@ macro_rules! jni_deallocate {
     ($name:tt, $type:ty) => {
         #[jni_name($name, $type)]
         pub extern "C" fn deallocate(
-            _env: JNIEnv,
+            _env: EnvUnowned,
             _class: JClass,
             object: *mut chromium::cef::_cef_display_handler_t,
         ) {

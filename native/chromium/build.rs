@@ -203,9 +203,9 @@ fn generator(cef_path: std::path::Display) -> bindgen::Builder {
         .raw_line("use chromium_jni_macro::JNICEFCallback;")
         .raw_line("use chromium_jni_utils::JNICEFCallback;")
         .raw_line("use chromium_jni_utils::JNIWrapperType;")
-        .raw_line("use jni::JNIEnv;")
+        .raw_line("use jni::Env;")
         .raw_line("use crate::ToJava;")
-        .raw_line("use jni::objects::GlobalRef;")
+        .raw_line("use jni::objects::Global;")
         .raw_line("use jni::objects::JObject;")
         .raw_line("use chromium_jni_utils::jni_unwrap;")
 }
