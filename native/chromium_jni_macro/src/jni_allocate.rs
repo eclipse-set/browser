@@ -51,12 +51,12 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
 
     let modified = quote! {
         impl JNICEFCallback for #name {
-            fn jni_allocate(env: JNIEnv, object: GlobalRef) -> chromium_jni_utils::JNIWrapperType<#name> {
-                let class = env.get_object_class(object.as_obj()).unwrap();
+            fn jni_allocate(env: &mut Env, object: Global<JObject<'static>>, ) -> chromium_jni_utils::JNIWrapperType<#name> {
+                let class = env.get_object_class(object.as_ref()).unwrap();
                 
                 #(#jni_callbacks)*
 
-                return chromium_jni_utils::JNIWrapperType {
+                chromium_jni_utils::JNIWrapperType {
                     value: #name {
                         base: _cef_base_ref_counted_t {
                             size: std::mem::size_of::<#name>(),
@@ -69,7 +69,7 @@ pub fn jni_allocate(tokens: TokenStream) -> TokenStream {
                     },
                     this: object,
                     jvm: env.get_java_vm().unwrap()
-                };
+                }
             }
         }
     };
@@ -91,11 +91,15 @@ fn build_initialization(
         let func_ident = syn::Ident::new(&format!("jni_{field_ident}"), Span::call_site());
         let signature = jni_signature(field);
         
-        quote! { #field_ident: match env.get_method_id(class, stringify!(#field_ident), #signature) {
+        quote! { #field_ident: match env.get_method_id(
+                &class,
+                jni::strings::JNIString::new(stringify!(#field_ident)),
+                jni::jni_sig!(#signature),
+            ) {
                 Err(e) => {
                     // Attempting to get the method id of a method that does not exists results 
                     // in a NoSuchMethodException. As we do not want to throw this, clear the exception 
-                    env.exception_clear().unwrap();
+                    env.exception_clear();
                     None
                 },
                 Ok(_) => Some(#func_ident)
@@ -130,6 +134,7 @@ fn build_jni_callback(
             None => quote! {},
             Some(t) => quote!{ -> #t }
         };
+        let has_result = result.is_some();
 
         let argnames = args.iter().map(|arg| {
             match &arg.name {
@@ -139,8 +144,15 @@ fn build_jni_callback(
         });
 
         let retline = match result {
-            None => quote! {},
-            Some(_) => quote! { return chromium_jni_utils::FromJavaValue::from_java_value(env, result); }
+            None => quote! { result.map(|_| ()) },
+            Some(_) => quote! {
+                result.map(|result| chromium_jni_utils::FromJavaValue::from_java_value(env, result))
+            },
+        };
+        let return_result = if has_result {
+            quote! { result }
+        } else {
+            quote! {}
         };
         
         let func_ident = syn::Ident::new(&format!("jni_{field_ident}"), Span::call_site());
@@ -150,10 +162,17 @@ fn build_jni_callback(
             /// C-Callback which calls the Java function via JNI
             unsafe extern "C" fn #func_ident(#args) #result_tag {
                 let wrapper = jni_unwrap(self_);
-                let guard = (*wrapper).jvm.attach_current_thread().unwrap();
-                let env: JNIEnv = *guard;
-                let result = env.call_method((*wrapper).this.as_obj(), stringify!(#field_ident), #signature, &[#(#argnames, )*]).expect(stringify!(#func_ident));
-                #retline
+                let result = (*wrapper).jvm.attach_current_thread(|env| {
+                    let args = [#(#argnames, )*];
+                    let result = env.call_method(
+                        (*wrapper).this.as_ref(),
+                        jni::strings::JNIString::new(stringify!(#field_ident)),
+                        jni::jni_sig!(#signature),
+                        &args,
+                    );
+                    #retline
+                }).expect(stringify!(#func_ident));
+                #return_result
             };
         }
     });

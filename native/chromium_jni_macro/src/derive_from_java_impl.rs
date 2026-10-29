@@ -38,7 +38,7 @@ pub fn derive_from_java_impl(tokens: TokenStream) -> TokenStream {
 
     let modified = quote! {
         impl FromJava for #name {
-            fn from_java(env: JNIEnv, object: JObject) -> #name {
+            fn from_java(env: &mut Env, object: JObject) -> #name {
                 return #name {
                     #(#query_parts, )*
                 };
@@ -54,7 +54,7 @@ fn build_initialization(
 ) -> impl Iterator<Item = proc_macro2::TokenStream> + '_ {
     let fields = fields.iter().map(move |field| {
         let field_ident = field.ident.as_ref().unwrap();
-        quote! { #field_ident: FromJavaMember::from_java_member(env, object, stringify!(#field_ident)) }
+        quote! { #field_ident: FromJavaMember::from_java_member(env, &object, stringify!(#field_ident)) }
     });
     fields
 }

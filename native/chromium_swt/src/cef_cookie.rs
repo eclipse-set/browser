@@ -7,36 +7,37 @@
  * http://www.eclipse.org/legal/epl-v20.html
  */
 use chromium_jni_macro::jni_wrapper;
+use jni::errors::ThrowRuntimeExAndDefault;
 use jni::objects::JClass;
 use jni::sys::jstring;
-use jni::JNIEnv;
+use jni::EnvUnowned;
 use std::ffi::CStr;
 use std::os::raw::{c_char, c_int};
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_cefswt_1cookie_1visitor_1t_cefswt_1cookie_1value(
-    env: JNIEnv,
+    mut env: EnvUnowned,
     _class: JClass,
     cookie: *mut chromium::cef::_cef_cookie_t,
 ) -> jstring {
     let value = unsafe { CStr::from_ptr(cefswt_cookie_value(cookie)) };
-    env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner()
+    env.with_env(|env| -> jni::errors::Result<_> {
+        Ok(env.new_string(value.to_str().unwrap())?.into_raw())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 #[no_mangle]
 pub extern "C" fn Java_org_eclipse_set_browser_lib_cefswt_1cookie_1visitor_1t_cefswt_1cookie_1to_1java(
-    env: JNIEnv,
+    mut env: EnvUnowned,
     _class: JClass,
     cookie: *mut chromium::cef::_cef_cookie_t,
 ) -> jstring {
     let value = unsafe { CStr::from_ptr(cefswt_cookie_to_java(cookie)) };
-    env
-        .new_string(value.to_str().unwrap())
-        .unwrap()
-        .into_inner()
+    env.with_env(|env| -> jni::errors::Result<_> {
+        Ok(env.new_string(value.to_str().unwrap())?.into_raw())
+    })
+    .resolve::<ThrowRuntimeExAndDefault>()
 }
 
 fn cefswt_cookie_to_java(cookie: *mut chromium::cef::_cef_cookie_t) -> *mut c_char {

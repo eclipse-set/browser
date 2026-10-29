@@ -56,11 +56,13 @@ pub fn jni_wrap_attr_impl(attr: TokenStream, item: TokenStream) -> TokenStream {
     );
     let q = quote! {
         #[no_mangle]
-        pub extern fn #fname(_env: jni::JNIEnv, _class: jni::objects::JClass, #(#func_args, )*) #ret_expr {
-            #(#param_prepare; )*
-            #call_expr
-            #(#param_cleanup; )*
-            #return_expr
+        pub extern fn #fname(mut _env: jni::EnvUnowned, _class: jni::objects::JClass, #(#func_args, )*) #ret_expr {
+            _env.with_env(|_env| -> jni::errors::Result<_> {
+                #(#param_prepare; )*
+                #call_expr
+                #(#param_cleanup; )*
+                #return_expr
+            }).resolve::<jni::errors::ThrowRuntimeExAndDefault>()
         }
 
         #original_function
@@ -88,7 +90,12 @@ fn setup_argument(
     };
     let arg = Ident::new(&format!("arg{index}"), Span::call_site());
     let param = Ident::new(&format!("param{index}"), Span::call_site());
-    let (arg_type, prepare, cleanup) = handle_arg(&arg, &param, ty);
+    let (arg_type, prepare, cleanup) = handle_arg(&arg, ty);
+    let call_arg = if quote! { #ty }.to_string() == "* const c_char" {
+        quote! { #param.as_ptr() }
+    } else {
+        quote! { #param }
+    };
 
     (
         // JNI Function argument: arg[index]: type
@@ -96,7 +103,7 @@ fn setup_argument(
         // Preparation statement: let param[index] = arg[index] + conversion
         quote! { let #param = #prepare },
         // Call expression
-        quote! { #param },
+        call_arg,
         // Cleanup statement as required by the preparation statement
         cleanup,
     )
@@ -106,24 +113,24 @@ fn setup_argument(
 /// result is (resultType, mapping)
 fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
     match retn {
-        None => (quote! {}, quote! {}),
+        None => (quote! {}, quote! { Ok(()) }),
         Some(t) => match t.as_str() {
             "String" => (
                 quote! { -> jni::sys::jstring },
-                quote! { return _env.new_string(result).unwrap().into_inner(); },
+                quote! { Ok(_env.new_string(result)?.into_raw()) },
             ),
             "CStr" => (
                 quote! { -> jni::sys::jstring },
-                quote! { return _env.new_string(result.to_str().unwrap()).unwrap().into_inner(); },
+                quote! { Ok(_env.new_string(result.to_str().unwrap())?.into_raw()) },
             ),
             "* mut c_char" | "* const c_char" => (
                 quote! { -> jni::sys::jstring },
                 quote! {
                     if result.is_null() {
-                        return std::ptr::null_mut();
+                        return Ok(std::ptr::null_mut());
                     }
                     let result = unsafe { CStr::from_ptr(result) };
-                    return _env.new_string(result.to_str().unwrap()).unwrap().into_inner();
+                    Ok(_env.new_string(result.to_str().unwrap())?.into_raw())
                 },
             ),
             "cef :: cef_string_userfree_t" => (
@@ -131,19 +138,19 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
                 quote! {
                     let str: String = chromium::utils::str_from_cef(result);
                     unsafe { cef::cef_string_userfree_utf16_free(result) };
-                    return _env.new_string(str).unwrap().into_inner();
+                    Ok(_env.new_string(str)?.into_raw())
                 },
             ),
             "c_int" | "i32" => (
                 quote! { -> jni::sys::jint },
-                quote! { return result as jni::sys::jint; },
+                quote! { Ok(result as jni::sys::jint) },
             ),
             _ => {
                 // Catch all for pointers
                 if t.starts_with("* mut ") || t.starts_with("* const ") {
                     (
                         quote! { -> jni::sys::jlong },
-                        quote! { return result as jni::sys::jlong },
+                        quote! { Ok(result as jni::sys::jlong) },
                     )
                 } else {
                     panic!("Invalid return type {retn:?}");
@@ -157,7 +164,6 @@ fn handle_return(retn: &Option<String>) -> (proc_macro2::TokenStream, proc_macro
 /// result is (paramType, mapping, cleanup)
 fn handle_arg(
     arg: &Ident,
-    param: &Ident,
     ty: &Type,
 ) -> (
     proc_macro2::TokenStream,
@@ -183,24 +189,39 @@ fn handle_arg(
         ),
         "bool" => (
             quote! { jni::sys::jboolean },
-            quote! { #arg != 0 },
+            quote! { #arg },
             quote! {},
         ),
         "* const c_char" => (
             quote! { jni::objects::JString },
-            quote! { _env.get_string_utf_chars(#arg).unwrap_or(std::ptr::null_mut()) },
-            quote! { if !#param.is_null() {
-                _env.release_string_utf_chars(#arg, #param).unwrap()
-            }},
+            quote! { std::ffi::CString::new(#arg.try_to_string(_env)?).unwrap() },
+            quote! {},
         ),
         "Option < Vec < u8 > >" => (
             quote! { jni::sys::jbyteArray },
-            quote! { _env.convert_byte_array(#arg).map(|arr| Some(arr)).unwrap_or(None) },
+            quote! {
+                (|| -> jni::errors::Result<Vec<u8>> {
+                    let array = unsafe { jni::objects::JByteArray::from_raw(_env, #arg) };
+                    let length = array.len(_env)?;
+                    let mut bytes = vec![0i8; length];
+                    array.get_region(_env, 0, &mut bytes)?;
+                    Ok(bytes.into_iter().map(|byte| byte as u8).collect())
+                })()
+                .ok()
+            },
             quote! {},
         ),
         "Vec < u8 >" => (
             quote! { jni::sys::jbyteArray },
-            quote! { _env.convert_byte_array(#arg).unwrap() },
+            quote! {
+                {
+                    let array = unsafe { jni::objects::JByteArray::from_raw(_env, #arg) };
+                    let length = array.len(_env)?;
+                    let mut bytes = vec![0i8; length];
+                    array.get_region(_env, 0, &mut bytes)?;
+                    bytes.into_iter().map(|byte| byte as u8).collect::<Vec<_>>()
+                }
+            },
             quote! {},
         ),
         _ => {
