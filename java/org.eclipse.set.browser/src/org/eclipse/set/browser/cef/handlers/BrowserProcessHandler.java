@@ -37,11 +37,12 @@ public class BrowserProcessHandler {
 
 	@SuppressWarnings({ "static-method", "unused" }) // Called from JNI
 	private void on_schedule_message_pump_work(
-			final long pbrowserProcessHandler, final int delay) {
+			final long pbrowserProcessHandler, final long delay) {
 		if (ChromiumStatic.browsers.get() <= 0
 				|| ChromiumStatic.disposingAny > 0) {
 			return;
 		}
-		ChromiumStatic.getMessageLoop().scheduleMessagePumpWork(delay);
+		final int delayValue = (int) Math.max(0, Math.min(delay, Integer.MAX_VALUE));
+		ChromiumStatic.getMessageLoop().scheduleMessagePumpWork(delayValue);
 	}
 }
