@@ -92,7 +92,11 @@ fn setup_argument(
     let param = Ident::new(&format!("param{index}"), Span::call_site());
     let (arg_type, prepare, cleanup) = handle_arg(&arg, ty);
     let call_arg = if quote! { #ty }.to_string() == "* const c_char" {
-        quote! { #param.as_ptr() }
+        quote! { 
+            #param
+                .as_ref()
+                .map_or(std::ptr::null(), |value| value.as_ptr())
+         }
     } else {
         quote! { #param }
     };
@@ -194,7 +198,13 @@ fn handle_arg(
         ),
         "* const c_char" => (
             quote! { jni::objects::JString },
-            quote! { std::ffi::CString::new(#arg.try_to_string(_env)?).unwrap() },
+            quote! { 
+                if jni::refs::Reference::is_null(&#arg) {
+                    None
+                } else {
+                    Some(std::ffi::CString::new(#arg.try_to_string(_env)?).unwrap())
+                }
+             },
             quote! {},
         ),
         "Option < Vec < u8 > >" => (
