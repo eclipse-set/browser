@@ -17,7 +17,6 @@
 	<modules>
 		<module>org.eclipse.set.browser</module>
 		<module>org.eclipse.set.browser.lib</module>
-		<module>org.eclipse.set.browser.cef.win32</module>
 		<module>org.eclipse.set.browser.releng.target</module>
 	</modules>
 
@@ -137,7 +136,7 @@
 		<repository>
 			<id>set-github</id>
 			<name>GitHub Packages</name>
-			<url>https://maven.pkg.github.com/eclipse-set/browser</url>
+			<url>https://maven.pkg.github.com/truongquangsb/browser</url>
 		</repository>
 	</distributionManagement>
 

@@ -31,61 +31,78 @@ import org.osgi.framework.FrameworkUtil;
 public class CEFResource {
 	private static boolean hasBeenExtracted = false;
 
-	private static Path getTempPathForExtraction() {
-		return Paths.get(System.getenv("APPDATA"), "Eclipse SET", "cef", "dev", "extracted").toAbsolutePath();
-	}
-
 	/**
 	 * @return the path to the extracted CEF files
 	 */
 	public static Path getPath() {
-		final Bundle bundle = FrameworkUtil.getBundle(CEFResource.class.getClassLoader()).orElseThrow();
-		Path bundleLocation = FileLocator.getBundleFileLocation(bundle).orElseThrow().toPath().toAbsolutePath();
-		if (Files.isDirectory(bundleLocation))
-			return bundleLocation.resolve("cef");
+		final Bundle bundle = FrameworkUtil
+				.getBundle(CEFResource.class.getClassLoader())
+				.orElseThrow();
+		final Path bundleLocation = FileLocator.getBundleFileLocation(bundle)
+				.orElseThrow()
+				.toPath()
+				.toAbsolutePath();
+		if (Files.isDirectory(bundleLocation)) {
+			return bundleLocation.resolve("res");
+		}
 
-		// Due to a M2E limitation, Eclipse-BundleShape is not respected when working
-		// with a maven dependency from within Eclipse (Tycho handles this correctly for
-		// production builds). For development, instead extract the jar to a temporary
+		// Due to a M2E limitation, Eclipse-BundleShape is not respected when
+		// working
+		// with a maven dependency from within Eclipse (Tycho handles this
+		// correctly for
+		// production builds). For development, instead extract the jar to a
+		// temporary
 		// path, once per execution
-		Path tempPath = getTempPathForExtraction();
+		final Path tempPath = getTempPathForExtraction();
 
 		if (hasBeenExtracted) {
-			return tempPath.resolve("cef");
+			return tempPath.resolve("res");
 		}
 		hasBeenExtracted = true;
 		try (Stream<Path> files = Files.walk(tempPath)) {
-			files.sorted(Comparator.reverseOrder()).map(Path::toFile).forEach(File::delete);
-		} catch (IOException e) {
+			files.sorted(Comparator.reverseOrder())
+					.map(Path::toFile)
+					.forEach(File::delete);
+		} catch (final IOException e) {
 			// ignore
 		}
 		try (JarFile jar = new JarFile(bundleLocation.toString())) {
 			// Create directories
 			Enumeration<JarEntry> entries = jar.entries();
 			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
+				final JarEntry entry = entries.nextElement();
 				if (entry.isDirectory()) {
-					new File(tempPath.resolve(entry.getName()).toString()).mkdirs();
+					new File(tempPath.resolve(entry.getName()).toString())
+							.mkdirs();
 				}
 			}
 
 			// Write files
 			entries = jar.entries();
 			while (entries.hasMoreElements()) {
-				JarEntry entry = entries.nextElement();
+				final JarEntry entry = entries.nextElement();
 				if (!entry.isDirectory()) {
-					File file = new File(tempPath.resolve(entry.getName()).toString());
-					try (InputStream is = jar.getInputStream(entry); FileOutputStream os = new FileOutputStream(file)) {
+					final File file = new File(
+							tempPath.resolve(entry.getName()).toString());
+					try (InputStream is = jar.getInputStream(entry);
+							FileOutputStream os = new FileOutputStream(file)) {
 						is.transferTo(os);
 					}
 
 				}
 			}
 
-			return tempPath.resolve("cef");
-		} catch (IOException e) {
+			return tempPath.resolve("res");
+		} catch (final IOException e) {
 			// ignore
 		}
 		return null;
+	}
+
+	private static Path getTempPathForExtraction() {
+		return Paths
+				.get(System.getenv("APPDATA"), "Eclipse SET", "cef", "dev",
+						"extracted")
+				.toAbsolutePath();
 	}
 }

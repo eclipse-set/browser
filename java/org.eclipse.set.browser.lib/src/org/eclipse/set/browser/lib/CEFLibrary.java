@@ -17,6 +17,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.stream.Stream;
+
 import org.apache.commons.io.FileUtils;
 import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.set.browser.cef.win32.CEFResource;
@@ -28,36 +29,16 @@ import org.eclipse.set.browser.cef.win32.CEFResource;
  */
 public class CEFLibrary {
 	private static final String CHROME_ELF = "chrome_elf";
-	private static final String CHROMIUM_SUBPROCESS = "chromium_subp.exe";
+	private static final String CHROMIUM_SUBPROCESS = "res/chromium_subp.exe";
 	private static final String JNI_LIB = "chromium_jni";
 	private static final String LIBCEF = "libcef";
 
-	/**
-	 * @return the path to the Chromium subprocess binary
-	 */
-	public static String getSubprocessExePath() {
-		final URI uri = getResourceFileURI(CHROMIUM_SUBPROCESS);
-		return Paths.get(uri).toAbsolutePath().toString();
-	}
-
-	/**
-	 * @return a path for temporary files for the browser
-	 */
-	public static String getTempPath() {
-		return getTempPathBase().resolve(Long.toString(ProcessHandle.current().pid())).toString();
-	}
-	
-	public static Path getTempPathBase() {
-		return Paths.get(System.getenv("APPDATA"), "Eclipse SET", "cef_temp")
-				.toAbsolutePath();
-	}
-	
 	public static void cleanTempPath() throws IOException {
-		Path path = getTempPathBase();
+		final Path path = getTempPathBase();
 		if (!Files.exists(path)) {
 			return;
 		}
- 
+
 		try (final Stream<Path> files = Files.list(path)) {
 			files.filter(p -> {
 				// Only consider directories
@@ -71,8 +52,9 @@ public class CEFLibrary {
 					// this acceptable, as over time all directories will be
 					// cleaned up
 					final long pid = Long.parseLong(p.getFileName().toString());
-					return ProcessHandle.current().pid() == pid || ProcessHandle.of(pid).isEmpty();
-				} catch (NumberFormatException e) {
+					return ProcessHandle.current().pid() == pid
+							|| ProcessHandle.of(pid).isEmpty();
+				} catch (final NumberFormatException e) {
 					return true;
 				}
 			}).forEach(p -> {
@@ -83,6 +65,28 @@ public class CEFLibrary {
 				}
 			});
 		}
+	}
+
+	/**
+	 * @return the path to the Chromium subprocess binary
+	 */
+	public static String getSubprocessExePath() {
+		final URI uri = getResourceFileURI(CHROMIUM_SUBPROCESS);
+		return Paths.get(uri).toAbsolutePath().toString();
+	}
+
+	/**
+	 * @return a path for temporary files for the browser
+	 */
+	public static String getTempPath() {
+		return getTempPathBase()
+				.resolve(Long.toString(ProcessHandle.current().pid()))
+				.toString();
+	}
+
+	public static Path getTempPathBase() {
+		return Paths.get(System.getenv("APPDATA"), "Eclipse SET", "cef_temp")
+				.toAbsolutePath();
 	}
 
 	/**
